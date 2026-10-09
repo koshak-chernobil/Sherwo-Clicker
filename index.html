@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Шерво Кликер v2.3</title>
+    <title>Шерво Кликер v2.4</title>
     <style>
         @font-face {
             font-family: 'Minecraftia';
@@ -55,6 +55,8 @@
         .right-btn-3 { position: fixed; right: 20px; bottom: 140px; z-index: 10; }
         .right-btn-4 { position: fixed; right: 20px; bottom: 200px; z-index: 10; }
         .right-btn-5 { position: fixed; right: 20px; bottom: 260px; z-index: 10; }
+        .right-btn-6 { position: fixed; right: 20px; bottom: 320px; z-index: 10; }
+        .right-btn-7 { position: fixed; right: 20px; bottom: 380px; z-index: 10; }
         
         .menu-btn {
             background: #4a4d54; border: 3px solid #707480; outline: 2px solid #000;
@@ -64,6 +66,7 @@
         }
         .menu-btn:hover { background: #5c6069; }
         .menu-btn:active { transform: translateY(3px); box-shadow: 0 3px 0 #1e1f22; }
+        .menu-btn.locked { background: #222426; border-color: #33353b; color: #555; cursor: not-allowed; }
         
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -156,7 +159,7 @@
         .tree-container:active { cursor: grabbing; }
         .tree-inner {
             position: absolute; top: 0; left: 0;
-            width: 2000px; height: 2000px;
+            width: 3000px; height: 3000px;
             transform-origin: 0 0;
             background-image: 
                 linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
@@ -229,7 +232,7 @@
             pointer-events: none; z-index: 5;
         }
         .player-nicks {
-            position: fixed; right: 20px; bottom: 320px; z-index: 10;
+            position: fixed; right: 20px; bottom: 440px; z-index: 10;
             display: flex; flex-direction: column; gap: 5px; text-align: right;
         }
         .player-nicks span { color: #aaaaaa; font-size: 0.7rem; text-shadow: 1px 1px 0px #000; }
@@ -268,6 +271,30 @@
         }
         .mine-btn-big:hover { background: #6a2d2d; }
         .mine-btn-big.disabled { background: #222426; border-color: #4e5058; color: #4e5058; cursor: not-allowed; }
+
+        /* Новая мини-игра — Ловля грибов */
+        .catch-area {
+            position: relative; width: 100%; height: 400px;
+            background: #1a1c1e; border: 3px solid #000;
+            overflow: hidden; margin-top: 15px;
+        }
+        .catch-mushroom {
+            position: absolute; font-size: 2rem; cursor: pointer;
+            user-select: none; transition: transform 0.1s;
+        }
+        .catch-mushroom:hover { transform: scale(1.2); }
+
+        /* Настройки */
+        .settings-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #4e5058; color: #fff; font-size: 0.8rem; }
+        .settings-row:last-child { border-bottom: none; }
+        .settings-row input[type="range"] { width: 200px; }
+        .settings-row input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; }
+        .settings-btn {
+            background: #4a1d1d; border: 2px solid #ff5555; color: #ff5555;
+            font-family: 'Minecraftia', sans-serif; font-size: 0.7rem;
+            padding: 6px 12px; cursor: pointer;
+        }
+        .settings-btn:hover { background: #6a2d2d; }
     </style>
 </head>
 <body>
@@ -279,11 +306,13 @@
 
     <button class="menu-btn top-left-btn" id="openQuestsBtn">ЗАДАНИЯ</button>
     <button class="menu-btn bottom-left-btn" id="openShopBtn">МАГАЗИН</button>
-    <button class="menu-btn right-btn-5" id="openAchievementsBtn" style="background:#4a4d54; border-color:#ffff55; color:#ffff55;">ДОСТИЖЕНИЯ</button>
-    <button class="menu-btn right-btn-4" id="openSkillTreeBtn" style="background:#4a4d54; border-color:#ff55ff; color:#ff55ff;">НАВЫКИ</button>
-    <button class="menu-btn right-btn-3" id="openPrestigeBtn" style="background:#4a1d4a; border-color:#ff55ff; color:#ff55ff;">ПЕРЕРОЖДЕНИЕ</button>
-    <button class="menu-btn right-btn-2" id="openMineBtn" style="background:#4a4d1d; border-color:#ffaa00; color:#ffaa00;">ШАХТА</button>
-    <button class="menu-btn right-btn" id="openUpgradeTreeBtn" style="background:#1d4a4a; border-color:#55ffff; color:#55ffff;">УЛУЧШЕНИЯ</button>
+    <button class="menu-btn right-btn-7" id="openAchievementsBtn" style="background:#4a4d54; border-color:#ffff55; color:#ffff55;">ДОСТИЖЕНИЯ</button>
+    <button class="menu-btn right-btn-6" id="openSkillTreeBtn" style="background:#4a4d54; border-color:#ff55ff; color:#ff55ff;">НАВЫКИ</button>
+    <button class="menu-btn right-btn-5" id="openPrestigeBtn" style="background:#4a1d4a; border-color:#ff55ff; color:#ff55ff;">ПЕРЕРОЖДЕНИЕ</button>
+    <button class="menu-btn right-btn-4 locked" id="openMineBtn" style="background:#4a4d1d; border-color:#ffaa00; color:#ffaa00;">ШАХТА 🔒</button>
+    <button class="menu-btn right-btn-3 locked" id="openUpgradeTreeBtn" style="background:#1d4a4a; border-color:#55ffff; color:#55ffff;">УЛУЧШЕНИЯ 🔒</button>
+    <button class="menu-btn right-btn-2 locked" id="openCatchBtn" style="background:#1d4a1d; border-color:#55ff55; color:#55ff55;">ЛОВЛЯ ГРИБОВ 🔒</button>
+    <button class="menu-btn right-btn" id="openSettingsBtn" style="background:#4a4d54; border-color:#aaa; color:#aaa;">НАСТРОЙКИ</button>
 
     <div class="player-nicks">
         <span>_MASHK273_</span>
@@ -303,6 +332,7 @@
         </div>
     </div>
 
+    <!-- Магазин -->
     <div class="modal-overlay" id="shopModal">
         <div class="window-box">
             <button class="close-btn" id="closeShopBtn">X</button>
@@ -376,6 +406,7 @@
         </div>
     </div>
 
+    <!-- Дерево Навыков -->
     <div class="modal-overlay" id="skillTreeModal">
         <div class="window-box">
             <button class="close-btn" id="closeSkillTreeBtn">X</button>
@@ -385,6 +416,7 @@
         </div>
     </div>
 
+    <!-- Дерево Улучшений -->
     <div class="modal-overlay" id="upgradeTreeModal">
         <div class="window-box">
             <button class="close-btn" id="closeUpgradeTreeBtn">X</button>
@@ -397,6 +429,7 @@
         </div>
     </div>
 
+    <!-- Достижения -->
     <div class="modal-overlay" id="achievementsModal">
         <div class="window-box">
             <button class="close-btn" id="closeAchievementsBtn">X</button>
@@ -405,6 +438,7 @@
         </div>
     </div>
 
+    <!-- Квесты -->
     <div class="modal-overlay" id="questsModal">
         <div class="window-box">
             <button class="close-btn" id="closeQuestsBtn">X</button>
@@ -418,20 +452,23 @@
         </div>
     </div>
 
+    <!-- Перерождение -->
     <div class="modal-overlay" id="prestigeModal">
         <div class="window-box">
             <button class="close-btn" id="closePrestigeBtn">X</button>
             <div class="shop-title" style="color:#ff55ff;">ПЕРЕРОЖДЕНИЕ</div>
             <div class="prestige-info">
-                Для перерождения нужно накопить <span class="highlight">1 000 000</span> Чачи.<br>
+                Для перерождения нужно накопить <span class="highlight" id="prestigeCostDisplay">100 000</span> Чачи.<br>
                 Ваш текущий запас: <span class="highlight" id="prestigeCurrentScore">0</span> Чачи.<br>
                 При перерождении вы получите <span class="highlight">1 очко престижа</span>.<br>
-                Все улучшения, артефакты и уровень сбросятся, но престиж и навыки останутся.
+                Все улучшения, артефакты и уровень сбросятся, но престиж и навыки останутся.<br>
+                <span style="color:#ffaa00;">Следующий порог: <span id="prestigeNextDisplay">150 000</span> Чачи.</span>
             </div>
             <button class="prestige-btn-big disabled" id="doPrestigeBtn">ПЕРЕРОДИТЬСЯ</button>
         </div>
     </div>
 
+    <!-- Шахта -->
     <div class="modal-overlay" id="mineModal">
         <div class="window-box">
             <button class="close-btn" id="closeMineBtn">X</button>
@@ -447,6 +484,56 @@
         </div>
     </div>
 
+    <!-- Ловля грибов -->
+    <div class="modal-overlay" id="catchModal">
+        <div class="window-box">
+            <button class="close-btn" id="closeCatchBtn">X</button>
+            <div class="shop-title" style="color:#55ff55;">ЛОВЛЯ ГРИБОВ</div>
+            <div class="mine-info">
+                <span>Поймано: <span id="catchScore">0</span></span>
+                <span>Время: <span id="catchTimer">20</span>с</span>
+            </div>
+            <div class="catch-area" id="catchArea"></div>
+            <button class="mine-btn-big" id="startCatchBtn" style="background:#1d4a1d; border-color:#55ff55; color:#55ff55;">НАЧАТЬ</button>
+        </div>
+    </div>
+
+    <!-- Настройки -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="window-box">
+            <button class="close-btn" id="closeSettingsBtn">X</button>
+            <div class="shop-title" style="color:#aaa;">НАСТРОЙКИ</div>
+            <div class="settings-row">
+                <span>Громкость эффектов</span>
+                <input type="range" id="volumeSfx" min="0" max="100" value="50">
+            </div>
+            <div class="settings-row">
+                <span>Громкость музыки</span>
+                <input type="range" id="volumeMusic" min="0" max="100" value="50">
+            </div>
+            <div class="settings-row">
+                <span>Показывать частицы</span>
+                <input type="checkbox" id="particlesToggle" checked>
+            </div>
+            <div class="settings-row">
+                <span>Автоклик (5+ перерождений)</span>
+                <input type="checkbox" id="autoClickToggle" disabled>
+            </div>
+            <div class="settings-row">
+                <span>Фоновая музыка (YouTube)</span>
+                <button class="settings-btn" id="musicToggleBtn">ВКЛЮЧИТЬ</button>
+            </div>
+            <div class="settings-row">
+                <span>Сбросить сохранение</span>
+                <button class="settings-btn" id="resetSaveBtn">СБРОСИТЬ</button>
+            </div>
+            <div id="musicContainer" style="margin-top:15px; display:none;">
+                <iframe id="musicIframe" width="100%" height="80" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Уведомления -->
     <div class="achievement-toast" id="achievementToast">
         <div class="toast-icon" id="toastIcon">🏆</div>
         <div class="toast-info">
@@ -467,6 +554,23 @@
         // === ЗАЩИТА ===
         (function() { console.log = function() {}; window._x = null; })();
 
+        // === НАСТРОЙКИ ===
+        let settings = {
+            volumeSfx: 0.5,
+            volumeMusic: 0.5,
+            particles: true,
+            autoClick: false
+        };
+        function loadSettings() {
+            let s = getCookie('settings');
+            if (s) { try { settings = { ...settings, ...JSON.parse(s) }; } catch(e) {} }
+            document.getElementById('volumeSfx').value = settings.volumeSfx * 100;
+            document.getElementById('volumeMusic').value = settings.volumeMusic * 100;
+            document.getElementById('particlesToggle').checked = settings.particles;
+            document.getElementById('autoClickToggle').checked = settings.autoClick;
+        }
+        function saveSettings() { setCookie('settings', JSON.stringify(settings)); }
+
         // === ЗВУКИ ===
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
@@ -474,23 +578,24 @@
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.connect(gain); gain.connect(audioCtx.destination);
+            let vol = settings.volumeSfx;
             if (type === 'click') {
                 osc.type = 'square'; osc.frequency.setValueAtTime(800, audioCtx.currentTime);
                 osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.05);
-                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.05 * vol, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.05);
             } else if (type === 'buy') {
                 osc.type = 'sine'; osc.frequency.setValueAtTime(600, audioCtx.currentTime);
                 osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1 * vol, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.15);
             } else if (type === 'levelup') {
                 osc.type = 'sine'; osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
                 osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
                 osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
-                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.15 * vol, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.4);
             } else if (type === 'achievement') {
@@ -498,20 +603,20 @@
                 osc.frequency.setValueAtTime(554.37, audioCtx.currentTime + 0.1);
                 osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.2);
                 osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.3);
-                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.2 * vol, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.5);
             } else if (type === 'quest') {
                 osc.type = 'sine'; osc.frequency.setValueAtTime(660, audioCtx.currentTime);
                 osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.08);
                 osc.frequency.setValueAtTime(1100, audioCtx.currentTime + 0.16);
-                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.15 * vol, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.3);
             } else if (type === 'mine') {
                 osc.type = 'sawtooth'; osc.frequency.setValueAtTime(200, audioCtx.currentTime);
                 osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.08 * vol, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.12);
             } else if (type === 'prestige') {
@@ -520,13 +625,13 @@
                 osc.frequency.setValueAtTime(500, audioCtx.currentTime + 0.2);
                 osc.frequency.setValueAtTime(600, audioCtx.currentTime + 0.3);
                 osc.frequency.setValueAtTime(700, audioCtx.currentTime + 0.4);
-                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.2 * vol, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.6);
             } else if (type === 'error') {
                 osc.type = 'square'; osc.frequency.setValueAtTime(200, audioCtx.currentTime);
                 osc.frequency.setValueAtTime(150, audioCtx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1 * vol, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.2);
             }
@@ -541,6 +646,8 @@
         let _acm = 1, _aam = 1;
         let _hac = false, _haa = false, _hac2 = false, _haa2 = false, _haa3 = false;
         let _ms = 0, _mc = 0, _ma = false, _mtl = 0, _msc = 0;
+        let _cc = 0, _ct = 0, _ca = false; // Ловля грибов
+        let _autoClickInterval = null;
 
         let skills = {
             clickMaster: { level: 0, max: 10, cost: 1, name: 'Мастер Клика', icon: '👆', desc: '+10% к клику' },
@@ -549,6 +656,7 @@
             boostMaster: { level: 0, max: 5, cost: 2, name: 'Алхимик', icon: '🧪', desc: '+10 сек к бусту' }
         };
 
+        // === ДЕРЕВО УЛУЧШЕНИЙ (16 узлов) ===
         let upgrades = {
             clickBoost: { level: 0, max: 20, cost: 10, name: 'Сила гриба', icon: '🍄', desc: '+5% к клику', x: 100, y: 100 },
             autoBoost: { level: 0, max: 20, cost: 10, name: 'Грибной конвейер', icon: '⚙️', desc: '+5% к авто', x: 300, y: 100 },
@@ -557,9 +665,19 @@
             mineReward: { level: 0, max: 10, cost: 100, name: 'Щедрость шахты', icon: '💎', desc: '+1 грибочек за клик', x: 300, y: 300 },
             clickBoost2: { level: 0, max: 15, cost: 200, name: 'Мега гриб', icon: '🌟', desc: '+10% к клику', x: 500, y: 300 },
             autoBoost2: { level: 0, max: 15, cost: 200, name: 'Мега конвейер', icon: '🏭', desc: '+10% к авто', x: 700, y: 300 },
-            globalBoost: { level: 0, max: 5, cost: 500, name: 'Грибной бог', icon: '👑', desc: '+25% ко всему', x: 400, y: 500 }
+            globalBoost: { level: 0, max: 5, cost: 500, name: 'Грибной бог', icon: '👑', desc: '+25% ко всему', x: 400, y: 500 },
+            // Новые улучшения
+            catchSpeed: { level: 0, max: 10, cost: 150, name: 'Скорость ловли', icon: '🏃', desc: '+2 сек к ловле', x: 900, y: 100 },
+            catchReward: { level: 0, max: 10, cost: 200, name: 'Щедрость ловли', icon: '🎣', desc: '+1 грибочек за ловлю', x: 900, y: 300 },
+            goldChance: { level: 0, max: 10, cost: 300, name: 'Золотой шанс', icon: '✨', desc: '+2% шанс золотого гриба', x: 1100, y: 100 },
+            prestigeBoost: { level: 0, max: 10, cost: 400, name: 'Сила престижа', icon: '🔄', desc: '+5% к бонусу престижа', x: 1100, y: 300 },
+            clickBoost3: { level: 0, max: 10, cost: 600, name: 'Грибной титан', icon: '💥', desc: '+15% к клику', x: 700, y: 500 },
+            autoBoost3: { level: 0, max: 10, cost: 600, name: 'Грибной гигант', icon: '🦾', desc: '+15% к авто', x: 900, y: 500 },
+            discountBoost2: { level: 0, max: 5, cost: 800, name: 'Мега скидка', icon: '💰', desc: '-5% к ценам', x: 1100, y: 500 },
+            godMode: { level: 0, max: 3, cost: 1500, name: 'Грибной бог+', icon: '🌌', desc: '+50% ко всему', x: 1300, y: 300 }
         };
 
+        // === АЧИВКИ ===
         let achievements = [];
         const achTypes = [
             { type: 'clicks', name: 'Кликер', desc: 'Сделайте {n} кликов', icon: '👆', targets: [1, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000], check: (n) => _tc >= n },
@@ -613,14 +731,19 @@
         });
         achievements = achievements.slice(0, 120);
 
-        const PRESTIGE_COST = 1000000;
+        // === ПРЕСТИЖ С РАСТУЩИМ ПОРОГОМ ===
+        const PRESTIGE_BASE = 100000;
+        const PRESTIGE_MULT = 1.5;
+        function getPrestigeCost() {
+            return Math.floor(PRESTIGE_BASE * Math.pow(PRESTIGE_MULT, _p));
+        }
+
         let activeTab = 'normal';
         let dailyResetTime = 0, weeklyResetTime = 0;
         let dailyQuests = [], weeklyQuests = [], normalQuests = [];
         let minePlays = 0;
 
-        // === БОЛЬШОЙ ПУЛ ЗАДАНИЙ (140 000) ===
-        const QUEST_POOL_SIZE = { normal: 50000, daily: 45000, weekly: 45000 };
+        // === БОЛЬШОЙ ПУЛ ЗАДАНИЙ ===
         const QUEST_TEMPLATES = [
             { name: 'Кликер', desc: 'Сделайте {n} кликов', stat: 'tc' },
             { name: 'Чача', desc: 'Накопите {n} Чачи', stat: 'score' },
@@ -643,7 +766,6 @@
             return arr;
         }
 
-        // === МИГРАЦИЯ ===
         function migrateOldCookies() {
             let migrated = false;
             if (getCookie('score') !== undefined && getCookie('_s') === undefined) { _s = parseFloat(getCookie('score')) || 0; migrated = true; }
@@ -698,6 +820,7 @@
             setCookie('dailyQuests', JSON.stringify(dailyQuests));
             setCookie('weeklyQuests', JSON.stringify(weeklyQuests));
             setCookie('normalQuests', JSON.stringify(normalQuests));
+            saveSettings();
         }
         function loadGame() {
             _s = parseFloat(getCookie('_s')) || 0; _cp = parseInt(getCookie('_cp')) || 1;
@@ -737,6 +860,7 @@
             if (!weeklyResetTime || weeklyResetTime < now) { weeklyQuests = generateQuestSet('weekly', 5); weeklyResetTime = now + 604800000; }
             if (!normalQuests || normalQuests.length === 0) normalQuests = generateQuestSet('normal', 5);
             _nx = _l * 100;
+            loadSettings();
         }
 
         function getPrestigeText(n) {
@@ -769,6 +893,8 @@
         const achievementsModal = document.getElementById('achievementsModal');
         const prestigeModal = document.getElementById('prestigeModal');
         const mineModal = document.getElementById('mineModal');
+        const catchModal = document.getElementById('catchModal');
+        const settingsModal = document.getElementById('settingsModal');
         
         const buyClickBtn = document.getElementById('buyClickBtn');
         const clickCostText = document.getElementById('clickCostText');
@@ -810,6 +936,8 @@
         const questToastName = document.getElementById('questToastName');
         const questToastDesc = document.getElementById('questToastDesc');
         const prestigeCurrentScore = document.getElementById('prestigeCurrentScore');
+        const prestigeCostDisplay = document.getElementById('prestigeCostDisplay');
+        const prestigeNextDisplay = document.getElementById('prestigeNextDisplay');
         const doPrestigeBtn = document.getElementById('doPrestigeBtn');
         
         const mineGrid = document.getElementById('mineGrid');
@@ -817,31 +945,46 @@
         const mineTimerEl = document.getElementById('mineTimer');
         const startMineBtn = document.getElementById('startMineBtn');
 
+        const catchArea = document.getElementById('catchArea');
+        const catchScoreEl = document.getElementById('catchScore');
+        const catchTimerEl = document.getElementById('catchTimer');
+        const startCatchBtn = document.getElementById('startCatchBtn');
+
         // === РАСЧЕТЫ ===
         function getClickPower() {
             let base = _cp * _acm;
             let skillBonus = 1 + (skills.clickMaster.level * 0.1);
-            let upgradeBonus = 1 + (upgrades.clickBoost.level * 0.05);
-            let globalBonus = 1 + (upgrades.globalBoost.level * 0.25);
-            let click2Bonus = 1 + (upgrades.clickBoost2.level * 0.10);
-            return Math.floor(base * skillBonus * upgradeBonus * globalBonus * click2Bonus * (_ba ? 2 : 1) * (_p + 1));
+            let up1 = 1 + (upgrades.clickBoost.level * 0.05);
+            let up2 = 1 + (upgrades.clickBoost2.level * 0.10);
+            let up3 = 1 + (upgrades.clickBoost3.level * 0.15);
+            let global = 1 + (upgrades.globalBoost.level * 0.25);
+            let god = 1 + (upgrades.godMode.level * 0.50);
+            let prestigeBonus = 1 + (_p * (1 + upgrades.prestigeBoost.level * 0.05));
+            return Math.floor(base * skillBonus * up1 * up2 * up3 * global * god * prestigeBonus * (_ba ? 2 : 1));
         }
         function getAutoPower() {
             let base = _ac * _aam;
             let skillBonus = 1 + (skills.autoMaster.level * 0.1);
-            let upgradeBonus = 1 + (upgrades.autoBoost.level * 0.05);
-            let globalBonus = 1 + (upgrades.globalBoost.level * 0.25);
-            let auto2Bonus = 1 + (upgrades.autoBoost2.level * 0.10);
-            return Math.floor(base * skillBonus * upgradeBonus * globalBonus * auto2Bonus * (_ba ? 2 : 1) * (_p + 1));
+            let up1 = 1 + (upgrades.autoBoost.level * 0.05);
+            let up2 = 1 + (upgrades.autoBoost2.level * 0.10);
+            let up3 = 1 + (upgrades.autoBoost3.level * 0.15);
+            let global = 1 + (upgrades.globalBoost.level * 0.25);
+            let god = 1 + (upgrades.godMode.level * 0.50);
+            let prestigeBonus = 1 + (_p * (1 + upgrades.prestigeBoost.level * 0.05));
+            return Math.floor(base * skillBonus * up1 * up2 * up3 * global * god * prestigeBonus * (_ba ? 2 : 1));
         }
         function getDiscount() {
             let skillDiscount = skills.discount.level * 0.05;
-            let upgradeDiscount = upgrades.discountBoost.level * 0.03;
-            return 1 - (skillDiscount + upgradeDiscount);
+            let up1 = upgrades.discountBoost.level * 0.03;
+            let up2 = upgrades.discountBoost2.level * 0.05;
+            return Math.max(0.1, 1 - (skillDiscount + up1 + up2));
         }
         function getBoostDuration() { return 120 + (skills.boostMaster.level * 10); }
         function getMineDuration() { return 30 + (upgrades.mineSpeed.level * 2); }
         function getMineReward() { return 1 + upgrades.mineReward.level; }
+        function getCatchDuration() { return 20 + (upgrades.catchSpeed.level * 2); }
+        function getCatchReward() { return 1 + upgrades.catchReward.level; }
+        function getGoldChance() { return 0.2 + (upgrades.goldChance.level * 0.02); }
 
         function updateUI() {
             let activePower = getClickPower();
@@ -889,12 +1032,24 @@
             buyArtifactAuto3Btn.className = `card-bottom ${_s >= _aac3 && !_haa3 ? 'affordable' : (_haa3 ? 'maxed' : 'disabled')}`;
             buyArtifactAuto3Btn.querySelector('.card-price').textContent = _haa3 ? 'МАКСИМУМ' : `Цена: ${_aac3}`;
 
-            prestigeBtn.style.color = _s >= PRESTIGE_COST ? '#55ff55' : '#ff55ff';
+            let cost = getPrestigeCost();
+            prestigeBtn.style.color = _s >= cost ? '#55ff55' : '#ff55ff';
             if (_l >= (_clr + 1) * 5) levelRewardBtn.style.display = 'block';
             else levelRewardBtn.style.display = 'none';
             
             if (prestigeCurrentScore) prestigeCurrentScore.textContent = Math.floor(_s);
-            if (doPrestigeBtn) doPrestigeBtn.className = _s >= PRESTIGE_COST ? 'prestige-btn-big' : 'prestige-btn-big disabled';
+            if (prestigeCostDisplay) prestigeCostDisplay.textContent = cost.toLocaleString();
+            if (prestigeNextDisplay) prestigeNextDisplay.textContent = Math.floor(cost * PRESTIGE_MULT).toLocaleString();
+            if (doPrestigeBtn) doPrestigeBtn.className = _s >= cost ? 'prestige-btn-big' : 'prestige-btn-big disabled';
+            
+            // Разблокировка кнопок по перерождениям
+            document.getElementById('openMineBtn').classList.toggle('locked', _p < 1);
+            document.getElementById('openUpgradeTreeBtn').classList.toggle('locked', _p < 3);
+            document.getElementById('openCatchBtn').classList.toggle('locked', _p < 2);
+            document.getElementById('openMineBtn').textContent = _p < 1 ? 'ШАХТА 🔒' : 'ШАХТА';
+            document.getElementById('openUpgradeTreeBtn').textContent = _p < 3 ? 'УЛУЧШЕНИЯ 🔒' : 'УЛУЧШЕНИЯ';
+            document.getElementById('openCatchBtn').textContent = _p < 2 ? 'ЛОВЛЯ ГРИБОВ 🔒' : 'ЛОВЛЯ ГРИБОВ';
+            document.getElementById('autoClickToggle').disabled = _p < 5;
             
             renderSkillTree();
             checkAchievements();
@@ -911,7 +1066,6 @@
             updateUI();
         }
 
-        // === ДОСТИЖЕНИЯ ===
         function checkAchievements() {
             achievements.forEach(ach => {
                 if (!ach.unlocked && ach.check()) {
@@ -945,7 +1099,6 @@
             });
         }
 
-        // === УВЕДОМЛЕНИЯ О ЗАДАНИЯХ ===
         let notifiedQuests = new Set();
         function checkQuestsCompletion() {
             let allQuests = [
@@ -969,7 +1122,6 @@
             questToast.classList.add('show');
             setTimeout(() => questToast.classList.remove('show'), 4000);
         }
-
         function getQuestProgress(q) {
             if (!q.template) return _tc;
             switch (q.template.stat) {
@@ -991,7 +1143,7 @@
             _s += currentPower; _tc++;
             playSound('click'); updateUI(); saveGame();
             createFloatingText(event, `+${currentPower}`, '#55ff55');
-            spawnParticles(event);
+            if (settings.particles) spawnParticles(event);
         });
 
         levelRewardBtn.addEventListener('click', () => {
@@ -1008,17 +1160,22 @@
         document.getElementById('closeQuestsBtn').addEventListener('click', () => questsModal.classList.remove('active'));
         document.getElementById('openSkillTreeBtn').addEventListener('click', () => { skillTreeModal.classList.add('active'); renderSkillTree(); });
         document.getElementById('closeSkillTreeBtn').addEventListener('click', () => skillTreeModal.classList.remove('active'));
-        document.getElementById('openUpgradeTreeBtn').addEventListener('click', () => { upgradeTreeModal.classList.add('active'); renderUpgradeTree(); });
+        document.getElementById('openUpgradeTreeBtn').addEventListener('click', () => { if (_p < 3) return; upgradeTreeModal.classList.add('active'); renderUpgradeTree(); });
         document.getElementById('closeUpgradeTreeBtn').addEventListener('click', () => upgradeTreeModal.classList.remove('active'));
         document.getElementById('openAchievementsBtn').addEventListener('click', () => { achievementsModal.classList.add('active'); renderAchievements(); });
         document.getElementById('closeAchievementsBtn').addEventListener('click', () => achievementsModal.classList.remove('active'));
         document.getElementById('openPrestigeBtn').addEventListener('click', () => { prestigeModal.classList.add('active'); updateUI(); });
         document.getElementById('closePrestigeBtn').addEventListener('click', () => prestigeModal.classList.remove('active'));
-        document.getElementById('openMineBtn').addEventListener('click', () => { mineModal.classList.add('active'); initMine(); });
+        document.getElementById('openMineBtn').addEventListener('click', () => { if (_p < 1) return; mineModal.classList.add('active'); initMine(); });
         document.getElementById('closeMineBtn').addEventListener('click', () => { mineModal.classList.remove('active'); stopMine(); });
+        document.getElementById('openCatchBtn').addEventListener('click', () => { if (_p < 2) return; catchModal.classList.add('active'); initCatch(); });
+        document.getElementById('closeCatchBtn').addEventListener('click', () => { catchModal.classList.remove('active'); stopCatch(); });
+        document.getElementById('openSettingsBtn').addEventListener('click', () => settingsModal.classList.add('active'));
+        document.getElementById('closeSettingsBtn').addEventListener('click', () => settingsModal.classList.remove('active'));
 
         doPrestigeBtn.addEventListener('click', () => {
-            if (_s >= PRESTIGE_COST) {
+            let cost = getPrestigeCost();
+            if (_s >= cost) {
                 _p += 1; _pp += 1;
                 _s = 0; _cp = 1; _ac = 0; _l = 1; _xp = 0; _clr = 0;
                 _ucc = 5; _uac = 20;
@@ -1026,7 +1183,7 @@
                 _hac = false; _haa = false; _hac2 = false; _haa2 = false; _haa3 = false;
                 playSound('prestige'); updateUI(); saveGame();
                 prestigeModal.classList.remove('active');
-                alert('Перерождение! Вы получили 1 очко престижа.');
+                alert(`Перерождение! Вы получили 1 очко престижа. Следующий порог: ${getPrestigeCost().toLocaleString()}`);
             }
         });
 
@@ -1066,7 +1223,6 @@
             if (_s >= cost && !_haa3) { _s -= cost; _aam = 3; _haa3 = true; playSound('buy'); updateUI(); saveGame(); }
         });
 
-        // === ДЕРЕВО НАВЫКОВ ===
         function renderSkillTree() {
             if (!skillTreeContainer) return;
             skillTreeContainer.innerHTML = '';
@@ -1092,7 +1248,6 @@
             }
         }
 
-        // === ДЕРЕВО УЛУЧШЕНИЙ ===
         let treeX = 0, treeY = 0, treeScale = 1;
         let isDragging = false, dragStartX = 0, dragStartY = 0;
 
@@ -1126,7 +1281,12 @@
                 ['clickBoost', 'autoBoost'], ['autoBoost', 'discountBoost'],
                 ['clickBoost', 'mineSpeed'], ['autoBoost', 'mineReward'],
                 ['mineSpeed', 'clickBoost2'], ['mineReward', 'autoBoost2'],
-                ['clickBoost2', 'globalBoost'], ['autoBoost2', 'globalBoost']
+                ['clickBoost2', 'globalBoost'], ['autoBoost2', 'globalBoost'],
+                ['discountBoost', 'catchSpeed'], ['catchSpeed', 'catchReward'],
+                ['catchReward', 'goldChance'], ['goldChance', 'prestigeBoost'],
+                ['globalBoost', 'clickBoost3'], ['globalBoost', 'autoBoost3'],
+                ['clickBoost3', 'discountBoost2'], ['autoBoost3', 'discountBoost2'],
+                ['prestigeBoost', 'godMode'], ['discountBoost2', 'godMode']
             ];
             links.forEach(([a, b]) => {
                 let na = upgrades[a], nb = upgrades[b];
@@ -1177,7 +1337,6 @@
             for (let i = 0; i < 25; i++) {
                 let cell = document.createElement('div');
                 cell.className = 'mine-cell';
-                cell.dataset.index = i;
                 cell.addEventListener('click', () => mineClick(cell));
                 mineGrid.appendChild(cell);
             }
@@ -1186,7 +1345,6 @@
             mineScoreEl.textContent = '0';
             mineTimerEl.textContent = '0';
         }
-
         function startMine() {
             if (_ma || _mc > Date.now()) return;
             _ma = true;
@@ -1205,13 +1363,11 @@
                 if (_mtl <= 0) { clearInterval(interval); endMine(); }
             }, 1000);
         }
-
         function stopMine() {
             _ma = false;
             startMineBtn.textContent = 'НАЧАТЬ';
             startMineBtn.classList.remove('disabled');
         }
-
         function endMine() {
             _ma = false;
             _ms += _msc;
@@ -1224,7 +1380,6 @@
                 startMineBtn.classList.remove('disabled');
             }, 60000);
         }
-
         function spawnMushroomInMine() {
             if (!_ma) return;
             let cells = document.querySelectorAll('.mine-cell');
@@ -1233,7 +1388,7 @@
             for (let i = 0; i < count; i++) {
                 let idx = Math.floor(Math.random() * 25);
                 let cell = cells[idx];
-                if (Math.random() < 0.2) {
+                if (Math.random() < getGoldChance()) {
                     cell.classList.add('gold'); cell.textContent = '🌟';
                 } else {
                     cell.classList.add('mushroom'); cell.textContent = '🍄';
@@ -1241,7 +1396,6 @@
             }
             setTimeout(spawnMushroomInMine, 800);
         }
-
         function mineClick(cell) {
             if (!_ma) return;
             if (cell.classList.contains('mushroom')) {
@@ -1256,8 +1410,70 @@
                 playSound('buy');
             }
         }
-
         startMineBtn.addEventListener('click', startMine);
+
+        // === ЛОВЛЯ ГРИБОВ ===
+        function initCatch() {
+            catchArea.innerHTML = '';
+            catchScoreEl.textContent = '0';
+            catchTimerEl.textContent = '0';
+            startCatchBtn.textContent = 'НАЧАТЬ';
+            startCatchBtn.classList.remove('disabled');
+        }
+        function startCatch() {
+            if (_ca) return;
+            _ca = true;
+            _ct = getCatchDuration();
+            _cc = 0;
+            catchScoreEl.textContent = '0';
+            catchTimerEl.textContent = _ct;
+            startCatchBtn.textContent = 'ИДЁТ...';
+            startCatchBtn.classList.add('disabled');
+            spawnCatchMushroom();
+            let interval = setInterval(() => {
+                if (!_ca) { clearInterval(interval); return; }
+                _ct--;
+                catchTimerEl.textContent = _ct;
+                if (_ct <= 0) { clearInterval(interval); endCatch(); }
+            }, 1000);
+        }
+        function stopCatch() {
+            _ca = false;
+            startCatchBtn.textContent = 'НАЧАТЬ';
+            startCatchBtn.classList.remove('disabled');
+        }
+        function endCatch() {
+            _ca = false;
+            _ms += _cc;
+            startCatchBtn.textContent = 'ГОТОВО!';
+            startCatchBtn.classList.add('disabled');
+            updateUI(); saveGame();
+            setTimeout(() => {
+                startCatchBtn.textContent = 'НАЧАТЬ';
+                startCatchBtn.classList.remove('disabled');
+            }, 2000);
+        }
+        function spawnCatchMushroom() {
+            if (!_ca) return;
+            let m = document.createElement('div');
+            m.className = 'catch-mushroom';
+            m.textContent = Math.random() < getGoldChance() ? '🌟' : '🍄';
+            let x = Math.random() * (catchArea.clientWidth - 40);
+            let y = Math.random() * (catchArea.clientHeight - 40);
+            m.style.left = x + 'px';
+            m.style.top = y + 'px';
+            m.addEventListener('click', () => {
+                if (!_ca) return;
+                _cc += getCatchReward();
+                catchScoreEl.textContent = _cc;
+                playSound('mine');
+                m.remove();
+            });
+            catchArea.appendChild(m);
+            setTimeout(() => { if (m.parentNode) m.remove(); }, 1500);
+            setTimeout(spawnCatchMushroom, 500);
+        }
+        startCatchBtn.addEventListener('click', startCatch);
 
         // === ТАЙМЕРЫ ===
         setInterval(() => {
@@ -1309,15 +1525,15 @@
             });
         }
 
-        // === ПОЛУЧЕНИЕ НАГРАДЫ С АВТОЗАМЕНОЙ ===
+        // === ИСПРАВЛЕНИЕ: задание НЕ удаляется, пока не заберёшь награду ===
         window.claimReward = function(index, btn) {
             let quests = activeTab === 'normal' ? normalQuests : activeTab === 'daily' ? dailyQuests : weeklyQuests;
             let q = quests[index];
             if (q && getQuestProgress(q) >= q.target && !q.claimed) {
                 _s += q.rewardScore; addXp(q.rewardXp); playSound('buy');
-                // Удаляем выполненное задание и добавляем новое
-                let newQuest = generateQuestFromPool(activeTab);
-                quests[index] = newQuest;
+                q.claimed = true;
+                // Заменяем на новое ТОЛЬКО после получения награды
+                quests[index] = generateQuestFromPool(activeTab);
                 saveGame();
                 renderQuests();
                 updateUI();
@@ -1355,6 +1571,57 @@
                 setTimeout(() => { clearInterval(interval); p.remove(); }, 700);
             }
         }
+
+        // === НАСТРОЙКИ ===
+        document.getElementById('volumeSfx').addEventListener('input', (e) => {
+            settings.volumeSfx = e.target.value / 100;
+            saveSettings();
+        });
+        document.getElementById('volumeMusic').addEventListener('input', (e) => {
+            settings.volumeMusic = e.target.value / 100;
+            saveSettings();
+        });
+        document.getElementById('particlesToggle').addEventListener('change', (e) => {
+            settings.particles = e.target.checked;
+            saveSettings();
+        });
+        document.getElementById('autoClickToggle').addEventListener('change', (e) => {
+            if (_p < 5) return;
+            settings.autoClick = e.target.checked;
+            saveSettings();
+            if (settings.autoClick) {
+                _autoClickInterval = setInterval(() => {
+                    if (settings.autoClick) {
+                        let power = getClickPower();
+                        _s += power; _tc++;
+                        updateUI();
+                    }
+                }, 100);
+            } else {
+                clearInterval(_autoClickInterval);
+            }
+        });
+        document.getElementById('musicToggleBtn').addEventListener('click', () => {
+            let c = document.getElementById('musicContainer');
+            let iframe = document.getElementById('musicIframe');
+            if (c.style.display === 'none') {
+                iframe.src = 'https://www.youtube.com/embed/videoseries?list=PLx0sYbCqOb8TBPRdmBHs5Iftvv9TPboYG&autoplay=1';
+                c.style.display = 'block';
+                document.getElementById('musicToggleBtn').textContent = 'ВЫКЛЮЧИТЬ';
+            } else {
+                iframe.src = '';
+                c.style.display = 'none';
+                document.getElementById('musicToggleBtn').textContent = 'ВКЛЮЧИТЬ';
+            }
+        });
+        document.getElementById('resetSaveBtn').addEventListener('click', () => {
+            if (confirm('Точно сбросить ВСЁ сохранение? Это действие необратимо!')) {
+                document.cookie.split(";").forEach(c => {
+                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+                });
+                location.reload();
+            }
+        });
 
         // === СТАРТ ===
         migrateOldCookies();
