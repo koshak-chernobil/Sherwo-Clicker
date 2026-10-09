@@ -176,7 +176,10 @@
         }
         .mc-particle {
             position: absolute; width: 10px; height: 10px;
-            background-color: #ffff55; pointer-events: none; z-index: 5;
+            background-image: url('particles.png');
+            background-size: cover;
+            image-rendering: pixelated;
+            pointer-events: none; z-index: 5;
         }
         .player-nicks {
             position: fixed; right: 20px; bottom: 200px; z-index: 10;
@@ -808,7 +811,6 @@
                 const p = document.createElement('div');
                 p.classList.add('mc-particle');
                 p.style.left = `${event.clientX}px`; p.style.top = `${event.clientY}px`;
-                p.style.backgroundColor = `hsl(${Math.random() * 60 + 30}, 100%, 50%)`;
                 document.body.appendChild(p);
                 const angle = Math.random() * Math.PI * 2;
                 const speed = Math.random() * 5 + 2;
