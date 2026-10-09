@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Шерво Кликер v2.1</title>
+    <title>Шерво Кликер v2.2</title>
     <style>
         @font-face {
             font-family: 'Minecraftia';
@@ -104,8 +104,8 @@
         .card-bottom.disabled { background: #222426; cursor: not-allowed; }
         .card-price { font-size: 0.75rem; text-shadow: 1px 1px 0px #000; color: #ff5555; }
         .card-bottom.affordable .card-price { color: #55ff55; }
-        .card-bottom.maxed { background: #ffaa00; color: #000; }
-        .card-bottom.maxed .card-price { color: #000; }
+        .card-bottom.maxed { background: #ffaa00; }
+        .card-bottom.maxed .card-price { color: #000; font-weight: bold; }
         
         .tabs-header { display: flex; gap: 10px; margin-top: 15px; border-bottom: 3px solid #4e5058; padding-bottom: 10px; }
         .tab-btn {
@@ -121,6 +121,7 @@
             background: #3c3f45; border: 2px solid #000; padding: 12px;
             display: flex; justify-content: space-between; align-items: center;
         }
+        .quest-item.completed { border-color: #55ff55; background: #2c3f2c; }
         .quest-info { display: flex; flex-direction: column; gap: 4px; }
         .q-name { color: #fff; font-size: 0.8rem; text-shadow: 1px 1px 0px #000;}
         .q-reward { color: #55ff55; font-size: 0.7rem; }
@@ -139,7 +140,7 @@
             cursor: pointer; transition: all 0.2s;
         }
         .skill-node:hover { background: #4a4d54; border-color: #ffff55; }
-        .skill-node.maxed { border-color: #55ff55; opacity: 0.7; cursor: default; }
+        .skill-node.maxed { border-color: #ffaa00; background: #4a3f1d; }
         .skill-icon { font-size: 1.5rem; }
         .skill-name { color: #fff; font-size: 0.7rem; text-align: center; }
         .skill-desc { color: #aaa; font-size: 0.6rem; text-align: center; font-style: italic; }
@@ -147,7 +148,6 @@
         .skill-level { color: #ffff55; font-size: 0.65rem; }
         .skill-node.maxed .skill-cost { color: #ffaa00; font-weight: bold; }
 
-        /* Дерево улучшений с камерой */
         .tree-container {
             position: relative; width: 100%; height: 500px;
             background: #1a1c1e; border: 3px solid #000;
@@ -171,7 +171,7 @@
             box-shadow: 0 4px 0 rgba(0,0,0,0.4);
         }
         .tree-node:hover { border-color: #ffff55; }
-        .tree-node.maxed { border-color: #ffaa00; }
+        .tree-node.maxed { border-color: #ffaa00; background: #4a3f1d; }
         .tree-node.maxed .tree-cost { color: #ffaa00; font-weight: bold; }
         .tree-icon { font-size: 1.3rem; }
         .tree-name { color: #fff; font-size: 0.65rem; text-align: center; }
@@ -205,10 +205,12 @@
             opacity: 0; pointer-events: none; transition: opacity 0.5s ease;
         }
         .achievement-toast.show { opacity: 1; }
+        .achievement-toast.quest-toast { border-color: #55ff55; top: 100px; }
         .toast-icon { font-size: 2rem; }
         .toast-info { display: flex; flex-direction: column; }
         .toast-name { color: #ffff55; font-size: 0.9rem; text-shadow: 1px 1px 0px #000; }
         .toast-desc { color: #ffffff; font-size: 0.7rem; }
+        .quest-toast .toast-name { color: #55ff55; }
 
         .floating-text {
             position: absolute; font-family: 'Minecraftia', sans-serif; font-size: 1.4rem;
@@ -301,7 +303,6 @@
         </div>
     </div>
 
-    <!-- Магазин -->
     <div class="modal-overlay" id="shopModal">
         <div class="window-box">
             <button class="close-btn" id="closeShopBtn">X</button>
@@ -375,7 +376,6 @@
         </div>
     </div>
 
-    <!-- Дерево Навыков -->
     <div class="modal-overlay" id="skillTreeModal">
         <div class="window-box">
             <button class="close-btn" id="closeSkillTreeBtn">X</button>
@@ -385,7 +385,6 @@
         </div>
     </div>
 
-    <!-- Дерево Улучшений (с камерой) -->
     <div class="modal-overlay" id="upgradeTreeModal">
         <div class="window-box">
             <button class="close-btn" id="closeUpgradeTreeBtn">X</button>
@@ -398,7 +397,6 @@
         </div>
     </div>
 
-    <!-- Достижения -->
     <div class="modal-overlay" id="achievementsModal">
         <div class="window-box">
             <button class="close-btn" id="closeAchievementsBtn">X</button>
@@ -407,7 +405,6 @@
         </div>
     </div>
 
-    <!-- Квесты -->
     <div class="modal-overlay" id="questsModal">
         <div class="window-box">
             <button class="close-btn" id="closeQuestsBtn">X</button>
@@ -421,7 +418,6 @@
         </div>
     </div>
 
-    <!-- Перерождение -->
     <div class="modal-overlay" id="prestigeModal">
         <div class="window-box">
             <button class="close-btn" id="closePrestigeBtn">X</button>
@@ -436,7 +432,6 @@
         </div>
     </div>
 
-    <!-- Шахта -->
     <div class="modal-overlay" id="mineModal">
         <div class="window-box">
             <button class="close-btn" id="closeMineBtn">X</button>
@@ -452,7 +447,6 @@
         </div>
     </div>
 
-    <!-- Уведомление о достижении -->
     <div class="achievement-toast" id="achievementToast">
         <div class="toast-icon" id="toastIcon">🏆</div>
         <div class="toast-info">
@@ -461,16 +455,19 @@
         </div>
     </div>
 
+    <div class="achievement-toast quest-toast" id="questToast">
+        <div class="toast-icon" id="questToastIcon">✅</div>
+        <div class="toast-info">
+            <div class="toast-name" id="questToastName">Задание выполнено!</div>
+            <div class="toast-desc" id="questToastDesc">Награда: ...</div>
+        </div>
+    </div>
+
     <script>
-        // === ЗАЩИТА ОТ ВЗЛОМА ===
+        // === ЗАЩИТА ===
         (function() {
-            // Блокировка консольных команд
-            const originalLog = console.log;
             console.log = function() {};
-            // Обфускация ключевых переменных через замыкание
             window._x = null;
-            Object.defineProperty(window, 'score', { get: () => _s, set: () => {} });
-            Object.defineProperty(window, 'clickPower', { get: () => _cp, set: () => {} });
         })();
 
         // === ЗВУКИ ===
@@ -507,6 +504,13 @@
                 gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+            } else if (type === 'quest') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(660, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.08);
+                osc.frequency.setValueAtTime(1100, audioCtx.currentTime + 0.16);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
             } else if (type === 'mine') {
                 osc.type = 'sawtooth'; osc.frequency.setValueAtTime(200, audioCtx.currentTime);
                 osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
@@ -531,7 +535,7 @@
             }
         }
 
-        // === ПЕРЕМЕННЫЕ (обфусцированы) ===
+        // === ПЕРЕМЕННЫЕ ===
         let _s = 0, _cp = 1, _ac = 0, _l = 1, _xp = 0, _nx = 100;
         let _p = 0, _pp = 0, _tc = 0, _clr = 0;
         let _ucc = 5, _uac = 20, _acc = 5000, _aac = 10000;
@@ -548,7 +552,6 @@
             boostMaster: { level: 0, max: 5, cost: 2, name: 'Алхимик', icon: '🧪', desc: '+10 сек к бусту' }
         };
 
-        // Дерево улучшений с координатами для камеры
         let upgrades = {
             clickBoost: { level: 0, max: 20, cost: 10, name: 'Сила гриба', icon: '🍄', desc: '+5% к клику', x: 100, y: 100 },
             autoBoost: { level: 0, max: 20, cost: 10, name: 'Грибной конвейер', icon: '⚙️', desc: '+5% к авто', x: 300, y: 100 },
@@ -560,7 +563,6 @@
             globalBoost: { level: 0, max: 5, cost: 500, name: 'Грибной бог', icon: '👑', desc: '+25% ко всему', x: 400, y: 500 }
         };
 
-        // Ачивки
         let achievements = [];
         const achTypes = [
             { type: 'clicks', name: 'Кликер', desc: 'Сделайте {n} кликов', icon: '👆', targets: [1, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000], check: (n) => _tc >= n },
@@ -587,7 +589,6 @@
                 });
             });
         });
-        // Новые ачивки
         const newAch = [
             { name: 'Шахтёр', desc: 'Сыграйте в шахту 10 раз', icon: '⛏️' },
             { name: 'Грибной магнат', desc: 'Накопите 10 000 грибочков', icon: '🍄' },
@@ -620,6 +621,88 @@
         let dailyResetTime = 0, weeklyResetTime = 0;
         let dailyQuests = [], weeklyQuests = [], normalQuests = [];
         let minePlays = 0;
+
+        // === МИГРАЦИЯ С v2.0 ===
+        function migrateOldCookies() {
+            let migrated = false;
+            // Проверяем старые куки (v2.0 и раньше)
+            if (getCookie('score') !== undefined && getCookie('_s') === undefined) {
+                _s = parseFloat(getCookie('score')) || 0; migrated = true;
+            }
+            if (getCookie('clickPower') !== undefined && getCookie('_cp') === undefined) {
+                _cp = parseInt(getCookie('clickPower')) || 1; migrated = true;
+            }
+            if (getCookie('autoChacha') !== undefined && getCookie('_ac') === undefined) {
+                _ac = parseInt(getCookie('autoChacha')) || 0; migrated = true;
+            }
+            if (getCookie('level') !== undefined && getCookie('_l') === undefined) {
+                _l = parseInt(getCookie('level')) || 1; migrated = true;
+            }
+            if (getCookie('xp') !== undefined && getCookie('_xp') === undefined) {
+                _xp = parseInt(getCookie('xp')) || 0; migrated = true;
+            }
+            if (getCookie('prestige') !== undefined && getCookie('_p') === undefined) {
+                _p = parseInt(getCookie('prestige')) || 0; migrated = true;
+            }
+            if (getCookie('prestigePoints') !== undefined && getCookie('_pp') === undefined) {
+                _pp = parseInt(getCookie('prestigePoints')) || 0; migrated = true;
+            }
+            if (getCookie('totalClicks') !== undefined && getCookie('_tc') === undefined) {
+                _tc = parseInt(getCookie('totalClicks')) || 0; migrated = true;
+            }
+            if (getCookie('mushroomScore') !== undefined && getCookie('_ms') === undefined) {
+                _ms = parseInt(getCookie('mushroomScore')) || 0; migrated = true;
+            }
+            // Навыки
+            let oldSkills = getCookie('skills');
+            if (oldSkills && getCookie('_skills_migrated') === undefined) {
+                try {
+                    let p = JSON.parse(oldSkills);
+                    for (let k in skills) if (p[k]) skills[k].level = p[k].level;
+                    migrated = true;
+                } catch(e) {}
+            }
+            // Улучшения
+            let oldUpgrades = getCookie('upgrades');
+            if (oldUpgrades && getCookie('_upgrades_migrated') === undefined) {
+                try {
+                    let p = JSON.parse(oldUpgrades);
+                    for (let k in upgrades) if (p[k]) upgrades[k].level = p[k].level;
+                    migrated = true;
+                } catch(e) {}
+            }
+            // Ачивки
+            let oldAch = getCookie('achievements');
+            if (oldAch && getCookie('_ach_migrated') === undefined) {
+                try {
+                    let arr = JSON.parse(oldAch);
+                    achievements.forEach((a, i) => a.unlocked = arr[i] || false);
+                    migrated = true;
+                } catch(e) {}
+            }
+            // Задания
+            let oldNormal = getCookie('normalQuests');
+            if (oldNormal && getCookie('_nq_migrated') === undefined) {
+                try { normalQuests = JSON.parse(oldNormal); migrated = true; } catch(e) {}
+            }
+            let oldDaily = getCookie('dailyQuests');
+            if (oldDaily && getCookie('_dq_migrated') === undefined) {
+                try { dailyQuests = JSON.parse(oldDaily); migrated = true; } catch(e) {}
+            }
+            let oldWeekly = getCookie('weeklyQuests');
+            if (oldWeekly && getCookie('_wq_migrated') === undefined) {
+                try { weeklyQuests = JSON.parse(oldWeekly); migrated = true; } catch(e) {}
+            }
+            if (migrated) {
+                setCookie('_skills_migrated', 'true');
+                setCookie('_upgrades_migrated', 'true');
+                setCookie('_ach_migrated', 'true');
+                setCookie('_nq_migrated', 'true');
+                setCookie('_dq_migrated', 'true');
+                setCookie('_wq_migrated', 'true');
+                saveGame();
+            }
+        }
 
         function setCookie(name, value) {
             document.cookie = name + "=" + encodeURIComponent(value) + ";path=/;max-age=31536000;SameSite=Lax";
@@ -768,7 +851,6 @@
         const prestigeBtn = document.getElementById('prestigeBtn');
         const questsContainer = document.getElementById('questsContainer');
         const skillTreeContainer = document.getElementById('skillTreeContainer');
-        const upgradeTreeContainer = document.getElementById('upgradeTreeContainer');
         const treeContainer = document.getElementById('treeContainer');
         const treeInner = document.getElementById('treeInner');
         const achievementsContainer = document.getElementById('achievementsContainer');
@@ -776,6 +858,10 @@
         const toastIcon = document.getElementById('toastIcon');
         const toastName = document.getElementById('toastName');
         const toastDesc = document.getElementById('toastDesc');
+        const questToast = document.getElementById('questToast');
+        const questToastIcon = document.getElementById('questToastIcon');
+        const questToastName = document.getElementById('questToastName');
+        const questToastDesc = document.getElementById('questToastDesc');
         const prestigeCurrentScore = document.getElementById('prestigeCurrentScore');
         const doPrestigeBtn = document.getElementById('doPrestigeBtn');
         
@@ -837,27 +923,22 @@
             buyBoostBtn.className = `card-bottom ${_s >= 1000 && !_ba ? 'affordable' : 'disabled'}`;
             
             artifactClickDisplay.textContent = `(x${_acm.toFixed(1)} к клику)`;
-            artifactClickCostText.textContent = `Цена: ${_acc}`;
             buyArtifactClickBtn.className = `card-bottom ${_s >= _acc && !_hac ? 'affordable' : (_hac ? 'maxed' : 'disabled')}`;
             buyArtifactClickBtn.querySelector('.card-price').textContent = _hac ? 'МАКСИМУМ' : `Цена: ${_acc}`;
             
             artifactAutoDisplay.textContent = `(x${_aam.toFixed(1)} к авто)`;
-            artifactAutoCostText.textContent = `Цена: ${_aac}`;
             buyArtifactAutoBtn.className = `card-bottom ${_s >= _aac && !_haa ? 'affordable' : (_haa ? 'maxed' : 'disabled')}`;
             buyArtifactAutoBtn.querySelector('.card-price').textContent = _haa ? 'МАКСИМУМ' : `Цена: ${_aac}`;
 
             artifactClick2Display.textContent = `(x${_hac2 ? '2' : '0'} к клику)`;
-            artifactClick2CostText.textContent = `Цена: ${_acc2}`;
             buyArtifactClick2Btn.className = `card-bottom ${_s >= _acc2 && !_hac2 ? 'affordable' : (_hac2 ? 'maxed' : 'disabled')}`;
             buyArtifactClick2Btn.querySelector('.card-price').textContent = _hac2 ? 'МАКСИМУМ' : `Цена: ${_acc2}`;
 
             artifactAuto2Display.textContent = `(x${_haa2 ? '2' : '0'} к авто)`;
-            artifactAuto2CostText.textContent = `Цена: ${_aac2}`;
             buyArtifactAuto2Btn.className = `card-bottom ${_s >= _aac2 && !_haa2 ? 'affordable' : (_haa2 ? 'maxed' : 'disabled')}`;
             buyArtifactAuto2Btn.querySelector('.card-price').textContent = _haa2 ? 'МАКСИМУМ' : `Цена: ${_aac2}`;
 
             artifactAuto3Display.textContent = `(x${_haa3 ? '3' : '0'} к авто)`;
-            artifactAuto3CostText.textContent = `Цена: ${_aac3}`;
             buyArtifactAuto3Btn.className = `card-bottom ${_s >= _aac3 && !_haa3 ? 'affordable' : (_haa3 ? 'maxed' : 'disabled')}`;
             buyArtifactAuto3Btn.querySelector('.card-price').textContent = _haa3 ? 'МАКСИМУМ' : `Цена: ${_aac3}`;
 
@@ -870,6 +951,7 @@
             
             renderSkillTree();
             checkAchievements();
+            checkQuestsCompletion();
         }
 
         function addXp(amount) {
@@ -914,6 +996,31 @@
                 `;
                 achievementsContainer.appendChild(item);
             });
+        }
+
+        // === УВЕДОМЛЕНИЕ О ВЫПОЛНЕНИИ ЗАДАНИЯ ===
+        let notifiedQuests = new Set();
+        function checkQuestsCompletion() {
+            let allQuests = [
+                ...normalQuests.map(q => ({...q, type: 'Обычное'})),
+                ...dailyQuests.map(q => ({...q, type: 'Ежедневное'})),
+                ...weeklyQuests.map(q => ({...q, type: 'Еженедельное'}))
+            ];
+            allQuests.forEach((q, i) => {
+                let key = q.type + '_' + q.target + '_' + i;
+                if (_tc >= q.target && !q.claimed && !notifiedQuests.has(key)) {
+                    notifiedQuests.add(key);
+                    showQuestToast(q);
+                    playSound('quest');
+                }
+            });
+        }
+        function showQuestToast(q) {
+            questToastIcon.textContent = '✅';
+            questToastName.textContent = 'Задание выполнено!';
+            questToastDesc.textContent = `${q.type}: награда +${q.rewardScore} Чачи, +${q.rewardXp} XP`;
+            questToast.classList.add('show');
+            setTimeout(() => questToast.classList.remove('show'), 4000);
         }
 
         // === СОБЫТИЯ ===
@@ -1033,7 +1140,6 @@
         function renderUpgradeTree() {
             if (!treeInner) return;
             treeInner.innerHTML = '';
-            // Рисуем узлы
             for (let key in upgrades) {
                 let u = upgrades[key];
                 let isMaxed = u.level >= u.max;
@@ -1057,7 +1163,6 @@
                 }
                 treeInner.appendChild(node);
             }
-            // Рисуем связи (линии)
             const links = [
                 ['clickBoost', 'autoBoost'], ['autoBoost', 'discountBoost'],
                 ['clickBoost', 'mineSpeed'], ['autoBoost', 'mineReward'],
@@ -1087,7 +1192,6 @@
             treeInner.style.transform = `translate(${treeX}px, ${treeY}px) scale(${treeScale})`;
         }
 
-        // Перемещение камеры
         treeContainer.addEventListener('mousedown', (e) => {
             if (e.target.closest('.tree-node')) return;
             isDragging = true;
@@ -1208,8 +1312,8 @@
                 if (_btl <= 0) { _ba = false; boostBox.style.display = 'none'; updateUI(); }
             }
             let now = Date.now();
-            if (now > dailyResetTime) { generateDailyQuests(); dailyResetTime = now + 86400000; saveGame(); renderQuests(); }
-            if (now > weeklyResetTime) { generateWeeklyQuests(); weeklyResetTime = now + 604800000; saveGame(); renderQuests(); }
+            if (now > dailyResetTime) { generateDailyQuests(); dailyResetTime = now + 86400000; notifiedQuests.clear(); saveGame(); renderQuests(); }
+            if (now > weeklyResetTime) { generateWeeklyQuests(); weeklyResetTime = now + 604800000; notifiedQuests.clear(); saveGame(); renderQuests(); }
         }, 1000);
 
         function changeTab(tab, element) {
@@ -1231,10 +1335,10 @@
             quests.forEach((q, i) => {
                 let isDone = _tc >= q.target;
                 let item = document.createElement('div');
-                item.className = 'quest-item';
+                item.className = `quest-item ${isDone && !q.claimed ? 'completed' : ''}`;
                 item.innerHTML = `
                     <div class="quest-info">
-                        <span class="q-name">Задание #${i + 1} ${q.claimed ? '[✔]' : ''}</span>
+                        <span class="q-name">Задание #${i + 1} ${q.claimed ? '[✔]' : (isDone ? '[ГОТОВО]' : '')}</span>
                         <span class="q-progress">Прогресс: ${_tc}/${q.target} кликов</span>
                         <span class="q-reward">Награда: +${q.rewardScore} Чачи, +${q.rewardXp} XP</span>
                     </div>
@@ -1288,6 +1392,7 @@
         }
 
         // === СТАРТ ===
+        migrateOldCookies();
         loadGame();
         updateUI();
     </script>
