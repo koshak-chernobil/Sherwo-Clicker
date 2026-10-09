@@ -37,6 +37,7 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
         .score-box { font-size: 1.6rem; color: #ffffff; margin-bottom: 10px; text-shadow: 3px 3px 0px #000000; }
+        .mushroom-box { font-size: 1rem; color: #ffaa00; margin-bottom: 10px; text-shadow: 2px 2px 0px #000; }
         .cps-box { font-size: 0.9rem; color: #ffff55; margin-bottom: 25px; text-shadow: 2px 2px 0px #000000; }
         .boost-box { font-size: 1rem; color: #ff55ff; margin-bottom: 15px; text-shadow: 2px 2px 0px #000; display: none; }
         .clicker-area {
@@ -51,6 +52,8 @@
         .right-btn { position: fixed; right: 20px; bottom: 20px; z-index: 10; }
         .right-btn-2 { position: fixed; right: 20px; bottom: 80px; z-index: 10; }
         .right-btn-3 { position: fixed; right: 20px; bottom: 140px; z-index: 10; }
+        .right-btn-4 { position: fixed; right: 20px; bottom: 200px; z-index: 10; }
+        .right-btn-5 { position: fixed; right: 20px; bottom: 260px; z-index: 10; }
         
         .menu-btn {
             background: #4a4d54; border: 3px solid #707480; outline: 2px solid #000;
@@ -182,7 +185,7 @@
             pointer-events: none; z-index: 5;
         }
         .player-nicks {
-            position: fixed; right: 20px; bottom: 200px; z-index: 10;
+            position: fixed; right: 20px; bottom: 320px; z-index: 10;
             display: flex; flex-direction: column; gap: 5px; text-align: right;
         }
         .player-nicks span { color: #aaaaaa; font-size: 0.7rem; text-shadow: 1px 1px 0px #000; }
@@ -197,6 +200,31 @@
         }
         .prestige-btn-big:hover { background: #6a2d6a; }
         .prestige-btn-big.disabled { background: #222426; border-color: #4e5058; color: #4e5058; cursor: not-allowed; }
+
+        /* Шахта */
+        .mine-area {
+            position: relative; width: 100%; height: 400px;
+            background: #1a1c1e; border: 3px solid #000;
+            overflow: hidden; margin-top: 15px;
+        }
+        .mine-grid { display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(5, 1fr); gap: 5px; padding: 5px; height: 100%; }
+        .mine-cell {
+            background: #3c3f45; border: 2px solid #000; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; transition: background 0.1s;
+        }
+        .mine-cell:hover { background: #4a4d54; }
+        .mine-cell.mushroom { background: #ffaa00; color: #000; }
+        .mine-cell.gold { background: #ffff55; color: #000; }
+        .mine-info { display: flex; justify-content: space-between; margin-top: 10px; color: #fff; font-size: 0.8rem; }
+        .mine-btn-big {
+            display: block; margin: 15px auto; padding: 12px 30px;
+            background: #4a1d1d; border: 3px solid #ff5555; outline: 3px solid #000;
+            color: #ff5555; font-family: 'Minecraftia', sans-serif; font-size: 0.9rem;
+            cursor: pointer; text-shadow: 1px 1px 0px #000;
+        }
+        .mine-btn-big:hover { background: #6a2d2d; }
+        .mine-btn-big.disabled { background: #222426; border-color: #4e5058; color: #4e5058; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -208,9 +236,11 @@
 
     <button class="menu-btn top-left-btn" id="openQuestsBtn">ЗАДАНИЯ</button>
     <button class="menu-btn bottom-left-btn" id="openShopBtn">МАГАЗИН</button>
-    <button class="menu-btn right-btn-3" id="openAchievementsBtn" style="background:#4a4d54; border-color:#ffff55; color:#ffff55;">ДОСТИЖЕНИЯ</button>
-    <button class="menu-btn right-btn-2" id="openSkillTreeBtn" style="background:#4a4d54; border-color:#ff55ff; color:#ff55ff;">НАВЫКИ</button>
-    <button class="menu-btn right-btn" id="openPrestigeBtn" style="background:#4a1d4a; border-color:#ff55ff; color:#ff55ff;">ПЕРЕРОЖДЕНИЕ</button>
+    <button class="menu-btn right-btn-5" id="openAchievementsBtn" style="background:#4a4d54; border-color:#ffff55; color:#ffff55;">ДОСТИЖЕНИЯ</button>
+    <button class="menu-btn right-btn-4" id="openSkillTreeBtn" style="background:#4a4d54; border-color:#ff55ff; color:#ff55ff;">НАВЫКИ</button>
+    <button class="menu-btn right-btn-3" id="openPrestigeBtn" style="background:#4a1d4a; border-color:#ff55ff; color:#ff55ff;">ПЕРЕРОЖДЕНИЕ</button>
+    <button class="menu-btn right-btn-2" id="openMineBtn" style="background:#4a4d1d; border-color:#ffaa00; color:#ffaa00;">ШАХТА</button>
+    <button class="menu-btn right-btn" id="openUpgradeTreeBtn" style="background:#1d4a4a; border-color:#55ffff; color:#55ffff;">УЛУЧШЕНИЯ</button>
 
     <div class="player-nicks">
         <span>_MASHK273_</span>
@@ -221,6 +251,7 @@
 
     <div class="game-box" id="gameContainer">
         <div class="score-box">ЧАЧА: <span id="score">0</span></div>
+        <div class="mushroom-box">ГРИБОЧКИ: <span id="mushroomScore">0</span> 🍄</div>
         <div class="cps-box" id="cpsBox">в сек: 0</div>
         <div class="boost-box" id="boostBox">БУСТ 2Х: <span id="boostTimer">120</span>с</div>
         <div class="clicker-area" id="clickButton">
@@ -228,6 +259,7 @@
         </div>
     </div>
 
+    <!-- Магазин -->
     <div class="modal-overlay" id="shopModal">
         <div class="window-box">
             <button class="close-btn" id="closeShopBtn">X</button>
@@ -273,10 +305,35 @@
                     </div>
                     <div class="card-bottom disabled" id="buyArtifactAutoBtn"><span class="card-price" id="artifactAutoCostText">Цена: 10000</span></div>
                 </div>
+                <div class="card">
+                    <div class="card-top" style="background:#cd7f32;"><span class="card-title">МЕДНАЯ КИРКА</span></div>
+                    <div class="card-body">
+                        <div style="font-size:2rem; padding: 5px 0;">🪓</div>
+                        <span class="card-count" id="artifactClick2Display">(x2 к клику)</span>
+                    </div>
+                    <div class="card-bottom disabled" id="buyArtifactClick2Btn"><span class="card-price" id="artifactClick2CostText">Цена: 50000</span></div>
+                </div>
+                <div class="card">
+                    <div class="card-top" style="background:#c0c0c0;"><span class="card-title">СЕРЕБРЯНАЯ ФЕРМА</span></div>
+                    <div class="card-body">
+                        <div style="font-size:2rem; padding: 5px 0;">🏗️</div>
+                        <span class="card-count" id="artifactAuto2Display">(x2 к авто)</span>
+                    </div>
+                    <div class="card-bottom disabled" id="buyArtifactAuto2Btn"><span class="card-price" id="artifactAuto2CostText">Цена: 100000</span></div>
+                </div>
+                <div class="card">
+                    <div class="card-top" style="background:#ffd700;"><span class="card-title">ЗОЛОТОЙ ЗАВОД</span></div>
+                    <div class="card-body">
+                        <div style="font-size:2rem; padding: 5px 0;">🏆</div>
+                        <span class="card-count" id="artifactAuto3Display">(x3 к авто)</span>
+                    </div>
+                    <div class="card-bottom disabled" id="buyArtifactAuto3Btn"><span class="card-price" id="artifactAuto3CostText">Цена: 500000</span></div>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Дерево Навыков (Престиж) -->
     <div class="modal-overlay" id="skillTreeModal">
         <div class="window-box">
             <button class="close-btn" id="closeSkillTreeBtn">X</button>
@@ -286,6 +343,17 @@
         </div>
     </div>
 
+    <!-- Дерево Улучшений (Грибочки) -->
+    <div class="modal-overlay" id="upgradeTreeModal">
+        <div class="window-box">
+            <button class="close-btn" id="closeUpgradeTreeBtn">X</button>
+            <div class="shop-title" style="color:#55ffff;">ДЕРЕВО УЛУЧШЕНИЙ</div>
+            <p style="color:#fff; font-size:0.7rem; text-align:center;">Грибочки: <span id="mushroomPointsDisplay" style="color:#ffaa00;">0</span> 🍄</p>
+            <div class="skill-tree" id="upgradeTreeContainer"></div>
+        </div>
+    </div>
+
+    <!-- Достижения -->
     <div class="modal-overlay" id="achievementsModal">
         <div class="window-box">
             <button class="close-btn" id="closeAchievementsBtn">X</button>
@@ -294,6 +362,7 @@
         </div>
     </div>
 
+    <!-- Квесты -->
     <div class="modal-overlay" id="questsModal">
         <div class="window-box">
             <button class="close-btn" id="closeQuestsBtn">X</button>
@@ -307,6 +376,7 @@
         </div>
     </div>
 
+    <!-- Перерождение -->
     <div class="modal-overlay" id="prestigeModal">
         <div class="window-box">
             <button class="close-btn" id="closePrestigeBtn">X</button>
@@ -321,6 +391,23 @@
         </div>
     </div>
 
+    <!-- Шахта -->
+    <div class="modal-overlay" id="mineModal">
+        <div class="window-box">
+            <button class="close-btn" id="closeMineBtn">X</button>
+            <div class="shop-title" style="color:#ffaa00;">ШАХТА ГРИБОЧКОВ</div>
+            <div class="mine-info">
+                <span>Грибочки: <span id="mineScore">0</span></span>
+                <span>Время: <span id="mineTimer">30</span>с</span>
+            </div>
+            <div class="mine-area" id="mineArea">
+                <div class="mine-grid" id="mineGrid"></div>
+            </div>
+            <button class="mine-btn-big" id="startMineBtn">НАЧАТЬ</button>
+        </div>
+    </div>
+
+    <!-- Уведомление о достижении -->
     <div class="achievement-toast" id="achievementToast">
         <div class="toast-icon" id="toastIcon">🏆</div>
         <div class="toast-info">
@@ -330,6 +417,7 @@
     </div>
 
     <script>
+        // === ЗВУКИ ===
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -366,11 +454,26 @@
             }
         }
 
+        // === ПЕРЕМЕННЫЕ ===
         let score = 0, clickPower = 1, autoChacha = 0, level = 1, xp = 0, nextXp = 100;
         let prestige = 0, prestigePoints = 0, totalClicks = 0, claimedLevelRewards = 0;
         let upgradeClickCost = 5, upgradeAutoCost = 20, artifactClickCost = 5000, artifactAutoCost = 10000;
+        let artifactClick2Cost = 50000, artifactAuto2Cost = 100000, artifactAuto3Cost = 500000;
         let boostActive = false, boostTimeLeft = 0, lastClickTime = 0;
-        let artifactClickMult = 1, artifactAutoMult = 1, hasArtifactClick = false, hasArtifactAuto = false;
+        
+        // Артефакты
+        let artifactClickMult = 1, artifactAutoMult = 1;
+        let hasArtifactClick = false, hasArtifactAuto = false;
+        let hasArtifactClick2 = false, hasArtifactAuto2 = false, hasArtifactAuto3 = false;
+        
+        // Грибочки
+        let mushroomScore = 0;
+        let mineCooldown = 0;
+        let mineActive = false;
+        let mineTimeLeft = 0;
+        let mineScoreCurrent = 0;
+
+        // Навыки престижа
         let skills = {
             clickMaster: { level: 0, max: 10, cost: 1, name: 'Мастер Клика', icon: '👆', desc: '+10% к клику' },
             autoMaster: { level: 0, max: 10, cost: 1, name: 'Автоматизация', icon: '⚙️', desc: '+10% к авто' },
@@ -378,6 +481,16 @@
             boostMaster: { level: 0, max: 5, cost: 2, name: 'Алхимик', icon: '🧪', desc: '+10 сек к бусту' }
         };
 
+        // Улучшения за грибочки
+        let upgrades = {
+            clickBoost: { level: 0, max: 20, cost: 10, name: 'Сила гриба', icon: '🍄', desc: '+5% к клику' },
+            autoBoost: { level: 0, max: 20, cost: 10, name: 'Грибной конвейер', icon: '⚙️', desc: '+5% к авто' },
+            discountBoost: { level: 0, max: 10, cost: 25, name: 'Грибная скидка', icon: '🏷️', desc: '-3% к ценам' },
+            mineSpeed: { level: 0, max: 10, cost: 50, name: 'Скорость шахты', icon: '⛏️', desc: '+2 сек к шахте' },
+            mineReward: { level: 0, max: 10, cost: 100, name: 'Щедрость шахты', icon: '💎', desc: '+1 грибочек за клик в шахте' }
+        };
+
+        // Ачивки
         let achievements = [];
         const achTypes = [
             { type: 'clicks', name: 'Кликер', desc: 'Сделайте {n} кликов', icon: '👆', targets: [1, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000], check: (n) => totalClicks >= n },
@@ -387,7 +500,9 @@
             { type: 'auto', name: 'Автоматизатор', desc: 'Купите {n} заводов', icon: '🏭', targets: [1, 5, 10, 25, 50, 100, 250, 500, 1000], check: (n) => autoChacha >= n },
             { type: 'clickPower', name: 'Силач', desc: 'Прокачайте клик до {n}', icon: '💪', targets: [5, 10, 25, 50, 100, 250, 500, 1000], check: (n) => clickPower >= n },
             { type: 'boost', name: 'Алхимик', desc: 'Используйте {n} зелий', icon: '🧪', targets: [1, 3, 5, 10, 25, 50, 100], check: (n) => boostActive || boostTimeLeft > 0 },
-            { type: 'skill', name: 'Мастер', desc: 'Прокачайте {n} навыков', icon: '🧠', targets: [1, 2, 3, 4, 5, 10, 15, 20, 25, 30], check: (n) => Object.values(skills).reduce((s, sk) => s + sk.level, 0) >= n }
+            { type: 'skill', name: 'Мастер', desc: 'Прокачайте {n} навыков', icon: '🧠', targets: [1, 2, 3, 4, 5, 10, 15, 20, 25, 30], check: (n) => Object.values(skills).reduce((s, sk) => s + sk.level, 0) >= n },
+            { type: 'mushroom', name: 'Грибник', desc: 'Соберите {n} грибочков', icon: '🍄', targets: [1, 10, 50, 100, 500, 1000, 5000, 10000], check: (n) => mushroomScore >= n },
+            { type: 'upgrade', name: 'Улучшатель', desc: 'Купите {n} улучшений', icon: '🔧', targets: [1, 5, 10, 25, 50, 100], check: (n) => Object.values(upgrades).reduce((s, u) => s + u.level, 0) >= n }
         ];
         let achId = 0;
         achTypes.forEach(t => {
@@ -424,6 +539,7 @@
         let dailyResetTime = 0, weeklyResetTime = 0;
         let dailyQuests = [], weeklyQuests = [], normalQuests = [];
 
+        // === СОХРАНЕНИЕ ===
         function setCookie(name, value) {
             document.cookie = name + "=" + encodeURIComponent(value) + ";path=/;max-age=31536000;SameSite=Lax";
         }
@@ -437,14 +553,21 @@
             setCookie('prestigePoints', prestigePoints); setCookie('totalClicks', totalClicks);
             setCookie('clickCost', upgradeClickCost); setCookie('autoCost', upgradeAutoCost);
             setCookie('artifactClickCost', artifactClickCost); setCookie('artifactAutoCost', artifactAutoCost);
+            setCookie('artifactClick2Cost', artifactClick2Cost); setCookie('artifactAuto2Cost', artifactAuto2Cost);
+            setCookie('artifactAuto3Cost', artifactAuto3Cost);
             setCookie('artifactClickMult', artifactClickMult); setCookie('artifactAutoMult', artifactAutoMult);
             setCookie('hasArtifactClick', hasArtifactClick); setCookie('hasArtifactAuto', hasArtifactAuto);
+            setCookie('hasArtifactClick2', hasArtifactClick2); setCookie('hasArtifactAuto2', hasArtifactAuto2);
+            setCookie('hasArtifactAuto3', hasArtifactAuto3);
+            setCookie('mushroomScore', mushroomScore);
             setCookie('claimedLevelRewards', claimedLevelRewards);
             setCookie('skills', JSON.stringify(skills));
+            setCookie('upgrades', JSON.stringify(upgrades));
             setCookie('achievements', JSON.stringify(achievements.map(a => a.unlocked)));
             setCookie('dailyResetTime', dailyResetTime); setCookie('weeklyResetTime', weeklyResetTime);
             setCookie('dailyQuests', JSON.stringify(dailyQuests));
             setCookie('weeklyQuests', JSON.stringify(weeklyQuests));
+            setCookie('normalQuests', JSON.stringify(normalQuests));
         }
         function loadGame() {
             score = parseFloat(getCookie('score')) || 0; clickPower = parseInt(getCookie('clickPower')) || 1;
@@ -453,13 +576,20 @@
             prestigePoints = parseInt(getCookie('prestigePoints')) || 0; totalClicks = parseInt(getCookie('totalClicks')) || 0;
             upgradeClickCost = parseInt(getCookie('clickCost')) || 5; upgradeAutoCost = parseInt(getCookie('autoCost')) || 20;
             artifactClickCost = parseInt(getCookie('artifactClickCost')) || 5000; artifactAutoCost = parseInt(getCookie('artifactAutoCost')) || 10000;
+            artifactClick2Cost = parseInt(getCookie('artifactClick2Cost')) || 50000; artifactAuto2Cost = parseInt(getCookie('artifactAuto2Cost')) || 100000;
+            artifactAuto3Cost = parseInt(getCookie('artifactAuto3Cost')) || 500000;
             artifactClickMult = parseFloat(getCookie('artifactClickMult')) || 1; artifactAutoMult = parseFloat(getCookie('artifactAutoMult')) || 1;
             hasArtifactClick = getCookie('hasArtifactClick') === 'true'; hasArtifactAuto = getCookie('hasArtifactAuto') === 'true';
+            hasArtifactClick2 = getCookie('hasArtifactClick2') === 'true'; hasArtifactAuto2 = getCookie('hasArtifactAuto2') === 'true';
+            hasArtifactAuto3 = getCookie('hasArtifactAuto3') === 'true';
+            mushroomScore = parseInt(getCookie('mushroomScore')) || 0;
             claimedLevelRewards = parseInt(getCookie('claimedLevelRewards')) || 0;
             dailyResetTime = parseInt(getCookie('dailyResetTime')) || 0; weeklyResetTime = parseInt(getCookie('weeklyResetTime')) || 0;
             
             let savedSkills = getCookie('skills');
             if (savedSkills) { try { let p = JSON.parse(savedSkills); for (let k in skills) if(p[k]) skills[k].level = p[k].level; } catch(e){} }
+            let savedUpgrades = getCookie('upgrades');
+            if (savedUpgrades) { try { let p = JSON.parse(savedUpgrades); for (let k in upgrades) if(p[k]) upgrades[k].level = p[k].level; } catch(e){} }
             let savedAch = getCookie('achievements');
             if (savedAch) { try { let arr = JSON.parse(savedAch); achievements.forEach((a, i) => a.unlocked = arr[i] || false); } catch(e){} }
             
@@ -467,11 +597,13 @@
             if (savedDaily) { try { dailyQuests = JSON.parse(savedDaily); } catch(e){} }
             let savedWeekly = getCookie('weeklyQuests');
             if (savedWeekly) { try { weeklyQuests = JSON.parse(savedWeekly); } catch(e){} }
+            let savedNormal = getCookie('normalQuests');
+            if (savedNormal) { try { normalQuests = JSON.parse(savedNormal); } catch(e){} }
             
             let now = Date.now();
             if (!dailyResetTime || dailyResetTime < now) { generateDailyQuests(); dailyResetTime = now + 86400000; }
             if (!weeklyResetTime || weeklyResetTime < now) { generateWeeklyQuests(); weeklyResetTime = now + 604800000; }
-            generateNormalQuests();
+            if (!normalQuests || normalQuests.length === 0) generateNormalQuests();
             nextXp = level * 100;
         }
 
@@ -505,7 +637,9 @@
             return n + ' перерождений';
         }
 
+        // === DOM ЭЛЕМЕНТЫ ===
         const scoreElement = document.getElementById('score');
+        const mushroomScoreElement = document.getElementById('mushroomScore');
         const cpsElement = document.getElementById('cpsBox');
         const clickButton = document.getElementById('clickButton');
         const gameContainer = document.getElementById('gameContainer');
@@ -516,11 +650,15 @@
         const nextXpDisplay = document.getElementById('nextXpDisplay');
         const levelRewardBtn = document.getElementById('levelRewardBtn');
         const prestigePointsDisplay = document.getElementById('prestigePointsDisplay');
+        const mushroomPointsDisplay = document.getElementById('mushroomPointsDisplay');
+        
         const shopModal = document.getElementById('shopModal');
         const questsModal = document.getElementById('questsModal');
         const skillTreeModal = document.getElementById('skillTreeModal');
+        const upgradeTreeModal = document.getElementById('upgradeTreeModal');
         const achievementsModal = document.getElementById('achievementsModal');
         const prestigeModal = document.getElementById('prestigeModal');
+        const mineModal = document.getElementById('mineModal');
         
         const buyClickBtn = document.getElementById('buyClickBtn');
         const clickCostText = document.getElementById('clickCostText');
@@ -535,12 +673,22 @@
         const buyArtifactAutoBtn = document.getElementById('buyArtifactAutoBtn');
         const artifactAutoCostText = document.getElementById('artifactAutoCostText');
         const artifactAutoDisplay = document.getElementById('artifactAutoDisplay');
+        const buyArtifactClick2Btn = document.getElementById('buyArtifactClick2Btn');
+        const artifactClick2CostText = document.getElementById('artifactClick2CostText');
+        const artifactClick2Display = document.getElementById('artifactClick2Display');
+        const buyArtifactAuto2Btn = document.getElementById('buyArtifactAuto2Btn');
+        const artifactAuto2CostText = document.getElementById('artifactAuto2CostText');
+        const artifactAuto2Display = document.getElementById('artifactAuto2Display');
+        const buyArtifactAuto3Btn = document.getElementById('buyArtifactAuto3Btn');
+        const artifactAuto3CostText = document.getElementById('artifactAuto3CostText');
+        const artifactAuto3Display = document.getElementById('artifactAuto3Display');
         
         const lvlDisplay = document.getElementById('lvlDisplay');
         const prestigeDisplay = document.getElementById('prestigeDisplay');
         const prestigeBtn = document.getElementById('prestigeBtn');
         const questsContainer = document.getElementById('questsContainer');
         const skillTreeContainer = document.getElementById('skillTreeContainer');
+        const upgradeTreeContainer = document.getElementById('upgradeTreeContainer');
         const achievementsContainer = document.getElementById('achievementsContainer');
         const achievementToast = document.getElementById('achievementToast');
         const toastIcon = document.getElementById('toastIcon');
@@ -548,31 +696,47 @@
         const toastDesc = document.getElementById('toastDesc');
         const prestigeCurrentScore = document.getElementById('prestigeCurrentScore');
         const doPrestigeBtn = document.getElementById('doPrestigeBtn');
+        
+        const mineGrid = document.getElementById('mineGrid');
+        const mineScoreEl = document.getElementById('mineScore');
+        const mineTimerEl = document.getElementById('mineTimer');
+        const startMineBtn = document.getElementById('startMineBtn');
 
+        // === РАСЧЕТЫ ===
         function getClickPower() {
             let base = clickPower * artifactClickMult;
             let skillBonus = 1 + (skills.clickMaster.level * 0.1);
-            return Math.floor(base * skillBonus * (boostActive ? 2 : 1) * (prestige + 1));
+            let upgradeBonus = 1 + (upgrades.clickBoost.level * 0.05);
+            return Math.floor(base * skillBonus * upgradeBonus * (boostActive ? 2 : 1) * (prestige + 1));
         }
         function getAutoPower() {
             let base = autoChacha * artifactAutoMult;
             let skillBonus = 1 + (skills.autoMaster.level * 0.1);
-            return Math.floor(base * skillBonus * (boostActive ? 2 : 1) * (prestige + 1));
+            let upgradeBonus = 1 + (upgrades.autoBoost.level * 0.05);
+            return Math.floor(base * skillBonus * upgradeBonus * (boostActive ? 2 : 1) * (prestige + 1));
         }
-        function getDiscount() { return 1 - (skills.discount.level * 0.05); }
+        function getDiscount() {
+            let skillDiscount = skills.discount.level * 0.05;
+            let upgradeDiscount = upgrades.discountBoost.level * 0.03;
+            return 1 - (skillDiscount + upgradeDiscount);
+        }
         function getBoostDuration() { return 120 + (skills.boostMaster.level * 10); }
+        function getMineDuration() { return 30 + (upgrades.mineSpeed.level * 2); }
+        function getMineReward() { return 1 + upgrades.mineReward.level; }
 
         function updateUI() {
             let activePower = getClickPower();
             let activeCps = getAutoPower();
 
             scoreElement.textContent = Math.floor(score);
+            mushroomScoreElement.textContent = mushroomScore;
             cpsElement.textContent = `в сек: ${activeCps}`;
             lvlDisplay.textContent = level;
             xpDisplay.textContent = xp;
             nextXpDisplay.textContent = nextXp;
             prestigeDisplay.textContent = getPrestigeText(prestige);
             prestigePointsDisplay.textContent = prestigePoints;
+            mushroomPointsDisplay.textContent = mushroomScore;
 
             clickPowerDisplay.textContent = `(клик: +${clickPower})`;
             clickCostText.textContent = `Цена: ${upgradeClickCost}`;
@@ -593,6 +757,18 @@
             artifactAutoCostText.textContent = `Цена: ${artifactAutoCost}`;
             buyArtifactAutoBtn.className = `card-bottom ${score >= artifactAutoCost && !hasArtifactAuto ? 'affordable' : 'disabled'}`;
 
+            artifactClick2Display.textContent = `(x${hasArtifactClick2 ? '2' : '0'} к клику)`;
+            artifactClick2CostText.textContent = `Цена: ${artifactClick2Cost}`;
+            buyArtifactClick2Btn.className = `card-bottom ${score >= artifactClick2Cost && !hasArtifactClick2 ? 'affordable' : 'disabled'}`;
+
+            artifactAuto2Display.textContent = `(x${hasArtifactAuto2 ? '2' : '0'} к авто)`;
+            artifactAuto2CostText.textContent = `Цена: ${artifactAuto2Cost}`;
+            buyArtifactAuto2Btn.className = `card-bottom ${score >= artifactAuto2Cost && !hasArtifactAuto2 ? 'affordable' : 'disabled'}`;
+
+            artifactAuto3Display.textContent = `(x${hasArtifactAuto3 ? '3' : '0'} к авто)`;
+            artifactAuto3CostText.textContent = `Цена: ${artifactAuto3Cost}`;
+            buyArtifactAuto3Btn.className = `card-bottom ${score >= artifactAuto3Cost && !hasArtifactAuto3 ? 'affordable' : 'disabled'}`;
+
             prestigeBtn.style.color = score >= PRESTIGE_COST ? '#55ff55' : '#ff55ff';
             if (level >= (claimedLevelRewards + 1) * 5) levelRewardBtn.style.display = 'block';
             else levelRewardBtn.style.display = 'none';
@@ -601,6 +777,7 @@
             if (doPrestigeBtn) doPrestigeBtn.className = score >= PRESTIGE_COST ? 'prestige-btn-big' : 'prestige-btn-big disabled';
             
             renderSkillTree();
+            renderUpgradeTree();
             checkAchievements();
         }
 
@@ -614,6 +791,7 @@
             updateUI();
         }
 
+        // === ДОСТИЖЕНИЯ ===
         function checkAchievements() {
             achievements.forEach(ach => {
                 if (!ach.unlocked && ach.check()) {
@@ -647,6 +825,7 @@
             });
         }
 
+        // === СОБЫТИЯ ===
         clickButton.addEventListener('click', (event) => {
             let now = Date.now();
             if (now - lastClickTime < 50) return; 
@@ -666,33 +845,43 @@
             updateUI(); saveGame();
         });
 
+        // Открытие модалок
         document.getElementById('openShopBtn').addEventListener('click', () => shopModal.classList.add('active'));
         document.getElementById('closeShopBtn').addEventListener('click', () => shopModal.classList.remove('active'));
         document.getElementById('openQuestsBtn').addEventListener('click', () => { questsModal.classList.add('active'); renderQuests(); });
         document.getElementById('closeQuestsBtn').addEventListener('click', () => questsModal.classList.remove('active'));
         document.getElementById('openSkillTreeBtn').addEventListener('click', () => { skillTreeModal.classList.add('active'); renderSkillTree(); });
         document.getElementById('closeSkillTreeBtn').addEventListener('click', () => skillTreeModal.classList.remove('active'));
+        document.getElementById('openUpgradeTreeBtn').addEventListener('click', () => { upgradeTreeModal.classList.add('active'); renderUpgradeTree(); });
+        document.getElementById('closeUpgradeTreeBtn').addEventListener('click', () => upgradeTreeModal.classList.remove('active'));
         document.getElementById('openAchievementsBtn').addEventListener('click', () => { achievementsModal.classList.add('active'); renderAchievements(); });
         document.getElementById('closeAchievementsBtn').addEventListener('click', () => achievementsModal.classList.remove('active'));
         document.getElementById('openPrestigeBtn').addEventListener('click', () => { prestigeModal.classList.add('active'); updateUI(); });
         document.getElementById('closePrestigeBtn').addEventListener('click', () => prestigeModal.classList.remove('active'));
+        document.getElementById('openMineBtn').addEventListener('click', () => { mineModal.classList.add('active'); initMine(); });
+        document.getElementById('closeMineBtn').addEventListener('click', () => { mineModal.classList.remove('active'); stopMine(); });
 
+        // Престиж
         doPrestigeBtn.addEventListener('click', () => {
             if (score >= PRESTIGE_COST) {
                 prestige += 1; prestigePoints += 1;
                 score = 0; clickPower = 1; autoChacha = 0; level = 1; xp = 0; claimedLevelRewards = 0;
                 upgradeClickCost = 5; upgradeAutoCost = 20;
-                artifactClickMult = 1; artifactAutoMult = 1; hasArtifactClick = false; hasArtifactAuto = false;
+                artifactClickMult = 1; artifactAutoMult = 1;
+                hasArtifactClick = false; hasArtifactAuto = false; hasArtifactClick2 = false;
+                hasArtifactAuto2 = false; hasArtifactAuto3 = false;
                 playSound('levelup'); updateUI(); saveGame();
                 prestigeModal.classList.remove('active');
                 alert('Перерождение! Вы получили 1 очко престижа.');
             }
         });
 
+        // Табы квестов
         document.getElementById('tab-normal').addEventListener('click', (e) => changeTab('normal', e.target));
         document.getElementById('tab-daily').addEventListener('click', (e) => changeTab('daily', e.target));
         document.getElementById('tab-weekly').addEventListener('click', (e) => changeTab('weekly', e.target));
 
+        // Покупки
         buyClickBtn.addEventListener('click', () => {
             let cost = Math.round(upgradeClickCost * getDiscount());
             if (score >= cost) { score -= cost; clickPower += 1; upgradeClickCost = Math.round(upgradeClickCost * 1.3); playSound('buy'); updateUI(); saveGame(); }
@@ -712,7 +901,20 @@
             let cost = Math.round(artifactAutoCost * getDiscount());
             if (score >= cost && !hasArtifactAuto) { score -= cost; artifactAutoMult = 1.5; hasArtifactAuto = true; playSound('buy'); updateUI(); saveGame(); alert('Вы купили Чача-ферму! Теперь авто-доход x1.5'); }
         });
+        buyArtifactClick2Btn.addEventListener('click', () => {
+            let cost = Math.round(artifactClick2Cost * getDiscount());
+            if (score >= cost && !hasArtifactClick2) { score -= cost; artifactClickMult = 2; hasArtifactClick2 = true; playSound('buy'); updateUI(); saveGame(); alert('Вы купили Медную кирку! Теперь клик x2'); }
+        });
+        buyArtifactAuto2Btn.addEventListener('click', () => {
+            let cost = Math.round(artifactAuto2Cost * getDiscount());
+            if (score >= cost && !hasArtifactAuto2) { score -= cost; artifactAutoMult = 2; hasArtifactAuto2 = true; playSound('buy'); updateUI(); saveGame(); alert('Вы купили Серебряную ферму! Теперь авто-доход x2'); }
+        });
+        buyArtifactAuto3Btn.addEventListener('click', () => {
+            let cost = Math.round(artifactAuto3Cost * getDiscount());
+            if (score >= cost && !hasArtifactAuto3) { score -= cost; artifactAutoMult = 3; hasArtifactAuto3 = true; playSound('buy'); updateUI(); saveGame(); alert('Вы купили Золотой завод! Теперь авто-доход x3'); }
+        });
 
+        // === ДЕРЕВО НАВЫКОВ (Престиж) ===
         function renderSkillTree() {
             if (!skillTreeContainer) return;
             skillTreeContainer.innerHTML = '';
@@ -737,6 +939,126 @@
             }
         }
 
+        // === ДЕРЕВО УЛУЧШЕНИЙ (Грибочки) ===
+        function renderUpgradeTree() {
+            if (!upgradeTreeContainer) return;
+            upgradeTreeContainer.innerHTML = '';
+            for (let key in upgrades) {
+                let u = upgrades[key];
+                let isMaxed = u.level >= u.max;
+                let canAfford = mushroomScore >= u.cost;
+                let node = document.createElement('div');
+                node.className = `skill-node ${isMaxed ? 'maxed' : ''}`;
+                node.innerHTML = `
+                    <div class="skill-icon">${u.icon}</div>
+                    <div class="skill-name">${u.name}</div>
+                    <div class="skill-level">Ур. ${u.level}/${u.max}</div>
+                    <div class="skill-cost">${isMaxed ? 'МАКС' : 'Цена: ' + u.cost + ' 🍄'}</div>
+                `;
+                if (!isMaxed && canAfford) {
+                    node.onclick = () => {
+                        if (mushroomScore >= u.cost) { mushroomScore -= u.cost; u.level++; playSound('buy'); updateUI(); saveGame(); renderUpgradeTree(); }
+                    };
+                }
+                upgradeTreeContainer.appendChild(node);
+            }
+        }
+
+        // === ШАХТА ===
+        function initMine() {
+            mineGrid.innerHTML = '';
+            for (let i = 0; i < 25; i++) {
+                let cell = document.createElement('div');
+                cell.className = 'mine-cell';
+                cell.dataset.index = i;
+                cell.addEventListener('click', () => mineClick(cell));
+                mineGrid.appendChild(cell);
+            }
+            startMineBtn.textContent = 'НАЧАТЬ';
+            startMineBtn.classList.remove('disabled');
+            mineScoreEl.textContent = '0';
+            mineTimerEl.textContent = '0';
+        }
+
+        function startMine() {
+            if (mineActive || mineCooldown > Date.now()) return;
+            mineActive = true;
+            mineTimeLeft = getMineDuration();
+            mineScoreCurrent = 0;
+            mineScoreEl.textContent = '0';
+            mineTimerEl.textContent = mineTimeLeft;
+            startMineBtn.textContent = 'ИДЁТ...';
+            startMineBtn.classList.add('disabled');
+            spawnMushroomInMine();
+            let interval = setInterval(() => {
+                if (!mineActive) { clearInterval(interval); return; }
+                mineTimeLeft--;
+                mineTimerEl.textContent = mineTimeLeft;
+                if (mineTimeLeft <= 0) {
+                    clearInterval(interval);
+                    endMine();
+                }
+            }, 1000);
+        }
+
+        function stopMine() {
+            mineActive = false;
+            startMineBtn.textContent = 'НАЧАТЬ';
+            startMineBtn.classList.remove('disabled');
+        }
+
+        function endMine() {
+            mineActive = false;
+            mushroomScore += mineScoreCurrent;
+            mineCooldown = Date.now() + 60000;
+            startMineBtn.textContent = 'ПЕРЕЗАРЯДКА';
+            startMineBtn.classList.add('disabled');
+            updateUI(); saveGame();
+            setTimeout(() => {
+                startMineBtn.textContent = 'НАЧАТЬ';
+                startMineBtn.classList.remove('disabled');
+            }, 60000);
+        }
+
+        function spawnMushroomInMine() {
+            if (!mineActive) return;
+            let cells = document.querySelectorAll('.mine-cell');
+            cells.forEach(c => { c.classList.remove('mushroom'); c.classList.remove('gold'); c.textContent = ''; });
+            let count = Math.floor(Math.random() * 3) + 2;
+            for (let i = 0; i < count; i++) {
+                let idx = Math.floor(Math.random() * 25);
+                let cell = cells[idx];
+                if (Math.random() < 0.2) {
+                    cell.classList.add('gold');
+                    cell.textContent = '🌟';
+                } else {
+                    cell.classList.add('mushroom');
+                    cell.textContent = '🍄';
+                }
+            }
+            setTimeout(spawnMushroomInMine, 800);
+        }
+
+        function mineClick(cell) {
+            if (!mineActive) return;
+            if (cell.classList.contains('mushroom')) {
+                mineScoreCurrent += getMineReward();
+                mineScoreEl.textContent = mineScoreCurrent;
+                cell.classList.remove('mushroom');
+                cell.textContent = '';
+                playSound('click');
+            } else if (cell.classList.contains('gold')) {
+                mineScoreCurrent += getMineReward() * 3;
+                mineScoreEl.textContent = mineScoreCurrent;
+                cell.classList.remove('gold');
+                cell.textContent = '';
+                playSound('buy');
+            }
+        }
+
+        startMineBtn.addEventListener('click', startMine);
+
+        // === ТАЙМЕРЫ ===
         setInterval(() => {
             if (autoChacha > 0) { let currentAuto = getAutoPower(); score += currentAuto; updateUI(); saveGame(); }
         }, 1000);
@@ -827,6 +1149,7 @@
             }
         }
 
+        // === СТАРТ ===
         loadGame();
         updateUI();
     </script>
