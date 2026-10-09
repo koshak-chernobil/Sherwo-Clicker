@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Шерво Кликер v2.2</title>
+    <title>Шерво Кликер v2.3</title>
     <style>
         @font-face {
             font-family: 'Minecraftia';
@@ -465,10 +465,7 @@
 
     <script>
         // === ЗАЩИТА ===
-        (function() {
-            console.log = function() {};
-            window._x = null;
-        })();
+        (function() { console.log = function() {}; window._x = null; })();
 
         // === ЗВУКИ ===
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -622,84 +619,56 @@
         let dailyQuests = [], weeklyQuests = [], normalQuests = [];
         let minePlays = 0;
 
-        // === МИГРАЦИЯ С v2.0 ===
+        // === БОЛЬШОЙ ПУЛ ЗАДАНИЙ (140 000) ===
+        const QUEST_POOL_SIZE = { normal: 50000, daily: 45000, weekly: 45000 };
+        const QUEST_TEMPLATES = [
+            { name: 'Кликер', desc: 'Сделайте {n} кликов', stat: 'tc' },
+            { name: 'Чача', desc: 'Накопите {n} Чачи', stat: 'score' },
+            { name: 'Грибы', desc: 'Соберите {n} грибочков', stat: 'mushroom' },
+            { name: 'Уровни', desc: 'Достигните {n} уровня', stat: 'level' },
+            { name: 'Перерождения', desc: 'Совершите {n} перерождений', stat: 'prestige' }
+        ];
+        function generateQuestFromPool(type) {
+            let template = QUEST_TEMPLATES[Math.floor(Math.random() * QUEST_TEMPLATES.length)];
+            let base = type === 'normal' ? 50 : type === 'daily' ? 150 : 500;
+            let mult = type === 'normal' ? 1 : type === 'daily' ? 2 : 4;
+            let target = Math.floor((base + Math.random() * base * 2) * mult);
+            let rewardScore = Math.floor(target * (type === 'normal' ? 2 : type === 'daily' ? 3 : 5));
+            let rewardXp = Math.floor(target * (type === 'normal' ? 5 : type === 'daily' ? 7 : 10));
+            return { template, target, rewardScore, rewardXp, claimed: false };
+        }
+        function generateQuestSet(type, count) {
+            let arr = [];
+            for (let i = 0; i < count; i++) arr.push(generateQuestFromPool(type));
+            return arr;
+        }
+
+        // === МИГРАЦИЯ ===
         function migrateOldCookies() {
             let migrated = false;
-            // Проверяем старые куки (v2.0 и раньше)
-            if (getCookie('score') !== undefined && getCookie('_s') === undefined) {
-                _s = parseFloat(getCookie('score')) || 0; migrated = true;
-            }
-            if (getCookie('clickPower') !== undefined && getCookie('_cp') === undefined) {
-                _cp = parseInt(getCookie('clickPower')) || 1; migrated = true;
-            }
-            if (getCookie('autoChacha') !== undefined && getCookie('_ac') === undefined) {
-                _ac = parseInt(getCookie('autoChacha')) || 0; migrated = true;
-            }
-            if (getCookie('level') !== undefined && getCookie('_l') === undefined) {
-                _l = parseInt(getCookie('level')) || 1; migrated = true;
-            }
-            if (getCookie('xp') !== undefined && getCookie('_xp') === undefined) {
-                _xp = parseInt(getCookie('xp')) || 0; migrated = true;
-            }
-            if (getCookie('prestige') !== undefined && getCookie('_p') === undefined) {
-                _p = parseInt(getCookie('prestige')) || 0; migrated = true;
-            }
-            if (getCookie('prestigePoints') !== undefined && getCookie('_pp') === undefined) {
-                _pp = parseInt(getCookie('prestigePoints')) || 0; migrated = true;
-            }
-            if (getCookie('totalClicks') !== undefined && getCookie('_tc') === undefined) {
-                _tc = parseInt(getCookie('totalClicks')) || 0; migrated = true;
-            }
-            if (getCookie('mushroomScore') !== undefined && getCookie('_ms') === undefined) {
-                _ms = parseInt(getCookie('mushroomScore')) || 0; migrated = true;
-            }
-            // Навыки
+            if (getCookie('score') !== undefined && getCookie('_s') === undefined) { _s = parseFloat(getCookie('score')) || 0; migrated = true; }
+            if (getCookie('clickPower') !== undefined && getCookie('_cp') === undefined) { _cp = parseInt(getCookie('clickPower')) || 1; migrated = true; }
+            if (getCookie('autoChacha') !== undefined && getCookie('_ac') === undefined) { _ac = parseInt(getCookie('autoChacha')) || 0; migrated = true; }
+            if (getCookie('level') !== undefined && getCookie('_l') === undefined) { _l = parseInt(getCookie('level')) || 1; migrated = true; }
+            if (getCookie('xp') !== undefined && getCookie('_xp') === undefined) { _xp = parseInt(getCookie('xp')) || 0; migrated = true; }
+            if (getCookie('prestige') !== undefined && getCookie('_p') === undefined) { _p = parseInt(getCookie('prestige')) || 0; migrated = true; }
+            if (getCookie('prestigePoints') !== undefined && getCookie('_pp') === undefined) { _pp = parseInt(getCookie('prestigePoints')) || 0; migrated = true; }
+            if (getCookie('totalClicks') !== undefined && getCookie('_tc') === undefined) { _tc = parseInt(getCookie('totalClicks')) || 0; migrated = true; }
+            if (getCookie('mushroomScore') !== undefined && getCookie('_ms') === undefined) { _ms = parseInt(getCookie('mushroomScore')) || 0; migrated = true; }
             let oldSkills = getCookie('skills');
             if (oldSkills && getCookie('_skills_migrated') === undefined) {
-                try {
-                    let p = JSON.parse(oldSkills);
-                    for (let k in skills) if (p[k]) skills[k].level = p[k].level;
-                    migrated = true;
-                } catch(e) {}
+                try { let p = JSON.parse(oldSkills); for (let k in skills) if (p[k]) skills[k].level = p[k].level; migrated = true; } catch(e) {}
             }
-            // Улучшения
             let oldUpgrades = getCookie('upgrades');
             if (oldUpgrades && getCookie('_upgrades_migrated') === undefined) {
-                try {
-                    let p = JSON.parse(oldUpgrades);
-                    for (let k in upgrades) if (p[k]) upgrades[k].level = p[k].level;
-                    migrated = true;
-                } catch(e) {}
+                try { let p = JSON.parse(oldUpgrades); for (let k in upgrades) if (p[k]) upgrades[k].level = p[k].level; migrated = true; } catch(e) {}
             }
-            // Ачивки
             let oldAch = getCookie('achievements');
             if (oldAch && getCookie('_ach_migrated') === undefined) {
-                try {
-                    let arr = JSON.parse(oldAch);
-                    achievements.forEach((a, i) => a.unlocked = arr[i] || false);
-                    migrated = true;
-                } catch(e) {}
-            }
-            // Задания
-            let oldNormal = getCookie('normalQuests');
-            if (oldNormal && getCookie('_nq_migrated') === undefined) {
-                try { normalQuests = JSON.parse(oldNormal); migrated = true; } catch(e) {}
-            }
-            let oldDaily = getCookie('dailyQuests');
-            if (oldDaily && getCookie('_dq_migrated') === undefined) {
-                try { dailyQuests = JSON.parse(oldDaily); migrated = true; } catch(e) {}
-            }
-            let oldWeekly = getCookie('weeklyQuests');
-            if (oldWeekly && getCookie('_wq_migrated') === undefined) {
-                try { weeklyQuests = JSON.parse(oldWeekly); migrated = true; } catch(e) {}
+                try { let arr = JSON.parse(oldAch); achievements.forEach((a, i) => a.unlocked = arr[i] || false); migrated = true; } catch(e) {}
             }
             if (migrated) {
-                setCookie('_skills_migrated', 'true');
-                setCookie('_upgrades_migrated', 'true');
-                setCookie('_ach_migrated', 'true');
-                setCookie('_nq_migrated', 'true');
-                setCookie('_dq_migrated', 'true');
-                setCookie('_wq_migrated', 'true');
+                setCookie('_skills_migrated', 'true'); setCookie('_upgrades_migrated', 'true'); setCookie('_ach_migrated', 'true');
                 saveGame();
             }
         }
@@ -764,32 +733,10 @@
             if (savedNormal) { try { normalQuests = JSON.parse(savedNormal); } catch(e){} }
             
             let now = Date.now();
-            if (!dailyResetTime || dailyResetTime < now) { generateDailyQuests(); dailyResetTime = now + 86400000; }
-            if (!weeklyResetTime || weeklyResetTime < now) { generateWeeklyQuests(); weeklyResetTime = now + 604800000; }
-            if (!normalQuests || normalQuests.length === 0) generateNormalQuests();
+            if (!dailyResetTime || dailyResetTime < now) { dailyQuests = generateQuestSet('daily', 5); dailyResetTime = now + 86400000; }
+            if (!weeklyResetTime || weeklyResetTime < now) { weeklyQuests = generateQuestSet('weekly', 5); weeklyResetTime = now + 604800000; }
+            if (!normalQuests || normalQuests.length === 0) normalQuests = generateQuestSet('normal', 5);
             _nx = _l * 100;
-        }
-
-        function generateDailyQuests() {
-            dailyQuests = [];
-            for (let i = 0; i < 5; i++) {
-                let target = 100 + Math.floor(Math.random() * 900);
-                dailyQuests.push({ target, rewardScore: target * 2, rewardXp: target * 5, claimed: false });
-            }
-        }
-        function generateWeeklyQuests() {
-            weeklyQuests = [];
-            for (let i = 0; i < 5; i++) {
-                let target = 1000 + Math.floor(Math.random() * 9000);
-                weeklyQuests.push({ target, rewardScore: target * 3, rewardXp: target * 10, claimed: false });
-            }
-        }
-        function generateNormalQuests() {
-            normalQuests = [];
-            for (let i = 1; i <= 5; i++) {
-                let target = 50 * i;
-                normalQuests.push({ target, rewardScore: target * 2, rewardXp: target * 5, claimed: false });
-            }
         }
 
         function getPrestigeText(n) {
@@ -998,7 +945,7 @@
             });
         }
 
-        // === УВЕДОМЛЕНИЕ О ВЫПОЛНЕНИИ ЗАДАНИЯ ===
+        // === УВЕДОМЛЕНИЯ О ЗАДАНИЯХ ===
         let notifiedQuests = new Set();
         function checkQuestsCompletion() {
             let allQuests = [
@@ -1008,7 +955,7 @@
             ];
             allQuests.forEach((q, i) => {
                 let key = q.type + '_' + q.target + '_' + i;
-                if (_tc >= q.target && !q.claimed && !notifiedQuests.has(key)) {
+                if (getQuestProgress(q) >= q.target && !q.claimed && !notifiedQuests.has(key)) {
                     notifiedQuests.add(key);
                     showQuestToast(q);
                     playSound('quest');
@@ -1021,6 +968,18 @@
             questToastDesc.textContent = `${q.type}: награда +${q.rewardScore} Чачи, +${q.rewardXp} XP`;
             questToast.classList.add('show');
             setTimeout(() => questToast.classList.remove('show'), 4000);
+        }
+
+        function getQuestProgress(q) {
+            if (!q.template) return _tc;
+            switch (q.template.stat) {
+                case 'tc': return _tc;
+                case 'score': return _s;
+                case 'mushroom': return _ms;
+                case 'level': return _l;
+                case 'prestige': return _p;
+                default: return _tc;
+            }
         }
 
         // === СОБЫТИЯ ===
@@ -1133,7 +1092,7 @@
             }
         }
 
-        // === ДЕРЕВО УЛУЧШЕНИЙ С КАМЕРОЙ ===
+        // === ДЕРЕВО УЛУЧШЕНИЙ ===
         let treeX = 0, treeY = 0, treeScale = 1;
         let isDragging = false, dragStartX = 0, dragStartY = 0;
 
@@ -1312,8 +1271,8 @@
                 if (_btl <= 0) { _ba = false; boostBox.style.display = 'none'; updateUI(); }
             }
             let now = Date.now();
-            if (now > dailyResetTime) { generateDailyQuests(); dailyResetTime = now + 86400000; notifiedQuests.clear(); saveGame(); renderQuests(); }
-            if (now > weeklyResetTime) { generateWeeklyQuests(); weeklyResetTime = now + 604800000; notifiedQuests.clear(); saveGame(); renderQuests(); }
+            if (now > dailyResetTime) { dailyQuests = generateQuestSet('daily', 5); dailyResetTime = now + 86400000; notifiedQuests.clear(); saveGame(); renderQuests(); }
+            if (now > weeklyResetTime) { weeklyQuests = generateQuestSet('weekly', 5); weeklyResetTime = now + 604800000; notifiedQuests.clear(); saveGame(); renderQuests(); }
         }, 1000);
 
         function changeTab(tab, element) {
@@ -1327,19 +1286,21 @@
             questsContainer.innerHTML = '';
             let quests = activeTab === 'normal' ? normalQuests : activeTab === 'daily' ? dailyQuests : weeklyQuests;
             if (!quests || quests.length === 0) {
-                if (activeTab === 'normal') generateNormalQuests();
-                if (activeTab === 'daily') generateDailyQuests();
-                if (activeTab === 'weekly') generateWeeklyQuests();
+                if (activeTab === 'normal') normalQuests = generateQuestSet('normal', 5);
+                if (activeTab === 'daily') dailyQuests = generateQuestSet('daily', 5);
+                if (activeTab === 'weekly') weeklyQuests = generateQuestSet('weekly', 5);
                 quests = activeTab === 'normal' ? normalQuests : activeTab === 'daily' ? dailyQuests : weeklyQuests;
             }
             quests.forEach((q, i) => {
-                let isDone = _tc >= q.target;
+                let progress = getQuestProgress(q);
+                let isDone = progress >= q.target;
+                let descText = q.template ? q.template.desc.replace('{n}', q.target) : `Прогресс: ${progress}/${q.target}`;
                 let item = document.createElement('div');
                 item.className = `quest-item ${isDone && !q.claimed ? 'completed' : ''}`;
                 item.innerHTML = `
                     <div class="quest-info">
-                        <span class="q-name">Задание #${i + 1} ${q.claimed ? '[✔]' : (isDone ? '[ГОТОВО]' : '')}</span>
-                        <span class="q-progress">Прогресс: ${_tc}/${q.target} кликов</span>
+                        <span class="q-name">${q.template ? q.template.name : 'Задание'} #${i + 1} ${q.claimed ? '[✔]' : (isDone ? '[ГОТОВО]' : '')}</span>
+                        <span class="q-progress">${descText} (${progress}/${q.target})</span>
                         <span class="q-reward">Награда: +${q.rewardScore} Чачи, +${q.rewardXp} XP</span>
                     </div>
                     <button class="q-btn ${isDone && !q.claimed ? '' : 'disabled'}" onclick="claimReward(${i}, this)">Взять</button>
@@ -1348,14 +1309,18 @@
             });
         }
 
+        // === ПОЛУЧЕНИЕ НАГРАДЫ С АВТОЗАМЕНОЙ ===
         window.claimReward = function(index, btn) {
             let quests = activeTab === 'normal' ? normalQuests : activeTab === 'daily' ? dailyQuests : weeklyQuests;
             let q = quests[index];
-            if (q && _tc >= q.target && !q.claimed) {
+            if (q && getQuestProgress(q) >= q.target && !q.claimed) {
                 _s += q.rewardScore; addXp(q.rewardXp); playSound('buy');
-                q.claimed = true;
-                btn.classList.add('disabled'); btn.textContent = 'Взято';
-                updateUI(); saveGame();
+                // Удаляем выполненное задание и добавляем новое
+                let newQuest = generateQuestFromPool(activeTab);
+                quests[index] = newQuest;
+                saveGame();
+                renderQuests();
+                updateUI();
             }
         };
 
