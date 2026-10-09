@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Шерво Кликер</title>
+    <style>
+        @font-face {
+            font-family: 'Minecraftia';
+            src: url('data:font/woff2;charset=utf-8;base64,d09GMgABAAAAAAQwAA4AAAAABxwAAAPaAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAADICENgZgAIw4EQgKgzSDHAwLEAABNgQkAxIEIAWDFgc8G1sFIxG2c5uI/hEkh2n7Hw2iREREEpG/dD9t3r7NZt8gZAhDhAhBiBBCROQvXf9v/e89d8/MvRERkREp0S1G3YpuzG6W2M1oHBGdM+pWN2N/5Tqf3z5jXkX/z6f/b9q2/9sJICggl0qA22B9WqXUChWlXGqF29Gv5f9P3/Z/O8F3B0RCEhG5iMhfura3uXnOvZm5N4jIEREREZGI/KXb/2vP+3Vunpl7IyIiIlKiW4xuMeq2o3H7P+3/t237v53gu3sCCArIpRLgNliff6VcqhYqSrnUCrejf8v/n77t/3aC7w6IhCQichGRv3Rtb3PznHsztzciIjIiJSIiEpHX8tXW9lrr2tXWVkREO9FOtBOJiMhfutbWtlpr22pta0REO9FOtBOJiMhfutbWtlpr22pta0REO9FOtBOt5PV+e3m9X2trWyMi2ol2op1oIyIyut7WtlprW1tbWyMi2ol2op1oI17Lt/3W9lprW9vWVkREO5GISERExGt5rbW91traWlsbEdFOtBPtRCKvvb72Wltba2trEdFOtBPtRBt5rb2ttb22trZGRHsi/yL/Iv8i/+y/2rfa91/t/t/t/t/5O18iPyI/Ij8i/+S/1r7av/5v//8X8iPyI/Ij8if5K/Wl9qX+pf6l/vXyDfIj8iPyI/In+Vv1pfav/6v//yA/Ij8iPyI/Iv+tP62vta/1r/Wvl6+XH5EfkR+RH5Gv5dfal9rL62X5cvkR+RH5EfkReS2vtrbWWmutra2tEdGeiE/EJyLy5fKl8vW1fL29XpaX16utra22ttr2RHwiPhGfvvb29rW3t7+2tiIifxH5i8jrevv2td/aV1tbGxF5W15eXltbe32tra2trd+2/7vtd9vv2n5re/u2tSfyL/Iv8ifym9e3z/d93/fNzMzo9W1zc3NzM/J7v+u6rut6XdeXyLfP9/u+7+X17W1zc20n2on+D5y9yL3IvV7e3m7vbrcTEZEfkb+IiMhru9vt7XYjIiLye7+bN/d2OxERkR+Rv8h7+T2/5/dERETk93539/N7uxEREZHIa/l5u92eRES0pxKpiEREJCIir+XL2+3tdu/v70REtBMREVGRf5G/iHwtr7Xb7Xa72/t7W1sRETURRURE1C/yf+DbF7kXuff+/k7ERDvxJ+InIiLSVvS/2WvtbWtrS0SkbRv5P/Ct9iXyXxER/UT8RESkvchfRCIier3ffl7fdhIR7UT/J22L/Iv8/wM=') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Minecraftia', sans-serif;
+            background-image: url('bg.png');
+            background-color: #1a1c1e;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            display: flex; align-items: center; justify-content: center;
+            min-height: 100vh; user-select: none; overflow: hidden;
+        }
+        .stats-top { position: fixed; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 5; }
+        .stat-badge {
+            background: rgba(43, 45, 49, 0.9); border: 3px solid #3c3e44;
+            padding: 8px 15px; color: #ffffff; font-size: 0.85rem;
+            text-shadow: 2px 2px 0px #000; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        .game-box {
+            text-align: center; background: rgba(43, 45, 49, 0.85);
+            backdrop-filter: blur(4px); border: 4px solid #3c3e44;
+            outline: 4px solid #1e1f22; padding: 40px 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.8); z-index: 2;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .score-box { font-size: 1.6rem; color: #ffffff; margin-bottom: 10px; text-shadow: 3px 3px 0px #000000; }
+        .cps-box { font-size: 0.9rem; color: #ffff55; margin-bottom: 25px; text-shadow: 2px 2px 0px #000000; }
+        .boost-box { font-size: 1rem; color: #ff55ff; margin-bottom: 15px; text-shadow: 2px 2px 0px #000; display: none; }
+        .clicker-area {
+            position: relative; width: 200px; height: 200px; margin: 0 auto 25px auto;
+            display: block; cursor: pointer; border-radius: 50%; transition: transform 0.05s ease;
+        }
+        .clicker-area:active { transform: scale(0.92); }
+        .clicker-img { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; pointer-events: none; }
+        
+        .bottom-left-btn { position: fixed; left: 20px; bottom: 20px; z-index: 10; }
+        .top-left-btn { position: fixed; left: 20px; top: 20px; z-index: 10; }
+        .right-btn { position: fixed; right: 20px; bottom: 20px; z-index: 10; }
+        .right-btn-2 { position: fixed; right: 20px; bottom: 80px; z-index: 10; }
+        .right-btn-3 { position: fixed; right: 20px; bottom: 140px; z-index: 10; }
+        
+        .menu-btn {
+            background: #4a4d54; border: 3px solid #707480; outline: 2px solid #000;
+            color: #ffffff; font-family: 'Minecraftia', sans-serif; font-size: 0.9rem;
+            padding: 12px 24px; cursor: pointer; text-shadow: 2px 2px 0px #000;
+            box-shadow: 0 6px 0 #1e1f22;
+        }
+        .menu-btn:hover { background: #5c6069; }
+        .menu-btn:active { transform: translateY(3px); box-shadow: 0 3px 0 #1e1f22; }
+        
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.75); z-index: 100;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .window-box {
+            background: #2c2e33; border: 4px solid #4e5058; outline: 4px solid #000;
+            width: 750px; max-width: 90%; padding: 25px; position: relative;
+            box-shadow: 0 20px 45px rgba(0,0,0,0.8);
+            max-height: 80vh; overflow-y: auto;
+        }
+        .close-btn {
+            position: absolute; top: 15px; right: 15px; background: #ff5555;
+            border: 2px solid #ff7777; outline: 2px solid #000; color: white;
+            font-family: 'Minecraftia', sans-serif; font-size: 0.9rem;
+            width: 30px; height: 30px; cursor: pointer; line-height: 24px; text-shadow: 1px 1px 0px #000;
+        }
+        .close-btn:hover { background: #ff3333; }
+        .shop-title { color: #ffff55; font-size: 1.2rem; text-shadow: 2px 2px 0px #000; text-align: center; margin-bottom: 15px; }
+        
+        .cards-list { display: flex; gap: 20px; overflow-x: auto; padding: 15px 5px; scroll-behavior: smooth; }
+        .cards-list::-webkit-scrollbar { height: 10px; background: #1e1f22; }
+        .cards-list::-webkit-scrollbar-thumb { background: #4e5058; border: 2px solid #1e1f22; }
+        .card {
+            background: #3c3f45; border: 3px solid #000; width: 190px; flex-shrink: 0;
+            display: flex; flex-direction: column; box-shadow: 0 8px 0px rgba(0,0,0,0.4);
+        }
+        .card-top { background: #70ff45; padding: 10px; text-align: center; border-bottom: 3px solid #000; }
+        .card-title { color: #000000; font-size: 0.75rem; font-weight: bold; }
+        .card-body { padding: 15px 10px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; flex-grow: 1; }
+        .card-icon { width: 54px; height: 54px; object-fit: contain; image-rendering: pixelated; }
+        .card-count { color: #000000; font-weight: bold; font-size: 0.75rem; }
+        .card-bottom { background: #1b521c; padding: 10px; text-align: center; border-top: 3px solid #000; cursor: pointer; }
+        .card-bottom:hover { background: #246626; }
+        .card-bottom.disabled { background: #222426; cursor: not-allowed; }
+        .card-price { font-size: 0.75rem; text-shadow: 1px 1px 0px #000; color: #ff5555; }
+        .card-bottom.affordable .card-price { color: #55ff55; }
+        
+        .tabs-header { display: flex; gap: 10px; margin-top: 15px; border-bottom: 3px solid #4e5058; padding-bottom: 10px; }
+        .tab-btn {
+            background: #222426; border: 2px solid #4e5058; color: #aaaaaa;
+            font-family: 'Minecraftia', sans-serif; padding: 6px 12px; font-size: 0.75rem; cursor: pointer;
+        }
+        .tab-btn.active { background: #4a4d54; color: #ffff55; border-color: #ffff55; }
+        
+        .quests-scroller { max-height: 300px; overflow-y: auto; margin-top: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .quests-scroller::-webkit-scrollbar { width: 8px; background: #1e1f22; }
+        .quests-scroller::-webkit-scrollbar-thumb { background: #4e5058; }
+        .quest-item {
+            background: #3c3f45; border: 2px solid #000; padding: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .quest-info { display: flex; flex-direction: column; gap: 4px; }
+        .q-name { color: #fff; font-size: 0.8rem; text-shadow: 1px 1px 0px #000;}
+        .q-reward { color: #55ff55; font-size: 0.7rem; }
+        .q-progress { color: #ffff55; font-size: 0.7rem; }
+        .q-btn {
+            background: #1b521c; border: 2px solid #000; color: #fff;
+            font-family: 'Minecraftia', sans-serif; font-size: 0.75rem;
+            padding: 6px 12px; cursor: pointer;
+        }
+        .q-btn.disabled { background: #222426; cursor: not-allowed; opacity: 0.6; }
+
+        .skill-tree { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin-top: 15px; }
+        .skill-node {
+            background: #3c3f45; border: 3px solid #000; width: 150px; padding: 10px;
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .skill-node:hover { background: #4a4d54; border-color: #ffff55; }
+        .skill-node.maxed { border-color: #55ff55; opacity: 0.7; cursor: default; }
+        .skill-icon { font-size: 1.5rem; }
+        .skill-name { color: #fff; font-size: 0.7rem; text-align: center; }
+        .skill-cost { color: #ff55ff; font-size: 0.65rem; }
+        .skill-level { color: #ffff55; font-size: 0.65rem; }
+
+        .achievements-list { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; max-height: 400px; overflow-y: auto; }
+        .achievements-list::-webkit-scrollbar { width: 8px; background: #1e1f22; }
+        .achievements-list::-webkit-scrollbar-thumb { background: #4e5058; }
+        .achievement-item {
+            background: #3c3f45; border: 2px solid #000; padding: 10px;
+            display: flex; align-items: center; gap: 15px;
+        }
+        .achievement-item.locked { opacity: 0.5; }
+        .ach-icon { font-size: 2rem; }
+        .ach-info { display: flex; flex-direction: column; }
+        .ach-name { color: #ffff55; font-size: 0.8rem; }
+        .ach-desc { color: #aaaaaa; font-size: 0.65rem; }
+
+        .achievement-toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: #2c2e33; border: 3px solid #ffff55; outline: 3px solid #000;
+            padding: 15px 25px; display: flex; align-items: center; gap: 15px;
+            z-index: 200; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            opacity: 0; pointer-events: none; transition: opacity 0.5s ease;
+        }
+        .achievement-toast.show { opacity: 1; }
+        .toast-icon { font-size: 2rem; }
+        .toast-info { display: flex; flex-direction: column; }
+        .toast-name { color: #ffff55; font-size: 0.9rem; text-shadow: 1px 1px 0px #000; }
+        .toast-desc { color: #ffffff; font-size: 0.7rem; }
+
+        .floating-text {
+            position: absolute; font-family: 'Minecraftia', sans-serif; font-size: 1.4rem;
+            color: #55ff55; text-shadow: 2px 2px 0px #000000; pointer-events: none;
+            animation: floatUp 0.5s ease-out forwards; z-index: 15;
+        }
+        @keyframes floatUp {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -100px) scale(0.85); opacity: 0; }
+        }
+        .mc-particle {
+            position: absolute; width: 10px; height: 10px;
+            background-color: #ffff55; pointer-events: none; z-index: 5;
+        }
+        .player-nicks {
+            position: fixed; right: 20px; bottom: 200px; z-index: 10;
+            display: flex; flex-direction: column; gap: 5px; text-align: right;
+        }
+        .player-nicks span { color: #aaaaaa; font-size: 0.7rem; text-shadow: 1px 1px 0px #000; }
+
+        .prestige-info { color: #fff; font-size: 0.8rem; text-align: center; margin: 15px 0; line-height: 1.6; }
+        .prestige-info .highlight { color: #ffff55; }
+        .prestige-btn-big {
+            display: block; margin: 20px auto; padding: 15px 40px;
+            background: #4a1d4a; border: 3px solid #ff55ff; outline: 3px solid #000;
+            color: #ff55ff; font-family: 'Minecraftia', sans-serif; font-size: 1rem;
+            cursor: pointer; text-shadow: 2px 2px 0px #000;
+        }
+        .prestige-btn-big:hover { background: #6a2d6a; }
+        .prestige-btn-big.disabled { background: #222426; border-color: #4e5058; color: #4e5058; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <div class="stats-top">
+        <div class="stat-badge">УРОВЕНЬ: <span id="lvlDisplay">1</span> (XP: <span id="xpDisplay">0</span>/<span id="nextXpDisplay">100</span>)</div>
+        <div class="stat-badge" style="color:#ff55ff; cursor:pointer;" id="prestigeBtn">ПЕРЕРОЖДЕНИЕ: <span id="prestigeDisplay">0</span></div>
+        <div class="stat-badge" style="color:#ffaa00; display:none; cursor:pointer;" id="levelRewardBtn">ЗАБРАТЬ НАГРАДУ УРОВНЯ!</div>
+    </div>
+
+    <button class="menu-btn top-left-btn" id="openQuestsBtn">ЗАДАНИЯ</button>
+    <button class="menu-btn bottom-left-btn" id="openShopBtn">МАГАЗИН</button>
+    <button class="menu-btn right-btn-3" id="openAchievementsBtn" style="background:#4a4d54; border-color:#ffff55; color:#ffff55;">ДОСТИЖЕНИЯ</button>
+    <button class="menu-btn right-btn-2" id="openSkillTreeBtn" style="background:#4a4d54; border-color:#ff55ff; color:#ff55ff;">НАВЫКИ</button>
+    <button class="menu-btn right-btn" id="openPrestigeBtn" style="background:#4a1d4a; border-color:#ff55ff; color:#ff55ff;">ПЕРЕРОЖДЕНИЕ</button>
+
+    <div class="player-nicks">
+        <span>_MASHK273_</span>
+        <span>glebus22855666</span>
+    </div>
+
+    <div class="game-box" id="gameContainer">
+        <div class="score-box">ЧАЧА: <span id="score">0</span></div>
+        <div class="cps-box" id="cpsBox">в сек: 0</div>
+        <div class="boost-box" id="boostBox">БУСТ 2Х: <span id="boostTimer">120</span>с</div>
+        <div class="clicker-area" id="clickButton">
+            <img class="clicker-img" src="mushroom.png" alt="Гриб">
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="shopModal">
+        <div class="window-box">
+            <button class="close-btn" id="closeShopBtn">X</button>
+            <div class="shop-title">МАГАЗИН</div>
+            <div class="cards-list" id="shopCardsList">
+                <div class="card">
+                    <div class="card-top"><span class="card-title">АЛМАЗНАЯ КИРКА</span></div>
+                    <div class="card-body">
+                        <img class="card-icon" src="pixdiam.png" alt="Кирка">
+                        <span class="card-count" id="clickPowerDisplay">(клик: +1)</span>
+                    </div>
+                    <div class="card-bottom disabled" id="buyClickBtn"><span class="card-price" id="clickCostText">Цена: 5</span></div>
+                </div>
+                <div class="card">
+                    <div class="card-top"><span class="card-title">ЗАВОД ЧАЧИ</span></div>
+                    <div class="card-body">
+                        <img class="card-icon" src="honeybottl.png" alt="Завод">
+                        <span class="card-count" id="autoPowerDisplay">(в сек: +0)</span>
+                    </div>
+                    <div class="card-bottom disabled" id="buyAutoBtn"><span class="card-price" id="autoCostText">Цена: 20</span></div>
+                </div>
+                <div class="card">
+                    <div class="card-top" style="background:#ff55ff;"><span class="card-title">ЗЕЛЬЕ СИЛЫ (2 МИН)</span></div>
+                    <div class="card-body">
+                        <div style="font-size:2rem; padding: 5px 0;">🧪</div>
+                        <span class="card-count" id="boostDisplay">(буст: x1)</span>
+                    </div>
+                    <div class="card-bottom disabled" id="buyBoostBtn"><span class="card-price">Цена: 1000</span></div>
+                </div>
+                <div class="card">
+                    <div class="card-top" style="background:#ffaa00;"><span class="card-title">ЗОЛОТАЯ КИРКА</span></div>
+                    <div class="card-body">
+                        <div style="font-size:2rem; padding: 5px 0;">⛏️</div>
+                        <span class="card-count" id="artifactClickDisplay">(x1.5 к клику)</span>
+                    </div>
+                    <div class="card-bottom disabled" id="buyArtifactClickBtn"><span class="card-price" id="artifactClickCostText">Цена: 5000</span></div>
+                </div>
+                <div class="card">
+                    <div class="card-top" style="background:#55ffff;"><span class="card-title">ЧАЧА-ФЕРМА</span></div>
+                    <div class="card-body">
+                        <div style="font-size:2rem; padding: 5px 0;">🏭</div>
+                        <span class="card-count" id="artifactAutoDisplay">(x1.5 к авто)</span>
+                    </div>
+                    <div class="card-bottom disabled" id="buyArtifactAutoBtn"><span class="card-price" id="artifactAutoCostText">Цена: 10000</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="skillTreeModal">
+        <div class="window-box">
+            <button class="close-btn" id="closeSkillTreeBtn">X</button>
+            <div class="shop-title" style="color:#ff55ff;">ДЕРЕВО НАВЫКОВ ПРЕСТИЖА</div>
+            <p style="color:#fff; font-size:0.7rem; text-align:center;">Очки престижа: <span id="prestigePointsDisplay" style="color:#ff55ff;">0</span></p>
+            <div class="skill-tree" id="skillTreeContainer"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="achievementsModal">
+        <div class="window-box">
+            <button class="close-btn" id="closeAchievementsBtn">X</button>
+            <div class="shop-title" style="color:#ffff55;">ДОСТИЖЕНИЯ</div>
+            <div class="achievements-list" id="achievementsContainer"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="questsModal">
+        <div class="window-box">
+            <button class="close-btn" id="closeQuestsBtn">X</button>
+            <div class="shop-title">СПИСОК ЗАДАНИЙ</div>
+            <div class="tabs-header">
+                <button class="tab-btn active" id="tab-normal">Обычные</button>
+                <button class="tab-btn" id="tab-daily">Ежедневные</button>
+                <button class="tab-btn" id="tab-weekly">Еженедельные</button>
+            </div>
+            <div class="quests-scroller" id="questsContainer"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="prestigeModal">
+        <div class="window-box">
+            <button class="close-btn" id="closePrestigeBtn">X</button>
+            <div class="shop-title" style="color:#ff55ff;">ПЕРЕРОЖДЕНИЕ</div>
+            <div class="prestige-info">
+                Для перерождения нужно накопить <span class="highlight">1 000 000</span> Чачи.<br>
+                Ваш текущий запас: <span class="highlight" id="prestigeCurrentScore">0</span> Чачи.<br>
+                При перерождении вы получите <span class="highlight">1 очко престижа</span>.<br>
+                Все улучшения, артефакты и уровень сбросятся, но престиж и навыки останутся.
+            </div>
+            <button class="prestige-btn-big disabled" id="doPrestigeBtn">ПЕРЕРОДИТЬСЯ</button>
+        </div>
+    </div>
+
+    <div class="achievement-toast" id="achievementToast">
+        <div class="toast-icon" id="toastIcon">🏆</div>
+        <div class="toast-info">
+            <div class="toast-name" id="toastName">Достижение!</div>
+            <div class="toast-desc" id="toastDesc">Описание</div>
+        </div>
+    </div>
+
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            if (type === 'click') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.05);
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+            } else if (type === 'buy') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+            } else if (type === 'levelup') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+                osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+            } else if (type === 'achievement') {
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(554.37, audioCtx.currentTime + 0.1);
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.2);
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+            }
+        }
+
+        let score = 0, clickPower = 1, autoChacha = 0, level = 1, xp = 0, nextXp = 100;
+        let prestige = 0, prestigePoints = 0, totalClicks = 0, claimedLevelRewards = 0;
+        let upgradeClickCost = 5, upgradeAutoCost = 20, artifactClickCost = 5000, artifactAutoCost = 10000;
+        let boostActive = false, boostTimeLeft = 0, lastClickTime = 0;
+        let artifactClickMult = 1, artifactAutoMult = 1, hasArtifactClick = false, hasArtifactAuto = false;
+        let skills = {
+            clickMaster: { level: 0, max: 10, cost: 1, name: 'Мастер Клика', icon: '👆', desc: '+10% к клику' },
+            autoMaster: { level: 0, max: 10, cost: 1, name: 'Автоматизация', icon: '⚙️', desc: '+10% к авто' },
+            discount: { level: 0, max: 5, cost: 2, name: 'Скидка', icon: '🏷️', desc: '-5% к ценам' },
+            boostMaster: { level: 0, max: 5, cost: 2, name: 'Алхимик', icon: '🧪', desc: '+10 сек к бусту' }
+        };
+
+        let achievements = [];
+        const achTypes = [
+            { type: 'clicks', name: 'Кликер', desc: 'Сделайте {n} кликов', icon: '👆', targets: [1, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000], check: (n) => totalClicks >= n },
+            { type: 'score', name: 'Богач', desc: 'Накопите {n} Чачи', icon: '💰', targets: [100, 500, 1000, 5000, 10000, 50000, 100000, 500000, 1000000, 5000000, 10000000, 50000000, 100000000, 500000000, 1000000000], check: (n) => score >= n },
+            { type: 'level', name: 'Опытный', desc: 'Достигните {n} уровня', icon: '⭐', targets: [2, 3, 5, 7, 10, 15, 20, 25, 30, 40, 50, 75, 100, 150, 200], check: (n) => level >= n },
+            { type: 'prestige', name: 'Перерожденец', desc: 'Совершите {n} перерождений', icon: '🔄', targets: [1, 2, 3, 5, 7, 10, 15, 20, 25, 30, 40, 50, 75, 100, 150], check: (n) => prestige >= n },
+            { type: 'auto', name: 'Автоматизатор', desc: 'Купите {n} заводов', icon: '🏭', targets: [1, 5, 10, 25, 50, 100, 250, 500, 1000], check: (n) => autoChacha >= n },
+            { type: 'clickPower', name: 'Силач', desc: 'Прокачайте клик до {n}', icon: '💪', targets: [5, 10, 25, 50, 100, 250, 500, 1000], check: (n) => clickPower >= n },
+            { type: 'boost', name: 'Алхимик', desc: 'Используйте {n} зелий', icon: '🧪', targets: [1, 3, 5, 10, 25, 50, 100], check: (n) => boostActive || boostTimeLeft > 0 },
+            { type: 'skill', name: 'Мастер', desc: 'Прокачайте {n} навыков', icon: '🧠', targets: [1, 2, 3, 4, 5, 10, 15, 20, 25, 30], check: (n) => Object.values(skills).reduce((s, sk) => s + sk.level, 0) >= n }
+        ];
+        let achId = 0;
+        achTypes.forEach(t => {
+            t.targets.forEach((target, i) => {
+                achievements.push({
+                    id: 'ach_' + (achId++),
+                    name: t.name + ' ' + (i + 1),
+                    desc: t.desc.replace('{n}', target),
+                    icon: t.icon,
+                    unlocked: false,
+                    check: () => t.check(target)
+                });
+            });
+        });
+        const extraAch = [
+            { name: 'Первый шаг', desc: 'Сделайте первый клик', icon: '🥇' },
+            { name: 'Тысячник', desc: 'Накопите 1000 Чачи', icon: '💵' },
+            { name: 'Миллионер', desc: 'Накопите 1 000 000 Чачи', icon: '💎' },
+            { name: 'Легенда', desc: 'Достигните 100 уровня', icon: '🏆' },
+            { name: 'Бесконечность', desc: 'Совершите 100 перерождений', icon: '♾️' },
+            { name: 'Клик-машина', desc: 'Сделайте 1 000 000 кликов', icon: '🤖' },
+            { name: 'Чача-магнат', desc: 'Накопите 1 000 000 000 Чачи', icon: '👑' },
+            { name: 'Фарм-мастер', desc: 'Купите 1000 заводов', icon: '🏗️' },
+            { name: 'Скорость света', desc: 'Используйте 100 зелий', icon: '⚡' },
+            { name: 'Мудрец', desc: 'Прокачайте все навыки до максимума', icon: '📚' }
+        ];
+        extraAch.forEach((a, i) => {
+            achievements.push({ id: 'extra_' + i, name: a.name, desc: a.desc, icon: a.icon, unlocked: false, check: () => false });
+        });
+        achievements = achievements.slice(0, 100);
+
+        const PRESTIGE_COST = 1000000;
+        let activeTab = 'normal';
+        let dailyResetTime = 0, weeklyResetTime = 0;
+        let dailyQuests = [], weeklyQuests = [], normalQuests = [];
+
+        function setCookie(name, value) {
+            document.cookie = name + "=" + encodeURIComponent(value) + ";path=/;max-age=31536000;SameSite=Lax";
+        }
+        function getCookie(name) {
+            let matches = document.cookie.match(new RegExp("(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"));
+            return matches ? decodeURIComponent(matches[1]) : undefined;
+        }
+        function saveGame() {
+            setCookie('score', score); setCookie('clickPower', clickPower); setCookie('autoChacha', autoChacha);
+            setCookie('level', level); setCookie('xp', xp); setCookie('prestige', prestige);
+            setCookie('prestigePoints', prestigePoints); setCookie('totalClicks', totalClicks);
+            setCookie('clickCost', upgradeClickCost); setCookie('autoCost', upgradeAutoCost);
+            setCookie('artifactClickCost', artifactClickCost); setCookie('artifactAutoCost', artifactAutoCost);
+            setCookie('artifactClickMult', artifactClickMult); setCookie('artifactAutoMult', artifactAutoMult);
+            setCookie('hasArtifactClick', hasArtifactClick); setCookie('hasArtifactAuto', hasArtifactAuto);
+            setCookie('claimedLevelRewards', claimedLevelRewards);
+            setCookie('skills', JSON.stringify(skills));
+            setCookie('achievements', JSON.stringify(achievements.map(a => a.unlocked)));
+            setCookie('dailyResetTime', dailyResetTime); setCookie('weeklyResetTime', weeklyResetTime);
+            setCookie('dailyQuests', JSON.stringify(dailyQuests));
+            setCookie('weeklyQuests', JSON.stringify(weeklyQuests));
+        }
+        function loadGame() {
+            score = parseFloat(getCookie('score')) || 0; clickPower = parseInt(getCookie('clickPower')) || 1;
+            autoChacha = parseInt(getCookie('autoChacha')) || 0; level = parseInt(getCookie('level')) || 1;
+            xp = parseInt(getCookie('xp')) || 0; prestige = parseInt(getCookie('prestige')) || 0;
+            prestigePoints = parseInt(getCookie('prestigePoints')) || 0; totalClicks = parseInt(getCookie('totalClicks')) || 0;
+            upgradeClickCost = parseInt(getCookie('clickCost')) || 5; upgradeAutoCost = parseInt(getCookie('autoCost')) || 20;
+            artifactClickCost = parseInt(getCookie('artifactClickCost')) || 5000; artifactAutoCost = parseInt(getCookie('artifactAutoCost')) || 10000;
+            artifactClickMult = parseFloat(getCookie('artifactClickMult')) || 1; artifactAutoMult = parseFloat(getCookie('artifactAutoMult')) || 1;
+            hasArtifactClick = getCookie('hasArtifactClick') === 'true'; hasArtifactAuto = getCookie('hasArtifactAuto') === 'true';
+            claimedLevelRewards = parseInt(getCookie('claimedLevelRewards')) || 0;
+            dailyResetTime = parseInt(getCookie('dailyResetTime')) || 0; weeklyResetTime = parseInt(getCookie('weeklyResetTime')) || 0;
+            
+            let savedSkills = getCookie('skills');
+            if (savedSkills) { try { let p = JSON.parse(savedSkills); for (let k in skills) if(p[k]) skills[k].level = p[k].level; } catch(e){} }
+            let savedAch = getCookie('achievements');
+            if (savedAch) { try { let arr = JSON.parse(savedAch); achievements.forEach((a, i) => a.unlocked = arr[i] || false); } catch(e){} }
+            
+            let savedDaily = getCookie('dailyQuests');
+            if (savedDaily) { try { dailyQuests = JSON.parse(savedDaily); } catch(e){} }
+            let savedWeekly = getCookie('weeklyQuests');
+            if (savedWeekly) { try { weeklyQuests = JSON.parse(savedWeekly); } catch(e){} }
+            
+            let now = Date.now();
+            if (!dailyResetTime || dailyResetTime < now) { generateDailyQuests(); dailyResetTime = now + 86400000; }
+            if (!weeklyResetTime || weeklyResetTime < now) { generateWeeklyQuests(); weeklyResetTime = now + 604800000; }
+            generateNormalQuests();
+            nextXp = level * 100;
+        }
+
+        function generateDailyQuests() {
+            dailyQuests = [];
+            for (let i = 0; i < 5; i++) {
+                let target = 100 + Math.floor(Math.random() * 900);
+                dailyQuests.push({ target, rewardScore: target * 2, rewardXp: target * 5, claimed: false });
+            }
+        }
+        function generateWeeklyQuests() {
+            weeklyQuests = [];
+            for (let i = 0; i < 5; i++) {
+                let target = 1000 + Math.floor(Math.random() * 9000);
+                weeklyQuests.push({ target, rewardScore: target * 3, rewardXp: target * 10, claimed: false });
+            }
+        }
+        function generateNormalQuests() {
+            normalQuests = [];
+            for (let i = 1; i <= 5; i++) {
+                let target = 50 * i;
+                normalQuests.push({ target, rewardScore: target * 2, rewardXp: target * 5, claimed: false });
+            }
+        }
+
+        function getPrestigeText(n) {
+            let mod10 = n % 10;
+            let mod100 = n % 100;
+            if (mod10 === 1 && mod100 !== 11) return n + ' перерождение';
+            if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return n + ' перерождения';
+            return n + ' перерождений';
+        }
+
+        const scoreElement = document.getElementById('score');
+        const cpsElement = document.getElementById('cpsBox');
+        const clickButton = document.getElementById('clickButton');
+        const gameContainer = document.getElementById('gameContainer');
+        const boostBox = document.getElementById('boostBox');
+        const boostTimer = document.getElementById('boostTimer');
+        const boostDisplay = document.getElementById('boostDisplay');
+        const xpDisplay = document.getElementById('xpDisplay');
+        const nextXpDisplay = document.getElementById('nextXpDisplay');
+        const levelRewardBtn = document.getElementById('levelRewardBtn');
+        const prestigePointsDisplay = document.getElementById('prestigePointsDisplay');
+        const shopModal = document.getElementById('shopModal');
+        const questsModal = document.getElementById('questsModal');
+        const skillTreeModal = document.getElementById('skillTreeModal');
+        const achievementsModal = document.getElementById('achievementsModal');
+        const prestigeModal = document.getElementById('prestigeModal');
+        
+        const buyClickBtn = document.getElementById('buyClickBtn');
+        const clickCostText = document.getElementById('clickCostText');
+        const clickPowerDisplay = document.getElementById('clickPowerDisplay');
+        const buyAutoBtn = document.getElementById('buyAutoBtn');
+        const autoCostText = document.getElementById('autoCostText');
+        const autoPowerDisplay = document.getElementById('autoPowerDisplay');
+        const buyBoostBtn = document.getElementById('buyBoostBtn');
+        const buyArtifactClickBtn = document.getElementById('buyArtifactClickBtn');
+        const artifactClickCostText = document.getElementById('artifactClickCostText');
+        const artifactClickDisplay = document.getElementById('artifactClickDisplay');
+        const buyArtifactAutoBtn = document.getElementById('buyArtifactAutoBtn');
+        const artifactAutoCostText = document.getElementById('artifactAutoCostText');
+        const artifactAutoDisplay = document.getElementById('artifactAutoDisplay');
+        
+        const lvlDisplay = document.getElementById('lvlDisplay');
+        const prestigeDisplay = document.getElementById('prestigeDisplay');
+        const prestigeBtn = document.getElementById('prestigeBtn');
+        const questsContainer = document.getElementById('questsContainer');
+        const skillTreeContainer = document.getElementById('skillTreeContainer');
+        const achievementsContainer = document.getElementById('achievementsContainer');
+        const achievementToast = document.getElementById('achievementToast');
+        const toastIcon = document.getElementById('toastIcon');
+        const toastName = document.getElementById('toastName');
+        const toastDesc = document.getElementById('toastDesc');
+        const prestigeCurrentScore = document.getElementById('prestigeCurrentScore');
+        const doPrestigeBtn = document.getElementById('doPrestigeBtn');
+
+        function getClickPower() {
+            let base = clickPower * artifactClickMult;
+            let skillBonus = 1 + (skills.clickMaster.level * 0.1);
+            return Math.floor(base * skillBonus * (boostActive ? 2 : 1) * (prestige + 1));
+        }
+        function getAutoPower() {
+            let base = autoChacha * artifactAutoMult;
+            let skillBonus = 1 + (skills.autoMaster.level * 0.1);
+            return Math.floor(base * skillBonus * (boostActive ? 2 : 1) * (prestige + 1));
+        }
+        function getDiscount() { return 1 - (skills.discount.level * 0.05); }
+        function getBoostDuration() { return 120 + (skills.boostMaster.level * 10); }
+
+        function updateUI() {
+            let activePower = getClickPower();
+            let activeCps = getAutoPower();
+
+            scoreElement.textContent = Math.floor(score);
+            cpsElement.textContent = `в сек: ${activeCps}`;
+            lvlDisplay.textContent = level;
+            xpDisplay.textContent = xp;
+            nextXpDisplay.textContent = nextXp;
+            prestigeDisplay.textContent = getPrestigeText(prestige);
+            prestigePointsDisplay.textContent = prestigePoints;
+
+            clickPowerDisplay.textContent = `(клик: +${clickPower})`;
+            clickCostText.textContent = `Цена: ${upgradeClickCost}`;
+            buyClickBtn.className = `card-bottom ${score >= upgradeClickCost ? 'affordable' : 'disabled'}`;
+
+            autoPowerDisplay.textContent = `(в сек: +${autoChacha})`;
+            autoCostText.textContent = `Цена: ${upgradeAutoCost}`;
+            buyAutoBtn.className = `card-bottom ${score >= upgradeAutoCost ? 'affordable' : 'disabled'}`;
+
+            boostDisplay.textContent = boostActive ? `(активен)` : `(буст: x1)`;
+            buyBoostBtn.className = `card-bottom ${score >= 1000 && !boostActive ? 'affordable' : 'disabled'}`;
+            
+            artifactClickDisplay.textContent = `(x${artifactClickMult.toFixed(1)} к клику)`;
+            artifactClickCostText.textContent = `Цена: ${artifactClickCost}`;
+            buyArtifactClickBtn.className = `card-bottom ${score >= artifactClickCost && !hasArtifactClick ? 'affordable' : 'disabled'}`;
+            
+            artifactAutoDisplay.textContent = `(x${artifactAutoMult.toFixed(1)} к авто)`;
+            artifactAutoCostText.textContent = `Цена: ${artifactAutoCost}`;
+            buyArtifactAutoBtn.className = `card-bottom ${score >= artifactAutoCost && !hasArtifactAuto ? 'affordable' : 'disabled'}`;
+
+            prestigeBtn.style.color = score >= PRESTIGE_COST ? '#55ff55' : '#ff55ff';
+            if (level >= (claimedLevelRewards + 1) * 5) levelRewardBtn.style.display = 'block';
+            else levelRewardBtn.style.display = 'none';
+            
+            if (prestigeCurrentScore) prestigeCurrentScore.textContent = Math.floor(score);
+            if (doPrestigeBtn) doPrestigeBtn.className = score >= PRESTIGE_COST ? 'prestige-btn-big' : 'prestige-btn-big disabled';
+            
+            renderSkillTree();
+            checkAchievements();
+        }
+
+        function addXp(amount) {
+            xp += amount;
+            while (xp >= nextXp) {
+                xp -= nextXp; level++; nextXp = level * 100;
+                playSound('levelup');
+                alert(`Уровень повышен! Новый уровень: ${level}`);
+            }
+            updateUI();
+        }
+
+        function checkAchievements() {
+            achievements.forEach(ach => {
+                if (!ach.unlocked && ach.check()) {
+                    ach.unlocked = true;
+                    showAchievementToast(ach);
+                    playSound('achievement');
+                    saveGame();
+                }
+            });
+        }
+        function showAchievementToast(ach) {
+            toastIcon.textContent = ach.icon;
+            toastName.textContent = ach.name;
+            toastDesc.textContent = ach.desc;
+            achievementToast.classList.add('show');
+            setTimeout(() => achievementToast.classList.remove('show'), 4000);
+        }
+        function renderAchievements() {
+            achievementsContainer.innerHTML = '';
+            achievements.forEach(ach => {
+                let item = document.createElement('div');
+                item.className = `achievement-item ${ach.unlocked ? '' : 'locked'}`;
+                item.innerHTML = `
+                    <div class="ach-icon">${ach.unlocked ? ach.icon : '❓'}</div>
+                    <div class="ach-info">
+                        <div class="ach-name">${ach.name}</div>
+                        <div class="ach-desc">${ach.desc}</div>
+                    </div>
+                `;
+                achievementsContainer.appendChild(item);
+            });
+        }
+
+        clickButton.addEventListener('click', (event) => {
+            let now = Date.now();
+            if (now - lastClickTime < 50) return; 
+            lastClickTime = now;
+            let currentPower = getClickPower();
+            score += currentPower; totalClicks++;
+            playSound('click'); updateUI(); saveGame();
+            createFloatingText(event, `+${currentPower}`, '#55ff55');
+            spawnParticles(event);
+        });
+
+        levelRewardBtn.addEventListener('click', () => {
+            claimedLevelRewards++;
+            let reward = claimedLevelRewards * 5 * 100;
+            score += reward; playSound('buy');
+            alert(`Вы забрали награду за уровень! Получено: +${reward} Чачи`);
+            updateUI(); saveGame();
+        });
+
+        document.getElementById('openShopBtn').addEventListener('click', () => shopModal.classList.add('active'));
+        document.getElementById('closeShopBtn').addEventListener('click', () => shopModal.classList.remove('active'));
+        document.getElementById('openQuestsBtn').addEventListener('click', () => { questsModal.classList.add('active'); renderQuests(); });
+        document.getElementById('closeQuestsBtn').addEventListener('click', () => questsModal.classList.remove('active'));
+        document.getElementById('openSkillTreeBtn').addEventListener('click', () => { skillTreeModal.classList.add('active'); renderSkillTree(); });
+        document.getElementById('closeSkillTreeBtn').addEventListener('click', () => skillTreeModal.classList.remove('active'));
+        document.getElementById('openAchievementsBtn').addEventListener('click', () => { achievementsModal.classList.add('active'); renderAchievements(); });
+        document.getElementById('closeAchievementsBtn').addEventListener('click', () => achievementsModal.classList.remove('active'));
+        document.getElementById('openPrestigeBtn').addEventListener('click', () => { prestigeModal.classList.add('active'); updateUI(); });
+        document.getElementById('closePrestigeBtn').addEventListener('click', () => prestigeModal.classList.remove('active'));
+
+        doPrestigeBtn.addEventListener('click', () => {
+            if (score >= PRESTIGE_COST) {
+                prestige += 1; prestigePoints += 1;
+                score = 0; clickPower = 1; autoChacha = 0; level = 1; xp = 0; claimedLevelRewards = 0;
+                upgradeClickCost = 5; upgradeAutoCost = 20;
+                artifactClickMult = 1; artifactAutoMult = 1; hasArtifactClick = false; hasArtifactAuto = false;
+                playSound('levelup'); updateUI(); saveGame();
+                prestigeModal.classList.remove('active');
+                alert('Перерождение! Вы получили 1 очко престижа.');
+            }
+        });
+
+        document.getElementById('tab-normal').addEventListener('click', (e) => changeTab('normal', e.target));
+        document.getElementById('tab-daily').addEventListener('click', (e) => changeTab('daily', e.target));
+        document.getElementById('tab-weekly').addEventListener('click', (e) => changeTab('weekly', e.target));
+
+        buyClickBtn.addEventListener('click', () => {
+            let cost = Math.round(upgradeClickCost * getDiscount());
+            if (score >= cost) { score -= cost; clickPower += 1; upgradeClickCost = Math.round(upgradeClickCost * 1.3); playSound('buy'); updateUI(); saveGame(); }
+        });
+        buyAutoBtn.addEventListener('click', () => {
+            let cost = Math.round(upgradeAutoCost * getDiscount());
+            if (score >= cost) { score -= cost; autoChacha += 1; upgradeAutoCost = Math.round(upgradeAutoCost * 1.4); playSound('buy'); updateUI(); saveGame(); }
+        });
+        buyBoostBtn.addEventListener('click', () => {
+            if (score >= 1000 && !boostActive) { score -= 1000; boostActive = true; boostTimeLeft = getBoostDuration(); boostBox.style.display = 'block'; playSound('buy'); updateUI(); }
+        });
+        buyArtifactClickBtn.addEventListener('click', () => {
+            let cost = Math.round(artifactClickCost * getDiscount());
+            if (score >= cost && !hasArtifactClick) { score -= cost; artifactClickMult = 1.5; hasArtifactClick = true; playSound('buy'); updateUI(); saveGame(); alert('Вы купили Золотую кирку! Теперь клик x1.5'); }
+        });
+        buyArtifactAutoBtn.addEventListener('click', () => {
+            let cost = Math.round(artifactAutoCost * getDiscount());
+            if (score >= cost && !hasArtifactAuto) { score -= cost; artifactAutoMult = 1.5; hasArtifactAuto = true; playSound('buy'); updateUI(); saveGame(); alert('Вы купили Чача-ферму! Теперь авто-доход x1.5'); }
+        });
+
+        function renderSkillTree() {
+            if (!skillTreeContainer) return;
+            skillTreeContainer.innerHTML = '';
+            for (let key in skills) {
+                let s = skills[key];
+                let isMaxed = s.level >= s.max;
+                let canAfford = prestigePoints >= s.cost;
+                let node = document.createElement('div');
+                node.className = `skill-node ${isMaxed ? 'maxed' : ''}`;
+                node.innerHTML = `
+                    <div class="skill-icon">${s.icon}</div>
+                    <div class="skill-name">${s.name}</div>
+                    <div class="skill-level">Ур. ${s.level}/${s.max}</div>
+                    <div class="skill-cost">${isMaxed ? 'МАКС' : 'Цена: ' + s.cost + ' очк.'}</div>
+                `;
+                if (!isMaxed && canAfford) {
+                    node.onclick = () => {
+                        if (prestigePoints >= s.cost) { prestigePoints -= s.cost; s.level++; playSound('buy'); updateUI(); saveGame(); renderSkillTree(); }
+                    };
+                }
+                skillTreeContainer.appendChild(node);
+            }
+        }
+
+        setInterval(() => {
+            if (autoChacha > 0) { let currentAuto = getAutoPower(); score += currentAuto; updateUI(); saveGame(); }
+        }, 1000);
+
+        setInterval(() => {
+            if (boostActive) {
+                boostTimeLeft--;
+                boostTimer.textContent = boostTimeLeft;
+                if (boostTimeLeft <= 0) { boostActive = false; boostBox.style.display = 'none'; updateUI(); }
+            }
+            let now = Date.now();
+            if (now > dailyResetTime) { generateDailyQuests(); dailyResetTime = now + 86400000; saveGame(); renderQuests(); }
+            if (now > weeklyResetTime) { generateWeeklyQuests(); weeklyResetTime = now + 604800000; saveGame(); renderQuests(); }
+        }, 1000);
+
+        function changeTab(tab, element) {
+            activeTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            element.classList.add('active');
+            renderQuests();
+        }
+
+        function renderQuests() {
+            questsContainer.innerHTML = '';
+            let quests = activeTab === 'normal' ? normalQuests : activeTab === 'daily' ? dailyQuests : weeklyQuests;
+            if (!quests || quests.length === 0) {
+                if (activeTab === 'normal') generateNormalQuests();
+                if (activeTab === 'daily') generateDailyQuests();
+                if (activeTab === 'weekly') generateWeeklyQuests();
+                quests = activeTab === 'normal' ? normalQuests : activeTab === 'daily' ? dailyQuests : weeklyQuests;
+            }
+            quests.forEach((q, i) => {
+                let isDone = totalClicks >= q.target;
+                let item = document.createElement('div');
+                item.className = 'quest-item';
+                item.innerHTML = `
+                    <div class="quest-info">
+                        <span class="q-name">Задание #${i + 1} ${q.claimed ? '[✔]' : ''}</span>
+                        <span class="q-progress">Прогресс: ${totalClicks}/${q.target} кликов</span>
+                        <span class="q-reward">Награда: +${q.rewardScore} Чачи, +${q.rewardXp} XP</span>
+                    </div>
+                    <button class="q-btn ${isDone && !q.claimed ? '' : 'disabled'}" onclick="claimReward(${i}, this)">Взять</button>
+                `;
+                questsContainer.appendChild(item);
+            });
+        }
+
+        window.claimReward = function(index, btn) {
+            let quests = activeTab === 'normal' ? normalQuests : activeTab === 'daily' ? dailyQuests : weeklyQuests;
+            let q = quests[index];
+            if (q && totalClicks >= q.target && !q.claimed) {
+                score += q.rewardScore; addXp(q.rewardXp); playSound('buy');
+                q.claimed = true;
+                btn.classList.add('disabled'); btn.textContent = 'Взято';
+                updateUI(); saveGame();
+            }
+        };
+
+        function createFloatingText(event, value, color) {
+            const textElement = document.createElement('div');
+            textElement.classList.add('floating-text');
+            textElement.textContent = value; textElement.style.color = color;
+            const rect = gameContainer.getBoundingClientRect();
+            textElement.style.left = `${event.clientX - rect.left}px`;
+            textElement.style.top = `${event.clientY - rect.top}px`;
+            gameContainer.appendChild(textElement);
+            setTimeout(() => textElement.remove(), 500);
+        }
+
+        function spawnParticles(event) {
+            for (let i = 0; i < 12; i++) {
+                const p = document.createElement('div');
+                p.classList.add('mc-particle');
+                p.style.left = `${event.clientX}px`; p.style.top = `${event.clientY}px`;
+                p.style.backgroundColor = `hsl(${Math.random() * 60 + 30}, 100%, 50%)`;
+                document.body.appendChild(p);
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 5 + 2;
+                let vx = Math.cos(angle) * speed, vy = Math.sin(angle) * speed - 3;
+                let px = event.clientX, py = event.clientY;
+                const interval = setInterval(() => {
+                    vy += 0.4; px += vx; py += vy;
+                    p.style.left = `${px}px`; p.style.top = `${py}px`;
+                    const s = parseFloat(p.style.width) || 10;
+                    if (s > 2) { p.style.width = `${s - 0.5}px`; p.style.height = `${s - 0.5}px`; }
+                    else { clearInterval(interval); p.remove(); }
+                }, 30);
+                setTimeout(() => { clearInterval(interval); p.remove(); }, 700);
+            }
+        }
+
+        loadGame();
+        updateUI();
+    </script>
+</body>
+</html>
