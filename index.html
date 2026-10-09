@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Шерво Кликер v2.5</title>
+    <title>Шерво Кликер v2.5.1</title>
     <style>
         @font-face {
             font-family: 'Minecraftia';
@@ -315,9 +315,25 @@
         .bg-preview img { width: 100%; height: 100px; object-fit: cover; image-rendering: pixelated; border: 2px solid #000; }
         .bg-preview .bg-name { color: #fff; font-size: 0.7rem; }
         .bg-preview .bg-name .sub { color: #aaa; font-size: 0.6rem; }
+
+        .version-text {
+            text-align: center; color: #555; font-size: 0.6rem;
+            margin-top: 20px; cursor: pointer; user-select: none;
+        }
+        .version-text:hover { color: #888; }
+
+        .dev-badge {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: #4a1d1d; border: 3px solid #ff5555; outline: 3px solid #000;
+            padding: 8px 20px; color: #ff5555; font-size: 0.75rem;
+            z-index: 300; display: none;
+        }
+        .dev-badge.active { display: block; }
     </style>
 </head>
 <body>
+    <div class="dev-badge" id="devBadge">🛠️ РЕЖИМ РАЗРАБОТЧИКА АКТИВЕН</div>
+
     <div class="stats-top">
         <div class="stat-badge">УРОВЕНЬ: <span id="lvlDisplay">1</span> (XP: <span id="xpDisplay">0</span>/<span id="nextXpDisplay">100</span>)</div>
         <div class="stat-badge" style="color:#ff55ff; cursor:pointer;" id="prestigeBtn">ПЕРЕРОЖДЕНИЕ: <span id="prestigeDisplay">0</span></div>
@@ -585,6 +601,8 @@
                     <button class="settings-btn green" id="customBgBtn">ВЫБРАТЬ</button>
                 </div>
             </div>
+
+            <div class="version-text" id="versionText">Шерво Кликер v2.5.1</div>
         </div>
     </div>
 
@@ -617,6 +635,7 @@
             autoClick: false,
             background: 'bg.png'
         };
+        let isDeveloper = false;
         function loadSettings() {
             let s = getCookie('settings');
             if (s) { try { settings = { ...settings, ...JSON.parse(s) }; } catch(e) {} }
@@ -660,7 +679,6 @@
                 };
                 grid.appendChild(div);
             });
-            // Добавляем превью кастомного фона, если он есть
             if (settings.background && settings.background.startsWith('data:')) {
                 let div = document.createElement('div');
                 div.className = 'bg-preview selected';
@@ -749,6 +767,10 @@
         let _ms = 0, _mc = 0, _ma = false, _mtl = 0, _msc = 0;
         let _cc = 0, _ct = 0, _ca = false;
         let _autoClickInterval = null;
+        let _mineInterval = null;
+        let _mineSpawnTimeout = null;
+        let _catchInterval = null;
+        let _catchSpawnTimeout = null;
 
         let skills = {
             clickMaster: { level: 0, max: 10, cost: 1, name: 'Мастер Клика', icon: '👆', desc: '+10% к клику' },
@@ -1138,13 +1160,21 @@
             if (prestigeNextDisplay) prestigeNextDisplay.textContent = Math.floor(cost * PRESTIGE_MULT).toLocaleString();
             if (doPrestigeBtn) doPrestigeBtn.className = _s >= cost ? 'prestige-btn-big' : 'prestige-btn-big disabled';
             
-            document.getElementById('openMineBtn').classList.toggle('locked', _p < 1);
-            document.getElementById('openUpgradeTreeBtn').classList.toggle('locked', _p < 3);
-            document.getElementById('openCatchBtn').classList.toggle('locked', _p < 2);
-            document.getElementById('openMineBtn').textContent = _p < 1 ? 'ШАХТА 🔒' : 'ШАХТА';
-            document.getElementById('openUpgradeTreeBtn').textContent = _p < 3 ? 'УЛУЧШЕНИЯ 🔒' : 'УЛУЧШЕНИЯ';
-            document.getElementById('openCatchBtn').textContent = _p < 2 ? 'ЛОВЛЯ ГРИБОВ 🔒' : 'ЛОВЛЯ ГРИБОВ';
-            document.getElementById('autoClickToggle').disabled = _p < 5;
+            document.getElementById('openMineBtn').classList.toggle('locked', _p < 1 && !isDeveloper);
+            document.getElementById('openUpgradeTreeBtn').classList.toggle('locked', _p < 3 && !isDeveloper);
+            document.getElementById('openCatchBtn').classList.toggle('locked', _p < 2 && !isDeveloper);
+            document.getElementById('openMineBtn').textContent = (_p < 1 && !isDeveloper) ? 'ШАХТА 🔒' : 'ШАХТА';
+            document.getElementById('openUpgradeTreeBtn').textContent = (_p < 3 && !isDeveloper) ? 'УЛУЧШЕНИЯ 🔒' : 'УЛУЧШЕНИЯ';
+            document.getElementById('openCatchBtn').textContent = (_p < 2 && !isDeveloper) ? 'ЛОВЛЯ ГРИБОВ 🔒' : 'ЛОВЛЯ ГРИБОВ';
+            document.getElementById('autoClickToggle').disabled = _p < 5 && !isDeveloper;
+            
+            if (isDeveloper) {
+                // В режиме разработчика всё разблокировано
+                document.getElementById('openMineBtn').classList.remove('locked');
+                document.getElementById('openUpgradeTreeBtn').classList.remove('locked');
+                document.getElementById('openCatchBtn').classList.remove('locked');
+                document.getElementById('autoClickToggle').disabled = false;
+            }
             
             renderSkillTree();
             checkAchievements();
@@ -1255,22 +1285,22 @@
         document.getElementById('closeQuestsBtn').addEventListener('click', () => questsModal.classList.remove('active'));
         document.getElementById('openSkillTreeBtn').addEventListener('click', () => { skillTreeModal.classList.add('active'); renderSkillTree(); });
         document.getElementById('closeSkillTreeBtn').addEventListener('click', () => skillTreeModal.classList.remove('active'));
-        document.getElementById('openUpgradeTreeBtn').addEventListener('click', () => { if (_p < 3) return; upgradeTreeModal.classList.add('active'); renderUpgradeTree(); });
+        document.getElementById('openUpgradeTreeBtn').addEventListener('click', () => { if (_p < 3 && !isDeveloper) return; upgradeTreeModal.classList.add('active'); renderUpgradeTree(); });
         document.getElementById('closeUpgradeTreeBtn').addEventListener('click', () => upgradeTreeModal.classList.remove('active'));
         document.getElementById('openAchievementsBtn').addEventListener('click', () => { achievementsModal.classList.add('active'); renderAchievements(); });
         document.getElementById('closeAchievementsBtn').addEventListener('click', () => achievementsModal.classList.remove('active'));
         document.getElementById('openPrestigeBtn').addEventListener('click', () => { prestigeModal.classList.add('active'); updateUI(); });
         document.getElementById('closePrestigeBtn').addEventListener('click', () => prestigeModal.classList.remove('active'));
-        document.getElementById('openMineBtn').addEventListener('click', () => { if (_p < 1) return; mineModal.classList.add('active'); initMine(); });
+        document.getElementById('openMineBtn').addEventListener('click', () => { if (_p < 1 && !isDeveloper) return; mineModal.classList.add('active'); initMine(); });
         document.getElementById('closeMineBtn').addEventListener('click', () => { mineModal.classList.remove('active'); stopMine(); });
-        document.getElementById('openCatchBtn').addEventListener('click', () => { if (_p < 2) return; catchModal.classList.add('active'); initCatch(); });
+        document.getElementById('openCatchBtn').addEventListener('click', () => { if (_p < 2 && !isDeveloper) return; catchModal.classList.add('active'); initCatch(); });
         document.getElementById('closeCatchBtn').addEventListener('click', () => { catchModal.classList.remove('active'); stopCatch(); });
         document.getElementById('openSettingsBtn').addEventListener('click', () => { settingsModal.classList.add('active'); renderBgPreviews(); });
         document.getElementById('closeSettingsBtn').addEventListener('click', () => settingsModal.classList.remove('active'));
 
         doPrestigeBtn.addEventListener('click', () => {
             let cost = getPrestigeCost();
-            if (_s >= cost) {
+            if (_s >= cost || isDeveloper) {
                 _p += 1; _pp += 1;
                 _s = 0; _cp = 1; _ac = 0; _l = 1; _xp = 0; _clr = 0;
                 _ucc = 5; _uac = 20;
@@ -1288,34 +1318,34 @@
 
         buyClickBtn.addEventListener('click', () => {
             let cost = Math.round(_ucc * getDiscount());
-            if (_s >= cost) { _s -= cost; _cp += 1; _ucc = Math.round(_ucc * 1.3); playSound('buy'); updateUI(); saveGame(); }
+            if (_s >= cost || isDeveloper) { _s -= cost; _cp += 1; _ucc = Math.round(_ucc * 1.3); playSound('buy'); updateUI(); saveGame(); }
         });
         buyAutoBtn.addEventListener('click', () => {
             let cost = Math.round(_uac * getDiscount());
-            if (_s >= cost) { _s -= cost; _ac += 1; _uac = Math.round(_uac * 1.4); playSound('buy'); updateUI(); saveGame(); }
+            if (_s >= cost || isDeveloper) { _s -= cost; _ac += 1; _uac = Math.round(_uac * 1.4); playSound('buy'); updateUI(); saveGame(); }
         });
         buyBoostBtn.addEventListener('click', () => {
-            if (_s >= 1000 && !_ba) { _s -= 1000; _ba = true; _btl = getBoostDuration(); boostBox.style.display = 'block'; playSound('buy'); updateUI(); }
+            if ((_s >= 1000 || isDeveloper) && !_ba) { _s -= 1000; _ba = true; _btl = getBoostDuration(); boostBox.style.display = 'block'; playSound('buy'); updateUI(); }
         });
         buyArtifactClickBtn.addEventListener('click', () => {
             let cost = Math.round(_acc * getDiscount());
-            if (_s >= cost && !_hac) { _s -= cost; _acm = 1.5; _hac = true; playSound('buy'); updateUI(); saveGame(); }
+            if ((_s >= cost || isDeveloper) && !_hac) { _s -= cost; _acm = 1.5; _hac = true; playSound('buy'); updateUI(); saveGame(); }
         });
         buyArtifactAutoBtn.addEventListener('click', () => {
             let cost = Math.round(_aac * getDiscount());
-            if (_s >= cost && !_haa) { _s -= cost; _aam = 1.5; _haa = true; playSound('buy'); updateUI(); saveGame(); }
+            if ((_s >= cost || isDeveloper) && !_haa) { _s -= cost; _aam = 1.5; _haa = true; playSound('buy'); updateUI(); saveGame(); }
         });
         buyArtifactClick2Btn.addEventListener('click', () => {
             let cost = Math.round(_acc2 * getDiscount());
-            if (_s >= cost && !_hac2) { _s -= cost; _acm = 2; _hac2 = true; playSound('buy'); updateUI(); saveGame(); }
+            if ((_s >= cost || isDeveloper) && !_hac2) { _s -= cost; _acm = 2; _hac2 = true; playSound('buy'); updateUI(); saveGame(); }
         });
         buyArtifactAuto2Btn.addEventListener('click', () => {
             let cost = Math.round(_aac2 * getDiscount());
-            if (_s >= cost && !_haa2) { _s -= cost; _aam = 2; _haa2 = true; playSound('buy'); updateUI(); saveGame(); }
+            if ((_s >= cost || isDeveloper) && !_haa2) { _s -= cost; _aam = 2; _haa2 = true; playSound('buy'); updateUI(); saveGame(); }
         });
         buyArtifactAuto3Btn.addEventListener('click', () => {
             let cost = Math.round(_aac3 * getDiscount());
-            if (_s >= cost && !_haa3) { _s -= cost; _aam = 3; _haa3 = true; playSound('buy'); updateUI(); saveGame(); }
+            if ((_s >= cost || isDeveloper) && !_haa3) { _s -= cost; _aam = 3; _haa3 = true; playSound('buy'); updateUI(); saveGame(); }
         });
 
         function renderSkillTree() {
@@ -1324,7 +1354,7 @@
             for (let key in skills) {
                 let s = skills[key];
                 let isMaxed = s.level >= s.max;
-                let canAfford = _pp >= s.cost;
+                let canAfford = _pp >= s.cost || isDeveloper;
                 let node = document.createElement('div');
                 node.className = `skill-node ${isMaxed ? 'maxed' : ''}`;
                 node.innerHTML = `
@@ -1336,7 +1366,7 @@
                 `;
                 if (!isMaxed && canAfford) {
                     node.onclick = () => {
-                        if (_pp >= s.cost) { _pp -= s.cost; s.level++; playSound('buy'); updateUI(); saveGame(); renderSkillTree(); }
+                        if (_pp >= s.cost || isDeveloper) { _pp -= s.cost; s.level++; playSound('buy'); updateUI(); saveGame(); renderSkillTree(); }
                     };
                 }
                 skillTreeContainer.appendChild(node);
@@ -1352,7 +1382,7 @@
             for (let key in upgrades) {
                 let u = upgrades[key];
                 let isMaxed = u.level >= u.max;
-                let canAfford = _ms >= u.cost;
+                let canAfford = _ms >= u.cost || isDeveloper;
                 let node = document.createElement('div');
                 node.className = `tree-node ${isMaxed ? 'maxed' : ''}`;
                 node.style.left = u.x + 'px';
@@ -1367,7 +1397,7 @@
                 if (!isMaxed && canAfford) {
                     node.onclick = (e) => {
                         e.stopPropagation();
-                        if (_ms >= u.cost) { _ms -= u.cost; u.level++; playSound('buy'); updateUI(); saveGame(); renderUpgradeTree(); }
+                        if (_ms >= u.cost || isDeveloper) { _ms -= u.cost; u.level++; playSound('buy'); updateUI(); saveGame(); renderUpgradeTree(); }
                     };
                 }
                 treeInner.appendChild(node);
@@ -1428,6 +1458,10 @@
 
         // === ШАХТА ===
         function initMine() {
+            // Чистим старые интервалы
+            if (_mineInterval) { clearInterval(_mineInterval); _mineInterval = null; }
+            if (_mineSpawnTimeout) { clearTimeout(_mineSpawnTimeout); _mineSpawnTimeout = null; }
+            _ma = false;
             mineGrid.innerHTML = '';
             for (let i = 0; i < 25; i++) {
                 let cell = document.createElement('div');
@@ -1439,6 +1473,23 @@
             startMineBtn.classList.remove('disabled');
             mineScoreEl.textContent = '0';
             mineTimerEl.textContent = '0';
+            // Обновляем состояние кнопки с учётом кулдауна
+            if (_mc > Date.now()) {
+                let left = Math.ceil((_mc - Date.now()) / 1000);
+                startMineBtn.textContent = `ПЕРЕЗАРЯДКА (${left}с)`;
+                startMineBtn.classList.add('disabled');
+                let cdInterval = setInterval(() => {
+                    let now = Date.now();
+                    if (now >= _mc) {
+                        clearInterval(cdInterval);
+                        startMineBtn.textContent = 'НАЧАТЬ';
+                        startMineBtn.classList.remove('disabled');
+                    } else {
+                        let l = Math.ceil((_mc - now) / 1000);
+                        startMineBtn.textContent = `ПЕРЕЗАРЯДКА (${l}с)`;
+                    }
+                }, 500);
+            }
         }
         function startMine() {
             if (_ma || _mc > Date.now()) return;
@@ -1451,15 +1502,17 @@
             startMineBtn.textContent = 'ИДЁТ...';
             startMineBtn.classList.add('disabled');
             spawnMushroomInMine();
-            let interval = setInterval(() => {
-                if (!_ma) { clearInterval(interval); return; }
+            _mineInterval = setInterval(() => {
+                if (!_ma) { clearInterval(_mineInterval); _mineInterval = null; return; }
                 _mtl--;
                 mineTimerEl.textContent = _mtl;
-                if (_mtl <= 0) { clearInterval(interval); endMine(); }
+                if (_mtl <= 0) { clearInterval(_mineInterval); _mineInterval = null; endMine(); }
             }, 1000);
         }
         function stopMine() {
             _ma = false;
+            if (_mineInterval) { clearInterval(_mineInterval); _mineInterval = null; }
+            if (_mineSpawnTimeout) { clearTimeout(_mineSpawnTimeout); _mineSpawnTimeout = null; }
             startMineBtn.textContent = 'НАЧАТЬ';
             startMineBtn.classList.remove('disabled');
         }
@@ -1467,13 +1520,20 @@
             _ma = false;
             _ms += _msc;
             _mc = Date.now() + 60000;
-            startMineBtn.textContent = 'ПЕРЕЗАРЯДКА';
+            startMineBtn.textContent = 'ПЕРЕЗАРЯДКА (60с)';
             startMineBtn.classList.add('disabled');
             updateUI(); saveGame();
-            setTimeout(() => {
-                startMineBtn.textContent = 'НАЧАТЬ';
-                startMineBtn.classList.remove('disabled');
-            }, 60000);
+            let cdInterval = setInterval(() => {
+                let now = Date.now();
+                if (now >= _mc) {
+                    clearInterval(cdInterval);
+                    startMineBtn.textContent = 'НАЧАТЬ';
+                    startMineBtn.classList.remove('disabled');
+                } else {
+                    let l = Math.ceil((_mc - now) / 1000);
+                    startMineBtn.textContent = `ПЕРЕЗАРЯДКА (${l}с)`;
+                }
+            }, 500);
         }
         function spawnMushroomInMine() {
             if (!_ma) return;
@@ -1489,7 +1549,7 @@
                     cell.classList.add('mushroom'); cell.textContent = '🍄';
                 }
             }
-            setTimeout(spawnMushroomInMine, 800);
+            _mineSpawnTimeout = setTimeout(spawnMushroomInMine, 800);
         }
         function mineClick(cell) {
             if (!_ma) return;
@@ -1509,6 +1569,9 @@
 
         // === ЛОВЛЯ ГРИБОВ ===
         function initCatch() {
+            if (_catchInterval) { clearInterval(_catchInterval); _catchInterval = null; }
+            if (_catchSpawnTimeout) { clearTimeout(_catchSpawnTimeout); _catchSpawnTimeout = null; }
+            _ca = false;
             catchArea.innerHTML = '';
             catchScoreEl.textContent = '0';
             catchTimerEl.textContent = '0';
@@ -1525,15 +1588,17 @@
             startCatchBtn.textContent = 'ИДЁТ...';
             startCatchBtn.classList.add('disabled');
             spawnCatchMushroom();
-            let interval = setInterval(() => {
-                if (!_ca) { clearInterval(interval); return; }
+            _catchInterval = setInterval(() => {
+                if (!_ca) { clearInterval(_catchInterval); _catchInterval = null; return; }
                 _ct--;
                 catchTimerEl.textContent = _ct;
-                if (_ct <= 0) { clearInterval(interval); endCatch(); }
+                if (_ct <= 0) { clearInterval(_catchInterval); _catchInterval = null; endCatch(); }
             }, 1000);
         }
         function stopCatch() {
             _ca = false;
+            if (_catchInterval) { clearInterval(_catchInterval); _catchInterval = null; }
+            if (_catchSpawnTimeout) { clearTimeout(_catchSpawnTimeout); _catchSpawnTimeout = null; }
             startCatchBtn.textContent = 'НАЧАТЬ';
             startCatchBtn.classList.remove('disabled');
         }
@@ -1566,13 +1631,13 @@
             });
             catchArea.appendChild(m);
             setTimeout(() => { if (m.parentNode) m.remove(); }, 1500);
-            setTimeout(spawnCatchMushroom, 500);
+            _catchSpawnTimeout = setTimeout(spawnCatchMushroom, 500);
         }
         startCatchBtn.addEventListener('click', startCatch);
 
         // === ТАЙМЕРЫ ===
         setInterval(() => {
-            if (_ac > 0) { let currentAuto = getAutoPower(); _s += currentAuto; updateUI(); saveGame(); }
+            if (_ac > 0 || isDeveloper) { let currentAuto = getAutoPower(); _s += currentAuto; updateUI(); saveGame(); }
         }, 1000);
 
         setInterval(() => {
@@ -1626,7 +1691,6 @@
             if (q && getQuestProgress(q) >= q.target && !q.claimed) {
                 _s += q.rewardScore; addXp(q.rewardXp); playSound('buy');
                 q.claimed = true;
-                // Удаляем задание из списка и добавляем новое
                 quests.splice(index, 1);
                 quests.push(generateQuestFromPool(activeTab));
                 saveGame();
@@ -1681,7 +1745,7 @@
             saveSettings();
         });
         document.getElementById('autoClickToggle').addEventListener('change', (e) => {
-            if (_p < 5) return;
+            if (_p < 5 && !isDeveloper) return;
             settings.autoClick = e.target.checked;
             saveSettings();
             if (settings.autoClick) {
@@ -1719,7 +1783,7 @@
             }
         });
 
-        // === ЭКСПОРТ/ИМПОРТ СОХРАНЕНИЯ ===
+        // === ЭКСПОРТ/ИМПОРТ ===
         document.getElementById('exportSaveBtn').addEventListener('click', () => {
             let save = {
                 _s, _cp, _ac, _l, _xp, _p, _pp, _tc, _clr,
@@ -1805,13 +1869,47 @@
             reader.readAsDataURL(file);
         });
 
-        // Загружаем кастомный фон при старте
-        (function loadCustomBg() {
-            let custom = localStorage.getItem('customBg');
-            if (custom && settings.background === 'custom') {
-                settings.background = custom;
+        // === РЕЖИМ РАЗРАБОТЧИКА ===
+        let versionClicks = 0;
+        let versionClickTimer = null;
+        document.getElementById('versionText').addEventListener('click', () => {
+            versionClicks++;
+            if (versionClickTimer) clearTimeout(versionClickTimer);
+            versionClickTimer = setTimeout(() => { versionClicks = 0; }, 2000);
+            if (versionClicks >= 5) {
+                versionClicks = 0;
+                if (isDeveloper) {
+                    // Выход из режима разработчика
+                    isDeveloper = false;
+                    document.getElementById('devBadge').classList.remove('active');
+                    updateUI();
+                    alert('Режим разработчика выключен.');
+                } else {
+                    let login = prompt('Введите логин разработчика:');
+                    if (login === null) return;
+                    let password = prompt('Введите пароль разработчика:');
+                    if (password === null) return;
+                    if (login === 'DEVELOPER' && password === '12230909!') {
+                        isDeveloper = true;
+                        document.getElementById('devBadge').classList.add('active');
+                        updateUI();
+                        alert('Режим разработчика активирован! Все функции разблокированы.');
+                    } else {
+                        alert('Неверный логин или пароль.');
+                    }
+                }
             }
-        })();
+        });
+
+        // === ESC ДЛЯ ЗАКРЫТИЯ МОДАЛОК ===
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+                // Останавливаем мини-игры
+                stopMine();
+                stopCatch();
+            }
+        });
 
         // === СТАРТ ===
         migrateOldCookies();
