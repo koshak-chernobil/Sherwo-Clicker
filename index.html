@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Шерво Кликер v2.5.1</title>
+    <title>Шерво Кликер v2.5.2</title>
     <style>
         @font-face {
             font-family: 'Minecraftia';
@@ -329,6 +329,10 @@
             z-index: 300; display: none;
         }
         .dev-badge.active { display: block; }
+
+        .music-controls { display: flex; gap: 10px; margin-top: 10px; align-items: center; flex-wrap: wrap; }
+        .music-controls button { font-size: 0.65rem; padding: 5px 10px; }
+        .music-track-name { color: #aaa; font-size: 0.65rem; margin-top: 5px; text-align: center; }
     </style>
 </head>
 <body>
@@ -511,7 +515,6 @@
                     <li class="unlocked">✔ Ловля грибов (2 перерождения)</li>
                     <li class="unlocked">✔ Дерево улучшений (3 перерождения)</li>
                     <li class="unlocked">✔ Автоклик (5 перерождений)</li>
-                    <li class="unlocked">✔ Престиж-магазин (10 перерождений) — скоро!</li>
                 </ul>
             </div>
             <button class="prestige-btn-big disabled" id="doPrestigeBtn">ПЕРЕРОДИТЬСЯ</button>
@@ -571,8 +574,16 @@
                 <input type="checkbox" id="autoClickToggle" disabled>
             </div>
             <div class="settings-row">
-                <span>Фоновая музыка (YouTube)</span>
+                <span>Фоновая музыка</span>
                 <button class="settings-btn green" id="musicToggleBtn">ВКЛЮЧИТЬ</button>
+            </div>
+            <div id="musicContainer" style="margin-top:15px; display:none;">
+                <iframe id="musicIframe" width="100%" height="80" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                <div class="music-controls">
+                    <button class="settings-btn blue" id="prevTrackBtn">◀ ПРЕД</button>
+                    <button class="settings-btn blue" id="nextTrackBtn">СЛЕД ▶</button>
+                    <span class="music-track-name" id="trackName">Трек 1</span>
+                </div>
             </div>
             <div class="settings-row">
                 <span>Скачать сохранение (JSON)</span>
@@ -588,10 +599,6 @@
                 <button class="settings-btn" id="resetSaveBtn">СБРОСИТЬ</button>
             </div>
             
-            <div id="musicContainer" style="margin-top:15px; display:none;">
-                <iframe id="musicIframe" width="100%" height="80" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-            </div>
-
             <div style="margin-top:25px;">
                 <div class="shop-title" style="font-size:1rem; color:#aaa;">🎨 ФОНЫ</div>
                 <div class="bg-preview-grid" id="bgPreviewGrid"></div>
@@ -602,7 +609,7 @@
                 </div>
             </div>
 
-            <div class="version-text" id="versionText">Шерво Кликер v2.5.1</div>
+            <div class="version-text" id="versionText">Шерво Кликер v2.5.2</div>
         </div>
     </div>
 
@@ -633,19 +640,35 @@
             volumeMusic: 0.5,
             particles: true,
             autoClick: false,
-            background: 'bg.png'
+            background: 'bg.png',
+            musicTrack: 0
         };
         let isDeveloper = false;
+
+        // === МУЗЫКАЛЬНЫЕ ТРЕКИ (доступные в РФ) ===
+        const MUSIC_TRACKS = [
+            { id: 'dQw4w9WgXcQ', name: 'Rick Astley — Never Gonna Give You Up' },
+            { id: '9bZkp7q19f0', name: 'PSY — Gangnam Style' },
+            { id: 'kJQP7kiw5Fk', name: 'Luis Fonsi — Despacito' },
+            { id: 'JGwWNGJdvx8', name: 'Ed Sheeran — Shape of You' },
+            { id: 'RgKAFK5djSk', name: 'Wiz Khalifa — See You Again' },
+            { id: 'OPf0YbXqDm0', name: 'Mark Ronson — Uptown Funk' },
+            { id: 'fJ9rUzIMcZQ', name: 'Queen — Bohemian Rhapsody' },
+            { id: 'hT_nvWreIhg', name: 'OneRepublic — Counting Stars' }
+        ];
+
         function loadSettings() {
             let s = getCookie('settings');
             if (s) { try { settings = { ...settings, ...JSON.parse(s) }; } catch(e) {} }
+            let d = getCookie('isDeveloper');
+            if (d === 'true') { isDeveloper = true; document.getElementById('devBadge').classList.add('active'); }
             document.getElementById('volumeSfx').value = settings.volumeSfx * 100;
             document.getElementById('volumeMusic').value = settings.volumeMusic * 100;
             document.getElementById('particlesToggle').checked = settings.particles;
             document.getElementById('autoClickToggle').checked = settings.autoClick;
             applyBackground();
         }
-        function saveSettings() { setCookie('settings', JSON.stringify(settings)); }
+        function saveSettings() { setCookie('settings', JSON.stringify(settings)); setCookie('isDeveloper', isDeveloper); }
 
         // === ФОНЫ ===
         const BACKGROUNDS = [
@@ -1169,7 +1192,6 @@
             document.getElementById('autoClickToggle').disabled = _p < 5 && !isDeveloper;
             
             if (isDeveloper) {
-                // В режиме разработчика всё разблокировано
                 document.getElementById('openMineBtn').classList.remove('locked');
                 document.getElementById('openUpgradeTreeBtn').classList.remove('locked');
                 document.getElementById('openCatchBtn').classList.remove('locked');
@@ -1458,7 +1480,6 @@
 
         // === ШАХТА ===
         function initMine() {
-            // Чистим старые интервалы
             if (_mineInterval) { clearInterval(_mineInterval); _mineInterval = null; }
             if (_mineSpawnTimeout) { clearTimeout(_mineSpawnTimeout); _mineSpawnTimeout = null; }
             _ma = false;
@@ -1473,7 +1494,6 @@
             startMineBtn.classList.remove('disabled');
             mineScoreEl.textContent = '0';
             mineTimerEl.textContent = '0';
-            // Обновляем состояние кнопки с учётом кулдауна
             if (_mc > Date.now()) {
                 let left = Math.ceil((_mc - Date.now()) / 1000);
                 startMineBtn.textContent = `ПЕРЕЗАРЯДКА (${left}с)`;
@@ -1764,7 +1784,7 @@
             let c = document.getElementById('musicContainer');
             let iframe = document.getElementById('musicIframe');
             if (c.style.display === 'none') {
-                iframe.src = 'https://www.youtube-nocookie.com/embed/videoseries?list=PLx0sYbCqOb8TBPRdmBHs5Iftvv9TPboYG&autoplay=1';
+                loadTrack(settings.musicTrack);
                 c.style.display = 'block';
                 document.getElementById('musicToggleBtn').textContent = 'ВЫКЛЮЧИТЬ';
             } else {
@@ -1773,6 +1793,18 @@
                 document.getElementById('musicToggleBtn').textContent = 'ВКЛЮЧИТЬ';
             }
         });
+        function loadTrack(index) {
+            let iframe = document.getElementById('musicIframe');
+            if (index >= MUSIC_TRACKS.length) index = 0;
+            if (index < 0) index = MUSIC_TRACKS.length - 1;
+            settings.musicTrack = index;
+            saveSettings();
+            iframe.src = `https://www.youtube-nocookie.com/embed/${MUSIC_TRACKS[index].id}?autoplay=1`;
+            document.getElementById('trackName').textContent = MUSIC_TRACKS[index].name;
+        }
+        document.getElementById('prevTrackBtn').addEventListener('click', () => loadTrack(settings.musicTrack - 1));
+        document.getElementById('nextTrackBtn').addEventListener('click', () => loadTrack(settings.musicTrack + 1));
+
         document.getElementById('resetSaveBtn').addEventListener('click', () => {
             if (confirm('Точно сбросить ВСЁ сохранение? Это действие необратимо!')) {
                 document.cookie.split(";").forEach(c => {
@@ -1879,9 +1911,9 @@
             if (versionClicks >= 5) {
                 versionClicks = 0;
                 if (isDeveloper) {
-                    // Выход из режима разработчика
                     isDeveloper = false;
                     document.getElementById('devBadge').classList.remove('active');
+                    saveSettings();
                     updateUI();
                     alert('Режим разработчика выключен.');
                 } else {
@@ -1892,6 +1924,7 @@
                     if (login === 'DEVELOPER' && password === '12230909!') {
                         isDeveloper = true;
                         document.getElementById('devBadge').classList.add('active');
+                        saveSettings();
                         updateUI();
                         alert('Режим разработчика активирован! Все функции разблокированы.');
                     } else {
@@ -1901,11 +1934,10 @@
             }
         });
 
-        // === ESC ДЛЯ ЗАКРЫТИЯ МОДАЛОК ===
+        // === ESC ===
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
-                // Останавливаем мини-игры
                 stopMine();
                 stopCatch();
             }
