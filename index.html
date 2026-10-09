@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Шерво Кликер v2.4</title>
+    <title>Шерво Кликер v2.5</title>
     <style>
         @font-face {
             font-family: 'Minecraftia';
@@ -239,6 +239,12 @@
 
         .prestige-info { color: #fff; font-size: 0.8rem; text-align: center; margin: 15px 0; line-height: 1.6; }
         .prestige-info .highlight { color: #ffff55; }
+        .prestige-rewards { background: #1a1c1e; border: 2px solid #4e5058; padding: 15px; margin: 15px 0; text-align: left; font-size: 0.75rem; }
+        .prestige-rewards h4 { color: #ffff55; margin: 0 0 10px 0; font-size: 0.8rem; }
+        .prestige-rewards ul { margin: 0; padding-left: 20px; color: #ccc; }
+        .prestige-rewards li { margin-bottom: 5px; }
+        .prestige-rewards .unlocked { color: #55ff55; }
+        .prestige-rewards .locked { color: #666; }
         .prestige-btn-big {
             display: block; margin: 20px auto; padding: 15px 40px;
             background: #4a1d4a; border: 3px solid #ff55ff; outline: 3px solid #000;
@@ -272,7 +278,6 @@
         .mine-btn-big:hover { background: #6a2d2d; }
         .mine-btn-big.disabled { background: #222426; border-color: #4e5058; color: #4e5058; cursor: not-allowed; }
 
-        /* Новая мини-игра — Ловля грибов */
         .catch-area {
             position: relative; width: 100%; height: 400px;
             background: #1a1c1e; border: 3px solid #000;
@@ -284,7 +289,6 @@
         }
         .catch-mushroom:hover { transform: scale(1.2); }
 
-        /* Настройки */
         .settings-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #4e5058; color: #fff; font-size: 0.8rem; }
         .settings-row:last-child { border-bottom: none; }
         .settings-row input[type="range"] { width: 200px; }
@@ -295,6 +299,22 @@
             padding: 6px 12px; cursor: pointer;
         }
         .settings-btn:hover { background: #6a2d2d; }
+        .settings-btn.blue { background: #1d1d4a; border-color: #5555ff; color: #5555ff; }
+        .settings-btn.blue:hover { background: #2d2d6a; }
+        .settings-btn.green { background: #1d4a1d; border-color: #55ff55; color: #55ff55; }
+        .settings-btn.green:hover { background: #2d6a2d; }
+
+        .bg-preview-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
+        .bg-preview {
+            background: #1a1c1e; border: 3px solid #000; padding: 10px;
+            cursor: pointer; transition: border-color 0.2s;
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+        }
+        .bg-preview:hover { border-color: #ffff55; }
+        .bg-preview.selected { border-color: #55ff55; }
+        .bg-preview img { width: 100%; height: 100px; object-fit: cover; image-rendering: pixelated; border: 2px solid #000; }
+        .bg-preview .bg-name { color: #fff; font-size: 0.7rem; }
+        .bg-preview .bg-name .sub { color: #aaa; font-size: 0.6rem; }
     </style>
 </head>
 <body>
@@ -460,9 +480,23 @@
             <div class="prestige-info">
                 Для перерождения нужно накопить <span class="highlight" id="prestigeCostDisplay">100 000</span> Чачи.<br>
                 Ваш текущий запас: <span class="highlight" id="prestigeCurrentScore">0</span> Чачи.<br>
-                При перерождении вы получите <span class="highlight">1 очко престижа</span>.<br>
-                Все улучшения, артефакты и уровень сбросятся, но престиж и навыки останутся.<br>
-                <span style="color:#ffaa00;">Следующий порог: <span id="prestigeNextDisplay">150 000</span> Чачи.</span>
+                Следующий порог: <span class="highlight" id="prestigeNextDisplay">150 000</span> Чачи.
+            </div>
+            <div class="prestige-rewards">
+                <h4>🎁 Награды за перерождение:</h4>
+                <ul>
+                    <li><span style="color:#55ff55;">+1 очко престижа</span> (для дерева навыков)</li>
+                    <li><span style="color:#55ff55;">+5% к силе клика</span> за каждое перерождение</li>
+                    <li><span style="color:#55ff55;">+5% к авто-доходу</span> за каждое перерождение</li>
+                </ul>
+                <h4 style="margin-top:15px;">🔓 Разблокировка функций:</h4>
+                <ul>
+                    <li class="unlocked">✔ Шахта (1 перерождение)</li>
+                    <li class="unlocked">✔ Ловля грибов (2 перерождения)</li>
+                    <li class="unlocked">✔ Дерево улучшений (3 перерождения)</li>
+                    <li class="unlocked">✔ Автоклик (5 перерождений)</li>
+                    <li class="unlocked">✔ Престиж-магазин (10 перерождений) — скоро!</li>
+                </ul>
             </div>
             <button class="prestige-btn-big disabled" id="doPrestigeBtn">ПЕРЕРОДИТЬСЯ</button>
         </div>
@@ -503,6 +537,7 @@
         <div class="window-box">
             <button class="close-btn" id="closeSettingsBtn">X</button>
             <div class="shop-title" style="color:#aaa;">НАСТРОЙКИ</div>
+            
             <div class="settings-row">
                 <span>Громкость эффектов</span>
                 <input type="range" id="volumeSfx" min="0" max="100" value="50">
@@ -521,14 +556,34 @@
             </div>
             <div class="settings-row">
                 <span>Фоновая музыка (YouTube)</span>
-                <button class="settings-btn" id="musicToggleBtn">ВКЛЮЧИТЬ</button>
+                <button class="settings-btn green" id="musicToggleBtn">ВКЛЮЧИТЬ</button>
+            </div>
+            <div class="settings-row">
+                <span>Скачать сохранение (JSON)</span>
+                <button class="settings-btn blue" id="exportSaveBtn">СКАЧАТЬ</button>
+            </div>
+            <div class="settings-row">
+                <span>Загрузить сохранение (JSON)</span>
+                <input type="file" id="importSaveInput" accept=".json" style="display:none;">
+                <button class="settings-btn blue" id="importSaveBtn">ЗАГРУЗИТЬ</button>
             </div>
             <div class="settings-row">
                 <span>Сбросить сохранение</span>
                 <button class="settings-btn" id="resetSaveBtn">СБРОСИТЬ</button>
             </div>
+            
             <div id="musicContainer" style="margin-top:15px; display:none;">
                 <iframe id="musicIframe" width="100%" height="80" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            </div>
+
+            <div style="margin-top:25px;">
+                <div class="shop-title" style="font-size:1rem; color:#aaa;">🎨 ФОНЫ</div>
+                <div class="bg-preview-grid" id="bgPreviewGrid"></div>
+                <div class="settings-row" style="margin-top:15px;">
+                    <span>Загрузить свой фон</span>
+                    <input type="file" id="customBgInput" accept="image/*" style="display:none;">
+                    <button class="settings-btn green" id="customBgBtn">ВЫБРАТЬ</button>
+                </div>
             </div>
         </div>
     </div>
@@ -559,7 +614,8 @@
             volumeSfx: 0.5,
             volumeMusic: 0.5,
             particles: true,
-            autoClick: false
+            autoClick: false,
+            background: 'bg.png'
         };
         function loadSettings() {
             let s = getCookie('settings');
@@ -568,8 +624,53 @@
             document.getElementById('volumeMusic').value = settings.volumeMusic * 100;
             document.getElementById('particlesToggle').checked = settings.particles;
             document.getElementById('autoClickToggle').checked = settings.autoClick;
+            applyBackground();
         }
         function saveSettings() { setCookie('settings', JSON.stringify(settings)); }
+
+        // === ФОНЫ ===
+        const BACKGROUNDS = [
+            { file: 'bg.png', name: 'Храм' },
+            { file: 'bg1.png', name: 'Спавн' },
+            { file: 'bg2.png', name: 'Техас' },
+            { file: 'bg3.png', name: 'Калькит' }
+        ];
+        function applyBackground() {
+            if (settings.background && settings.background.startsWith('data:')) {
+                document.body.style.backgroundImage = `url('${settings.background}')`;
+            } else {
+                document.body.style.backgroundImage = `url('${settings.background || 'bg.png'}')`;
+            }
+        }
+        function renderBgPreviews() {
+            let grid = document.getElementById('bgPreviewGrid');
+            grid.innerHTML = '';
+            BACKGROUNDS.forEach(bg => {
+                let div = document.createElement('div');
+                div.className = `bg-preview ${settings.background === bg.file ? 'selected' : ''}`;
+                div.innerHTML = `
+                    <img src="${bg.file}" alt="${bg.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23333%22 width=%22100%22 height=%22100%22/%3E%3Ctext x=%2250%22 y=%2255%22 fill=%22%23666%22 font-size=%2212%22 text-anchor=%22middle%22%3E${bg.name}%3C/text%3E%3C/svg%3E'">
+                    <div class="bg-name">${bg.name} <span class="sub">(${bg.file})</span></div>
+                `;
+                div.onclick = () => {
+                    settings.background = bg.file;
+                    saveSettings();
+                    applyBackground();
+                    renderBgPreviews();
+                };
+                grid.appendChild(div);
+            });
+            // Добавляем превью кастомного фона, если он есть
+            if (settings.background && settings.background.startsWith('data:')) {
+                let div = document.createElement('div');
+                div.className = 'bg-preview selected';
+                div.innerHTML = `
+                    <img src="${settings.background}" alt="Свой фон">
+                    <div class="bg-name">Свой фон <span class="sub">(загружен)</span></div>
+                `;
+                grid.appendChild(div);
+            }
+        }
 
         // === ЗВУКИ ===
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -646,7 +747,7 @@
         let _acm = 1, _aam = 1;
         let _hac = false, _haa = false, _hac2 = false, _haa2 = false, _haa3 = false;
         let _ms = 0, _mc = 0, _ma = false, _mtl = 0, _msc = 0;
-        let _cc = 0, _ct = 0, _ca = false; // Ловля грибов
+        let _cc = 0, _ct = 0, _ca = false;
         let _autoClickInterval = null;
 
         let skills = {
@@ -656,7 +757,6 @@
             boostMaster: { level: 0, max: 5, cost: 2, name: 'Алхимик', icon: '🧪', desc: '+10 сек к бусту' }
         };
 
-        // === ДЕРЕВО УЛУЧШЕНИЙ (16 узлов) ===
         let upgrades = {
             clickBoost: { level: 0, max: 20, cost: 10, name: 'Сила гриба', icon: '🍄', desc: '+5% к клику', x: 100, y: 100 },
             autoBoost: { level: 0, max: 20, cost: 10, name: 'Грибной конвейер', icon: '⚙️', desc: '+5% к авто', x: 300, y: 100 },
@@ -666,7 +766,6 @@
             clickBoost2: { level: 0, max: 15, cost: 200, name: 'Мега гриб', icon: '🌟', desc: '+10% к клику', x: 500, y: 300 },
             autoBoost2: { level: 0, max: 15, cost: 200, name: 'Мега конвейер', icon: '🏭', desc: '+10% к авто', x: 700, y: 300 },
             globalBoost: { level: 0, max: 5, cost: 500, name: 'Грибной бог', icon: '👑', desc: '+25% ко всему', x: 400, y: 500 },
-            // Новые улучшения
             catchSpeed: { level: 0, max: 10, cost: 150, name: 'Скорость ловли', icon: '🏃', desc: '+2 сек к ловле', x: 900, y: 100 },
             catchReward: { level: 0, max: 10, cost: 200, name: 'Щедрость ловли', icon: '🎣', desc: '+1 грибочек за ловлю', x: 900, y: 300 },
             goldChance: { level: 0, max: 10, cost: 300, name: 'Золотой шанс', icon: '✨', desc: '+2% шанс золотого гриба', x: 1100, y: 100 },
@@ -677,7 +776,6 @@
             godMode: { level: 0, max: 3, cost: 1500, name: 'Грибной бог+', icon: '🌌', desc: '+50% ко всему', x: 1300, y: 300 }
         };
 
-        // === АЧИВКИ ===
         let achievements = [];
         const achTypes = [
             { type: 'clicks', name: 'Кликер', desc: 'Сделайте {n} кликов', icon: '👆', targets: [1, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000], check: (n) => _tc >= n },
@@ -731,7 +829,6 @@
         });
         achievements = achievements.slice(0, 120);
 
-        // === ПРЕСТИЖ С РАСТУЩИМ ПОРОГОМ ===
         const PRESTIGE_BASE = 100000;
         const PRESTIGE_MULT = 1.5;
         function getPrestigeCost() {
@@ -743,7 +840,6 @@
         let dailyQuests = [], weeklyQuests = [], normalQuests = [];
         let minePlays = 0;
 
-        // === БОЛЬШОЙ ПУЛ ЗАДАНИЙ ===
         const QUEST_TEMPLATES = [
             { name: 'Кликер', desc: 'Сделайте {n} кликов', stat: 'tc' },
             { name: 'Чача', desc: 'Накопите {n} Чачи', stat: 'score' },
@@ -959,7 +1055,7 @@
             let up3 = 1 + (upgrades.clickBoost3.level * 0.15);
             let global = 1 + (upgrades.globalBoost.level * 0.25);
             let god = 1 + (upgrades.godMode.level * 0.50);
-            let prestigeBonus = 1 + (_p * (1 + upgrades.prestigeBoost.level * 0.05));
+            let prestigeBonus = 1 + (_p * 0.05 * (1 + upgrades.prestigeBoost.level * 0.05));
             return Math.floor(base * skillBonus * up1 * up2 * up3 * global * god * prestigeBonus * (_ba ? 2 : 1));
         }
         function getAutoPower() {
@@ -970,7 +1066,7 @@
             let up3 = 1 + (upgrades.autoBoost3.level * 0.15);
             let global = 1 + (upgrades.globalBoost.level * 0.25);
             let god = 1 + (upgrades.godMode.level * 0.50);
-            let prestigeBonus = 1 + (_p * (1 + upgrades.prestigeBoost.level * 0.05));
+            let prestigeBonus = 1 + (_p * 0.05 * (1 + upgrades.prestigeBoost.level * 0.05));
             return Math.floor(base * skillBonus * up1 * up2 * up3 * global * god * prestigeBonus * (_ba ? 2 : 1));
         }
         function getDiscount() {
@@ -1042,7 +1138,6 @@
             if (prestigeNextDisplay) prestigeNextDisplay.textContent = Math.floor(cost * PRESTIGE_MULT).toLocaleString();
             if (doPrestigeBtn) doPrestigeBtn.className = _s >= cost ? 'prestige-btn-big' : 'prestige-btn-big disabled';
             
-            // Разблокировка кнопок по перерождениям
             document.getElementById('openMineBtn').classList.toggle('locked', _p < 1);
             document.getElementById('openUpgradeTreeBtn').classList.toggle('locked', _p < 3);
             document.getElementById('openCatchBtn').classList.toggle('locked', _p < 2);
@@ -1170,7 +1265,7 @@
         document.getElementById('closeMineBtn').addEventListener('click', () => { mineModal.classList.remove('active'); stopMine(); });
         document.getElementById('openCatchBtn').addEventListener('click', () => { if (_p < 2) return; catchModal.classList.add('active'); initCatch(); });
         document.getElementById('closeCatchBtn').addEventListener('click', () => { catchModal.classList.remove('active'); stopCatch(); });
-        document.getElementById('openSettingsBtn').addEventListener('click', () => settingsModal.classList.add('active'));
+        document.getElementById('openSettingsBtn').addEventListener('click', () => { settingsModal.classList.add('active'); renderBgPreviews(); });
         document.getElementById('closeSettingsBtn').addEventListener('click', () => settingsModal.classList.remove('active'));
 
         doPrestigeBtn.addEventListener('click', () => {
@@ -1525,15 +1620,15 @@
             });
         }
 
-        // === ИСПРАВЛЕНИЕ: задание НЕ удаляется, пока не заберёшь награду ===
         window.claimReward = function(index, btn) {
             let quests = activeTab === 'normal' ? normalQuests : activeTab === 'daily' ? dailyQuests : weeklyQuests;
             let q = quests[index];
             if (q && getQuestProgress(q) >= q.target && !q.claimed) {
                 _s += q.rewardScore; addXp(q.rewardXp); playSound('buy');
                 q.claimed = true;
-                // Заменяем на новое ТОЛЬКО после получения награды
-                quests[index] = generateQuestFromPool(activeTab);
+                // Удаляем задание из списка и добавляем новое
+                quests.splice(index, 1);
+                quests.push(generateQuestFromPool(activeTab));
                 saveGame();
                 renderQuests();
                 updateUI();
@@ -1605,7 +1700,7 @@
             let c = document.getElementById('musicContainer');
             let iframe = document.getElementById('musicIframe');
             if (c.style.display === 'none') {
-                iframe.src = 'https://www.youtube.com/embed/videoseries?list=PLx0sYbCqOb8TBPRdmBHs5Iftvv9TPboYG&autoplay=1';
+                iframe.src = 'https://www.youtube-nocookie.com/embed/videoseries?list=PLx0sYbCqOb8TBPRdmBHs5Iftvv9TPboYG&autoplay=1';
                 c.style.display = 'block';
                 document.getElementById('musicToggleBtn').textContent = 'ВЫКЛЮЧИТЬ';
             } else {
@@ -1619,9 +1714,104 @@
                 document.cookie.split(";").forEach(c => {
                     document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
                 });
+                localStorage.removeItem('customBg');
                 location.reload();
             }
         });
+
+        // === ЭКСПОРТ/ИМПОРТ СОХРАНЕНИЯ ===
+        document.getElementById('exportSaveBtn').addEventListener('click', () => {
+            let save = {
+                _s, _cp, _ac, _l, _xp, _p, _pp, _tc, _clr,
+                _ucc, _uac, _acc, _aac, _acc2, _aac2, _aac3,
+                _acm, _aam, _hac, _haa, _hac2, _haa2, _haa3,
+                _ms, minePlays, skills, upgrades,
+                achievements: achievements.map(a => a.unlocked),
+                dailyResetTime, weeklyResetTime,
+                dailyQuests, weeklyQuests, normalQuests,
+                settings
+            };
+            let blob = new Blob([JSON.stringify(save, null, 2)], { type: 'application/json' });
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            a.href = url;
+            a.download = `sherwo_clicker_save_${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+        document.getElementById('importSaveBtn').addEventListener('click', () => {
+            document.getElementById('importSaveInput').click();
+        });
+        document.getElementById('importSaveInput').addEventListener('change', (e) => {
+            let file = e.target.files[0];
+            if (!file) return;
+            let reader = new FileReader();
+            reader.onload = (ev) => {
+                try {
+                    let save = JSON.parse(ev.target.result);
+                    _s = save._s || 0; _cp = save._cp || 1; _ac = save._ac || 0;
+                    _l = save._l || 1; _xp = save._xp || 0; _p = save._p || 0;
+                    _pp = save._pp || 0; _tc = save._tc || 0; _clr = save._clr || 0;
+                    _ucc = save._ucc || 5; _uac = save._uac || 20;
+                    _acc = save._acc || 5000; _aac = save._aac || 10000;
+                    _acc2 = save._acc2 || 50000; _aac2 = save._aac2 || 100000;
+                    _aac3 = save._aac3 || 500000;
+                    _acm = save._acm || 1; _aam = save._aam || 1;
+                    _hac = save._hac || false; _haa = save._haa || false;
+                    _hac2 = save._hac2 || false; _haa2 = save._haa2 || false;
+                    _haa3 = save._haa3 || false;
+                    _ms = save._ms || 0; minePlays = save.minePlays || 0;
+                    if (save.skills) for (let k in skills) if (save.skills[k]) skills[k].level = save.skills[k].level;
+                    if (save.upgrades) for (let k in upgrades) if (save.upgrades[k]) upgrades[k].level = save.upgrades[k].level;
+                    if (save.achievements) achievements.forEach((a, i) => a.unlocked = save.achievements[i] || false);
+                    dailyResetTime = save.dailyResetTime || 0;
+                    weeklyResetTime = save.weeklyResetTime || 0;
+                    if (save.dailyQuests) dailyQuests = save.dailyQuests;
+                    if (save.weeklyQuests) weeklyQuests = save.weeklyQuests;
+                    if (save.normalQuests) normalQuests = save.normalQuests;
+                    if (save.settings) { settings = { ...settings, ...save.settings }; }
+                    saveGame();
+                    updateUI();
+                    renderBgPreviews();
+                    alert('Сохранение успешно загружено!');
+                } catch(err) {
+                    alert('Ошибка загрузки сохранения: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        // === КАСТОМНЫЙ ФОН ===
+        document.getElementById('customBgBtn').addEventListener('click', () => {
+            document.getElementById('customBgInput').click();
+        });
+        document.getElementById('customBgInput').addEventListener('change', (e) => {
+            let file = e.target.files[0];
+            if (!file) return;
+            let reader = new FileReader();
+            reader.onload = (ev) => {
+                let dataUrl = ev.target.result;
+                try {
+                    localStorage.setItem('customBg', dataUrl);
+                    settings.background = dataUrl;
+                    saveSettings();
+                    applyBackground();
+                    renderBgPreviews();
+                    alert('Свой фон загружен!');
+                } catch(err) {
+                    alert('Ошибка: файл слишком большой для сохранения. Попробуйте изображение поменьше.');
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Загружаем кастомный фон при старте
+        (function loadCustomBg() {
+            let custom = localStorage.getItem('customBg');
+            if (custom && settings.background === 'custom') {
+                settings.background = custom;
+            }
+        })();
 
         // === СТАРТ ===
         migrateOldCookies();
