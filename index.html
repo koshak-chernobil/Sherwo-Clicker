@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Шерво Кликер v2.5.2</title>
+	<link rel="icon" type="image/png" href="iconsc.png">
+    <title>Шерво Кликер v2.5.3</title>
     <style>
         @font-face {
             font-family: 'Minecraftia';
@@ -556,7 +557,53 @@
         <div class="window-box">
             <button class="close-btn" id="closeSettingsBtn">X</button>
             <div class="shop-title" style="color:#aaa;">НАСТРОЙКИ</div>
-            
+
+            <!-- АККАУНТ -->
+            <div style="background:#1a1c1e; border:2px solid #4e5058; padding:15px; margin-bottom:20px;">
+                <div class="shop-title" style="font-size:0.9rem; color:#55ff55; margin-bottom:10px;">👤 АККАУНТ</div>
+                <div id="accountLoggedOut">
+                    <div class="settings-row">
+                        <span>Email</span>
+                        <input type="email" id="authEmail" placeholder="example@mail.com" style="padding:6px; font-family:'Minecraftia',sans-serif; font-size:0.7rem; background:#222; border:2px solid #4e5058; color:#fff; width:220px;">
+                    </div>
+                    <div class="settings-row">
+                        <span>Пароль (мин. 6)</span>
+                        <input type="password" id="authPassword" placeholder="••••••" style="padding:6px; font-family:'Minecraftia',sans-serif; font-size:0.7rem; background:#222; border:2px solid #4e5058; color:#fff; width:220px;">
+                    </div>
+                    <div class="settings-row">
+                        <span>Ник (для регистрации)</span>
+                        <input type="text" id="authNickname" placeholder="MASHK273" style="padding:6px; font-family:'Minecraftia',sans-serif; font-size:0.7rem; background:#222; border:2px solid #4e5058; color:#fff; width:220px;">
+                    </div>
+                    <div style="display:flex; gap:10px; margin-top:10px;">
+                        <button class="settings-btn green" id="loginBtn" style="flex:1;">ВОЙТИ</button>
+                        <button class="settings-btn blue" id="registerBtn" style="flex:1;">РЕГИСТРАЦИЯ</button>
+                    </div>
+                    <div id="authMessage" style="color:#ff5555; font-size:0.65rem; margin-top:8px; text-align:center;"></div>
+                </div>
+                <div id="accountLoggedIn" style="display:none;">
+                    <div class="settings-row">
+                        <span>Вы вошли как:</span>
+                        <span id="userNickname" style="color:#55ff55;">—</span>
+                    </div>
+                    <div class="settings-row">
+                        <span>Email:</span>
+                        <span id="userEmail" style="color:#aaa; font-size:0.7rem;">—</span>
+                    </div>
+                    <div class="settings-row">
+                        <span>Последнее сохранение</span>
+                        <span id="lastSaveTime" style="color:#ffff55; font-size:0.7rem;">—</span>
+                    </div>
+                    <div style="display:flex; gap:10px; margin-top:10px;">
+                        <button class="settings-btn green" id="saveCloudBtn" style="flex:1;">СОХРАНИТЬ В ОБЛАКО</button>
+                        <button class="settings-btn blue" id="loadCloudBtn" style="flex:1;">ЗАГРУЗИТЬ ИЗ ОБЛАКА</button>
+                    </div>
+                    <div style="display:flex; gap:10px; margin-top:10px;">
+                        <button class="settings-btn" id="logoutBtn" style="flex:1;">ВЫЙТИ ИЗ АККАУНТА</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ЗВУК И ГРАФИКА -->
             <div class="settings-row">
                 <span>Громкость эффектов</span>
                 <input type="range" id="volumeSfx" min="0" max="100" value="50">
@@ -573,6 +620,8 @@
                 <span>Автоклик (5+ перерождений)</span>
                 <input type="checkbox" id="autoClickToggle" disabled>
             </div>
+
+            <!-- МУЗЫКА -->
             <div class="settings-row">
                 <span>Фоновая музыка</span>
                 <button class="settings-btn green" id="musicToggleBtn">ВКЛЮЧИТЬ</button>
@@ -585,7 +634,17 @@
                     <span class="music-track-name" id="trackName">Трек 1</span>
                 </div>
             </div>
-            <div class="settings-row">
+            <div class="settings-row" style="margin-top:10px;">
+                <span>Своя ссылка на YouTube</span>
+                <input type="text" id="customYoutubeUrl" placeholder="https://youtube.com/watch?v=..." style="padding:6px; font-family:'Minecraftia',sans-serif; font-size:0.7rem; background:#222; border:2px solid #4e5058; color:#fff; width:280px;">
+            </div>
+            <div style="display:flex; gap:10px; margin-top:8px;">
+                <button class="settings-btn green" id="applyYoutubeBtn" style="flex:1;">ПРИМЕНИТЬ ССЫЛКУ</button>
+                <button class="settings-btn blue" id="resetYoutubeBtn" style="flex:1;">СБРОСИТЬ НА СПИСОК</button>
+            </div>
+
+            <!-- СОХРАНЕНИЕ -->
+            <div class="settings-row" style="margin-top:20px;">
                 <span>Скачать сохранение (JSON)</span>
                 <button class="settings-btn blue" id="exportSaveBtn">СКАЧАТЬ</button>
             </div>
@@ -598,7 +657,8 @@
                 <span>Сбросить сохранение</span>
                 <button class="settings-btn" id="resetSaveBtn">СБРОСИТЬ</button>
             </div>
-            
+
+            <!-- ФОНЫ -->
             <div style="margin-top:25px;">
                 <div class="shop-title" style="font-size:1rem; color:#aaa;">🎨 ФОНЫ</div>
                 <div class="bg-preview-grid" id="bgPreviewGrid"></div>
@@ -609,7 +669,7 @@
                 </div>
             </div>
 
-            <div class="version-text" id="versionText">Шерво Кликер v2.5.2</div>
+            <div class="version-text" id="versionText">Шерво Кликер v2.5.3</div>
         </div>
     </div>
 
@@ -641,21 +701,10 @@
             particles: true,
             autoClick: false,
             background: 'bg.png',
-            musicTrack: 0
+            musicTrack: 0,
+			youtubeUrl: ''
         };
         let isDeveloper = false;
-
-        // === МУЗЫКАЛЬНЫЕ ТРЕКИ (доступные в РФ) ===
-        const MUSIC_TRACKS = [
-            { id: 'dQw4w9WgXcQ', name: 'Rick Astley — Never Gonna Give You Up' },
-            { id: '9bZkp7q19f0', name: 'PSY — Gangnam Style' },
-            { id: 'kJQP7kiw5Fk', name: 'Luis Fonsi — Despacito' },
-            { id: 'JGwWNGJdvx8', name: 'Ed Sheeran — Shape of You' },
-            { id: 'RgKAFK5djSk', name: 'Wiz Khalifa — See You Again' },
-            { id: 'OPf0YbXqDm0', name: 'Mark Ronson — Uptown Funk' },
-            { id: 'fJ9rUzIMcZQ', name: 'Queen — Bohemian Rhapsody' },
-            { id: 'hT_nvWreIhg', name: 'OneRepublic — Counting Stars' }
-        ];
 
         function loadSettings() {
             let s = getCookie('settings');
@@ -1780,30 +1829,6 @@
                 clearInterval(_autoClickInterval);
             }
         });
-        document.getElementById('musicToggleBtn').addEventListener('click', () => {
-            let c = document.getElementById('musicContainer');
-            let iframe = document.getElementById('musicIframe');
-            if (c.style.display === 'none') {
-                loadTrack(settings.musicTrack);
-                c.style.display = 'block';
-                document.getElementById('musicToggleBtn').textContent = 'ВЫКЛЮЧИТЬ';
-            } else {
-                iframe.src = '';
-                c.style.display = 'none';
-                document.getElementById('musicToggleBtn').textContent = 'ВКЛЮЧИТЬ';
-            }
-        });
-        function loadTrack(index) {
-            let iframe = document.getElementById('musicIframe');
-            if (index >= MUSIC_TRACKS.length) index = 0;
-            if (index < 0) index = MUSIC_TRACKS.length - 1;
-            settings.musicTrack = index;
-            saveSettings();
-            iframe.src = `https://www.youtube-nocookie.com/embed/${MUSIC_TRACKS[index].id}?autoplay=1`;
-            document.getElementById('trackName').textContent = MUSIC_TRACKS[index].name;
-        }
-        document.getElementById('prevTrackBtn').addEventListener('click', () => loadTrack(settings.musicTrack - 1));
-        document.getElementById('nextTrackBtn').addEventListener('click', () => loadTrack(settings.musicTrack + 1));
 
         document.getElementById('resetSaveBtn').addEventListener('click', () => {
             if (confirm('Точно сбросить ВСЁ сохранение? Это действие необратимо!')) {
@@ -1947,10 +1972,351 @@
         migrateOldCookies();
         loadGame();
         updateUI();
+		
+		// ============================================
+        // АККАУНТЫ + FIREBASE + YOUTUBE (v2.5.3)
+        // ============================================
+
+        // --- Список треков по умолчанию (увеличен) ---
+        const DEFAULT_MUSIC_TRACKS = [
+            { id: 'dQw4w9WgXcQ', name: 'Rick Astley — Never Gonna Give You Up' },
+            { id: '9bZkp7q19f0', name: 'PSY — Gangnam Style' },
+            { id: 'kJQP7kiw5Fk', name: 'Luis Fonsi — Despacito' },
+            { id: 'JGwWNGJdvx8', name: 'Ed Sheeran — Shape of You' },
+            { id: 'RgKAFK5djSk', name: 'Wiz Khalifa — See You Again' },
+            { id: 'OPf0YbXqDm0', name: 'Mark Ronson — Uptown Funk' },
+            { id: 'fJ9rUzIMcZQ', name: 'Queen — Bohemian Rhapsody' },
+            { id: 'hT_nvWreIhg', name: 'OneRepublic — Counting Stars' },
+            { id: 'CevxZvSJLk8', name: 'Katy Perry — Roar' },
+            { id: '60ItHLz5WEA', name: 'Alan Walker — Faded' },
+            { id: 'YQHsXMglC9A', name: 'Adele — Hello' },
+            { id: 'papuvlVeZg8', name: 'Maroon 5 — Sugar' },
+            { id: 'nfWlot6h_JM', name: 'Taylor Swift — Shake It Off' },
+            { id: 'JRfuAukYTKg', name: 'Ed Sheeran — Thinking Out Loud' },
+            { id: 'kOkQ4T5WO9E', name: 'Ed Sheeran — Perfect' },
+            { id: 'SlPhMPnQ58k', name: 'Sia — Chandelier' }
+        ];
+
+        // Клонируем, чтобы не портить оригинал
+        let MUSIC_TRACKS = [...DEFAULT_MUSIC_TRACKS];
+        let customYoutubeUrl = '';
+
+        // --- Загружаем из настроек кастомную ссылку ---
+        if (settings.youtubeUrl) {
+            customYoutubeUrl = settings.youtubeUrl;
+            let trackInfo = parseYoutubeUrl(customYoutubeUrl);
+            if (trackInfo) MUSIC_TRACKS = [trackInfo];
+        }
+
+        // --- Парсер ссылок YouTube ---
+        function parseYoutubeUrl(url) {
+            if (!url) return null;
+            url = url.trim();
+            // Плейлист
+            let listMatch = url.match(/[?&]list=([a-zA-Z0-9_-]+)/);
+            if (listMatch) {
+                return { id: 'videoseries?list=' + listMatch[1], name: 'Плейлист', isPlaylist: true };
+            }
+            // Короткая ссылка youtu.be
+            let shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
+            if (shortMatch) return { id: shortMatch[1], name: 'YouTube-видео' };
+            // Обычная ссылка
+            let vMatch = url.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
+            if (vMatch) return { id: vMatch[1], name: 'YouTube-видео' };
+            // Если просто введён ID
+            if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return { id: url, name: 'YouTube-видео' };
+            return null;
+        }
+
+        // --- Загрузка трека в iframe ---
+        function loadTrack(index) {
+            let iframe = document.getElementById('musicIframe');
+            if (!iframe) return;
+            if (index >= MUSIC_TRACKS.length) index = 0;
+            if (index < 0) index = MUSIC_TRACKS.length - 1;
+            settings.musicTrack = index;
+            saveSettings();
+            let track = MUSIC_TRACKS[index];
+            let src = track.isPlaylist
+                ? `https://www.youtube-nocookie.com/embed/${track.id}&autoplay=1`
+                : `https://www.youtube-nocookie.com/embed/${track.id}?autoplay=1`;
+            iframe.src = src;
+            document.getElementById('trackName').textContent = track.name;
+        }
+
+        // --- Кнопки музыки ---
+        document.getElementById('musicToggleBtn').addEventListener('click', () => {
+            let c = document.getElementById('musicContainer');
+            let iframe = document.getElementById('musicIframe');
+            if (c.style.display === 'none') {
+                loadTrack(settings.musicTrack || 0);
+                c.style.display = 'block';
+                document.getElementById('musicToggleBtn').textContent = 'ВЫКЛЮЧИТЬ';
+            } else {
+                iframe.src = '';
+                c.style.display = 'none';
+                document.getElementById('musicToggleBtn').textContent = 'ВКЛЮЧИТЬ';
+            }
+        });
+        document.getElementById('prevTrackBtn').addEventListener('click', () => loadTrack((settings.musicTrack || 0) - 1));
+        document.getElementById('nextTrackBtn').addEventListener('click', () => loadTrack((settings.musicTrack || 0) + 1));
+
+        // --- Кастомная ссылка ---
+        document.getElementById('applyYoutubeBtn').addEventListener('click', () => {
+            let url = document.getElementById('customYoutubeUrl').value.trim();
+            if (!url) { alert('Вставь ссылку на YouTube-видео или плейлист.'); return; }
+            let trackInfo = parseYoutubeUrl(url);
+            if (!trackInfo) { alert('Не удалось распознать ссылку. Проверь, что это YouTube.'); return; }
+            customYoutubeUrl = url;
+            settings.youtubeUrl = url;
+            MUSIC_TRACKS = [trackInfo];
+            settings.musicTrack = 0;
+            saveSettings();
+            // Если плеер открыт — сразу обновляем
+            if (document.getElementById('musicContainer').style.display === 'block') {
+                loadTrack(0);
+            }
+            alert('Ссылка применена!');
+        });
+        document.getElementById('resetYoutubeBtn').addEventListener('click', () => {
+            settings.youtubeUrl = '';
+            customYoutubeUrl = '';
+            MUSIC_TRACKS = [...DEFAULT_MUSIC_TRACKS];
+            settings.musicTrack = 0;
+            saveSettings();
+            document.getElementById('customYoutubeUrl').value = '';
+            if (document.getElementById('musicContainer').style.display === 'block') {
+                loadTrack(0);
+            }
+            alert('Ссылка сброшена. Используется стандартный плейлист.');
+        });
+        // Подставляем сохранённую ссылку в поле
+        if (settings.youtubeUrl) document.getElementById('customYoutubeUrl').value = settings.youtubeUrl;
+
+        // --- Подключаем Firebase-модуль (ждём загрузки) ---
+        let fbReady = false;
+        function waitForFirebase(callback, attempts = 0) {
+            if (window.fbRegister && window.fbLogin && window.fbSave) {
+                fbReady = true;
+                callback();
+            } else if (attempts < 40) {
+                setTimeout(() => waitForFirebase(callback, attempts + 1), 250);
+            } else {
+                console.warn('Firebase-модуль не загрузился');
+                showAuthMessage('Firebase не подключён. Проверь файл firebase.js.', '#ff5555');
+            }
+        }
+        function showAuthMessage(text, color) {
+            let el = document.getElementById('authMessage');
+            if (el) { el.textContent = text; el.style.color = color || '#ff5555'; }
+        }
+
+        // --- UI аккаунта ---
+        function updateAccountUI(user) {
+            let loggedOut = document.getElementById('accountLoggedOut');
+            let loggedIn = document.getElementById('accountLoggedIn');
+            if (user) {
+                loggedOut.style.display = 'none';
+                loggedIn.style.display = 'block';
+                document.getElementById('userNickname').textContent = user.displayName || user.email.split('@')[0];
+                document.getElementById('userEmail').textContent = user.email;
+            } else {
+                loggedOut.style.display = 'block';
+                loggedIn.style.display = 'none';
+            }
+        }
+
+        // --- Сохранение в облако ---
+        async function saveToCloud() {
+            if (!window.fbGetUser || !window.fbGetUser()) { showAuthMessage('Сначала войди в аккаунт.'); return; }
+            let save = {
+                _s, _cp, _ac, _l, _xp, _p, _pp, _tc, _clr,
+                _ucc, _uac, _acc, _aac, _acc2, _aac2, _aac3,
+                _acm, _aam, _hac, _haa, _hac2, _haa2, _haa3,
+                _ms, minePlays, skills, upgrades,
+                achievements: achievements.map(a => a.unlocked),
+                dailyResetTime, weeklyResetTime,
+                dailyQuests, weeklyQuests, normalQuests,
+                settings,
+                savedAt: Date.now()
+            };
+            let res = await window.fbSave(save);
+            if (res.success) {
+                document.getElementById('lastSaveTime').textContent = new Date().toLocaleTimeString();
+                showAuthMessage('✅ Сохранено в облако!', '#55ff55');
+            } else {
+                showAuthMessage('❌ Ошибка: ' + res.error);
+            }
+        }
+
+        // --- Загрузка из облака ---
+        async function loadFromCloud() {
+            if (!window.fbGetUser || !window.fbGetUser()) { showAuthMessage('Сначала войди в аккаунт.'); return; }
+            let res = await window.fbLoad();
+            if (!res.success) { showAuthMessage('❌ ' + res.error); return; }
+            let data = res.data.save;
+            if (!data) { showAuthMessage('Нет сохранения в облаке.'); return; }
+
+            // Загружаем все переменные
+            _s = data._s || 0; _cp = data._cp || 1; _ac = data._ac || 0;
+            _l = data._l || 1; _xp = data._xp || 0; _p = data._p || 0;
+            _pp = data._pp || 0; _tc = data._tc || 0; _clr = data._clr || 0;
+            _ucc = data._ucc || 5; _uac = data._uac || 20;
+            _acc = data._acc || 5000; _aac = data._aac || 10000;
+            _acc2 = data._acc2 || 50000; _aac2 = data._aac2 || 100000;
+            _aac3 = data._aac3 || 500000;
+            _acm = data._acm || 1; _aam = data._aam || 1;
+            _hac = data._hac || false; _haa = data._haa || false;
+            _hac2 = data._hac2 || false; _haa2 = data._haa2 || false;
+            _haa3 = data._haa3 || false;
+            _ms = data._ms || 0; minePlays = data.minePlays || 0;
+            if (data.skills) for (let k in skills) if (data.skills[k]) skills[k].level = data.skills[k].level;
+            if (data.upgrades) for (let k in upgrades) if (data.upgrades[k]) upgrades[k].level = data.upgrades[k].level;
+            if (data.achievements) achievements.forEach((a, i) => a.unlocked = data.achievements[i] || false);
+            dailyResetTime = data.dailyResetTime || 0;
+            weeklyResetTime = data.weeklyResetTime || 0;
+            if (data.dailyQuests) dailyQuests = data.dailyQuests;
+            if (data.weeklyQuests) weeklyQuests = data.weeklyQuests;
+            if (data.normalQuests) normalQuests = data.normalQuests;
+            if (data.settings) { settings = { ...settings, ...data.settings }; }
+
+            saveGame();
+            updateUI();
+            renderBgPreviews();
+            if (data.savedAt) {
+                document.getElementById('lastSaveTime').textContent = new Date(data.savedAt).toLocaleString();
+            }
+            showAuthMessage('✅ Загружено из облака!', '#55ff55');
+        }
+
+        // --- Кнопки аккаунта ---
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            let email = document.getElementById('authEmail').value.trim();
+            let password = document.getElementById('authPassword').value;
+            if (!email || !password) { showAuthMessage('Введи email и пароль.'); return; }
+            showAuthMessage('Вход...', '#ffff55');
+            let res = await window.fbLogin(email, password);
+            if (res.success) {
+                showAuthMessage('✅ Вход выполнен!', '#55ff55');
+            } else {
+                showAuthMessage('❌ ' + res.error);
+            }
+        });
+
+        document.getElementById('registerBtn').addEventListener('click', async () => {
+            let email = document.getElementById('authEmail').value.trim();
+            let password = document.getElementById('authPassword').value;
+            let nickname = document.getElementById('authNickname').value.trim();
+            if (!email || !password) { showAuthMessage('Введи email и пароль.'); return; }
+            if (password.length < 6) { showAuthMessage('Пароль минимум 6 символов.'); return; }
+            showAuthMessage('Регистрация...', '#ffff55');
+            let res = await window.fbRegister(email, password, nickname);
+            if (res.success) {
+                showAuthMessage('✅ Аккаунт создан!', '#55ff55');
+            } else {
+                showAuthMessage('❌ ' + res.error);
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await window.fbLogout();
+            showAuthMessage('Вы вышли из аккаунта.', '#aaa');
+        });
+
+        document.getElementById('saveCloudBtn').addEventListener('click', saveToCloud);
+        document.getElementById('loadCloudBtn').addEventListener('click', loadFromCloud);
+
+        // --- Следим за авторизацией ---
+        waitForFirebase(() => {
+            window.fbOnAuthChange((user) => {
+                updateAccountUI(user);
+                if (user) {
+                    // Автозагрузка из облака при входе
+                    loadFromCloud();
+                }
+            });
+        });
+
+        // --- Автосохранение в облако каждые 30 секунд ---
+        setInterval(() => {
+            if (window.fbGetUser && window.fbGetUser()) {
+                saveToCloud();
+            }
+        }, 30000);
+
+        // ============================================
+        // МОДУЛЬ: ВЫХОД ИЗ РЕЖИМА РАЗРАБОТЧИКА
+        // ============================================
+        function exitDeveloperMode() {
+            if (!isDeveloper) return;
+            isDeveloper = false;
+            document.cookie = "isDeveloper=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            let badge = document.getElementById('devBadge');
+            if (badge) badge.classList.remove('active');
+
+            // Снимаем разблокировку
+            let mineBtn = document.getElementById('openMineBtn');
+            let upgradeBtn = document.getElementById('openUpgradeTreeBtn');
+            let catchBtn = document.getElementById('openCatchBtn');
+            let autoClickToggle = document.getElementById('autoClickToggle');
+
+            if (mineBtn) mineBtn.classList.toggle('locked', _p < 1);
+            if (upgradeBtn) upgradeBtn.classList.toggle('locked', _p < 3);
+            if (catchBtn) catchBtn.classList.toggle('locked', _p < 2);
+            if (autoClickToggle) autoClickToggle.disabled = _p < 5;
+            if (mineBtn) mineBtn.textContent = _p < 1 ? 'ШАХТА 🔒' : 'ШАХТА';
+            if (upgradeBtn) upgradeBtn.textContent = _p < 3 ? 'УЛУЧШЕНИЯ 🔒' : 'УЛУЧШЕНИЯ';
+            if (catchBtn) catchBtn.textContent = _p < 2 ? 'ЛОВЛЯ ГРИБОВ 🔒' : 'ЛОВЛЯ ГРИБОВ';
+
+            if (_p < 5 && settings.autoClick) {
+                settings.autoClick = false;
+                if (autoClickToggle) autoClickToggle.checked = false;
+                if (_autoClickInterval) { clearInterval(_autoClickInterval); _autoClickInterval = null; }
+            }
+
+            saveSettings();
+            saveGame();
+            updateUI();
+            alert('Режим разработчика выключен. Прогресс сохранён.');
+        }
+
+        // Перепривязка клика по версии (с учётом выхода)
+        (function rebindVersion() {
+            let oldEl = document.getElementById('versionText');
+            if (!oldEl) return;
+            // Удаляем старые обработчики, заменив элемент клоном
+            let newEl = oldEl.cloneNode(true);
+            oldEl.parentNode.replaceChild(newEl, oldEl);
+
+            let clicks = 0, timer = null;
+            newEl.addEventListener('click', () => {
+                clicks++;
+                if (timer) clearTimeout(timer);
+                timer = setTimeout(() => { clicks = 0; }, 2000);
+                if (clicks >= 5) {
+                    clicks = 0;
+                    if (isDeveloper) {
+                        exitDeveloperMode();
+                    } else {
+                        let login = prompt('Логин разработчика:');
+                        if (login === null) return;
+                        let password = prompt('Пароль разработчика:');
+                        if (password === null) return;
+                        if (login === 'DEVELOPER' && password === '12230909!') {
+                            isDeveloper = true;
+                            document.getElementById('devBadge').classList.add('active');
+                            saveSettings();
+                            updateUI();
+                            alert('Режим разработчика активирован!');
+                        } else {
+                            alert('Неверный логин или пароль.');
+                        }
+                    }
+                }
+            });
+        })();
+	
     </script>
     <script type="module" src="firebase.js"></script>
-    <script>
-        // Тут позже будет код, который использует Firebase
-    </script>
 </body>
 </html>
