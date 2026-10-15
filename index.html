@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="icon" type="image/png" href="iconsc.png">
-    <title>Шерво Кликер v26.10.7</title>
+    <title>Шерво Кликер v26.10.8</title>
     <style>
         body {
             margin: 0; padding: 0;
@@ -2030,7 +2030,7 @@
                     <button class="settings-btn green" id="customBgBtn">ВЫБРАТЬ</button>
                 </div>
             </div>
-			<div class="version-text" id="versionText">Шерво Кликер v26.10.7</div>
+			<div class="version-text" id="versionText">Шерво Кликер v26.10.8</div>
         </div>
     </div>
 
@@ -4968,7 +4968,6 @@
             if (_saveWatchStarted) return;
             _saveWatchStarted = true;
             // ДИАГНОСТИКА: показываем в заголовке вкладки, что подписка стартовала
-            document.title = 'WATCH-STARTED';
 			window.fbWatchSave(activeMode, (d) => {
 				if (!d) return;
 				// Защита: 2 секунды после подхвата НЕ сохраняем своё
@@ -5287,7 +5286,7 @@
         });
 		
 		// ============================================
-        // АККАУНТЫ + FIREBASE + YOUTUBE (v26.10.7)
+        // АККАУНТЫ + FIREBASE + YOUTUBE (v26.10.8)
         // ============================================
 
         // --- Список треков по умолчанию (увеличен) ---
