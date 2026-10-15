@@ -27,7 +27,8 @@ import {
     ref,
     set,
     get,
-    update
+    update,
+    onValue
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const app = initializeApp(firebaseConfig);
@@ -81,7 +82,12 @@ window.fbSave = async function(mode, saveData) {
     const user = auth.currentUser;
     if (!user) return { success: false, error: 'Не авторизован' };
     try {
-        // Том 2 fix: гарантируем, что nickname и email всегда в базе
+        // Том 11 fix: свои сохранения не должны восприниматься как "админские".
+        // Ставим штамп 0 — игрок сам не должен триггерить подхват.
+        // Но если админ уже ставил штамп — не затираем его при сохранении.
+        if (saveData && typeof saveData === 'object') {
+            if (!saveData._adminEditStamp) saveData._adminEditStamp = 0;
+        }
         await update(ref(db, 'users/' + user.uid), {
             nickname: user.displayName || user.email.split('@')[0],
             email: user.email,
@@ -188,6 +194,26 @@ window.fbAdminLoadUser = async function(uid) {
 // Сохранить изменения в конкретного пользователя
 window.fbAdminSaveUser = async function(uid, updates) {
     try {
+        // Том 11 fix: ставим штамп админской правки, чтобы игра подхватила изменения
+        if (updates && typeof updates === 'object') {
+            for (let key in updates) {
+                if (key.startsWith('save_') && updates[key] && typeof updates[key] === 'object') {
+                    updates[key]._adminEditStamp = Date.now();
+                }
+            }
+        }
+        let stampApplied = false;
+        for (let key in updates) {
+            if (key.startsWith('save_') && updates[key] && updates[key]._adminEditStamp) {
+                stampApplied = true;
+                break;
+            }
+        }
+        if (!stampApplied) {
+            updates._adminEditStamp = Date.now();
+        }
+        // Том 11 fix: заморозка автосейва игрока на 60 секунд
+		updates._freezeUntil = Date.now() + 3 * 1000;
         await update(ref(db, 'users/' + uid), updates);
         return { success: true };
     } catch (err) {
@@ -198,7 +224,10 @@ window.fbAdminSaveUser = async function(uid, updates) {
 // Сбросить сохранение конкретного режима
 window.fbAdminResetSave = async function(uid, mode) {
     try {
-        await update(ref(db, 'users/' + uid), { ['save_' + mode]: null });
+        // Том 11 fix: ставим штамп, чтобы игра подхватила сброс
+        await update(ref(db, 'users/' + uid), {
+            ['save_' + mode]: { _adminEditStamp: Date.now() }
+        });
         return { success: true };
     } catch (err) {
         return { success: false, error: err.message };
@@ -223,5 +252,63 @@ window.fbUpdateProfile = async function(nickname) {
 
 // --- СЛЕЖЕНИЕ ЗА АВТОРИЗАЦИЕЙ ---
 window.fbOnAuthChange = function(callback) { onAuthStateChanged(auth, callback); };
+
+// --- ТОМ 11 fix: мгновенная подписка на изменения сохранения ---
+// Работает через onValue (push-уведомления Firebase).
+// Любое изменение в базе прилетает на все устройства этого аккаунта за ~0.1 сек.
+let _saveUnsubscribe = null;
+
+window.fbWatchSave = function(mode, callback) {
+    const user = auth.currentUser;
+    if (!user) return { success: false, error: 'Не авторизован' };
+    if (_saveUnsubscribe) {
+        _saveUnsubscribe();
+        _saveUnsubscribe = null;
+    }
+    try {
+        // Слушаем весь узел пользователя, чтобы видеть и save_*, и _adminEditStamp
+        const userRef = ref(db, 'users/' + user.uid);
+        _saveUnsubscribe = onValue(userRef, (snapshot) => {
+            const data = snapshot.val();
+            if (!data) return;
+            // Достаём сохранение нужного режима
+            const save = data['save_' + mode];
+            if (!save) return;
+            // Если на верхнем уровне есть штамп — он главнее
+            const topStamp = data._adminEditStamp || 0;
+            if (topStamp > (save._adminEditStamp || 0)) {
+                save._adminEditStamp = topStamp;
+            }
+            callback(save);
+        });
+        return { success: true };
+    } catch (err) {
+        return { success: false, error: err.message };
+    }
+};
+
+window.fbUnwatchSave = function() {
+    if (_saveUnsubscribe) {
+        _saveUnsubscribe();
+        _saveUnsubscribe = null;
+    }
+};
+
+// --- Том 11 fix: проверка заморозки автосейва ---
+// Админ после сохранения ставит _freezeUntil = Date.now() + 60сек.
+// Игрок до этого времени НЕ сохраняет — чтобы не затереть админскую правку.
+window.fbIsFrozen = async function() {
+    const user = auth.currentUser;
+    if (!user) return false;
+    try {
+        const snapshot = await get(ref(db, 'users/' + user.uid));
+        if (!snapshot.exists()) return false;
+        const data = snapshot.val();
+        const freeze = data._freezeUntil || 0;
+        return freeze > Date.now();
+    } catch (err) {
+        return false;
+    }
+};
 
 console.log('🔥 Firebase-модуль v2.0 загружен');

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="icon" type="image/png" href="iconsc.png">
-    <title>Шерво Кликер v2.6.0</title>
+    <title>Шерво Кликер v26.10.7</title>
     <style>
         body {
             margin: 0; padding: 0;
@@ -88,15 +88,7 @@
         
         .bottom-left-btn { position: fixed; left: 20px; bottom: 20px; z-index: 10; }
         .top-left-btn { position: fixed; left: 20px; top: 20px; z-index: 10; }
-        /* Том 14: админ-консоль — рядом с ЗАДАНИЯМИ */
-        .admin-btn {
-            position: fixed;
-            left: 170px;
-            top: 20px;
-            z-index: 10;
-            font-size: 0.7rem;
-            padding: 8px 12px;
-        }
+		
 		.right-buttons {
             position: fixed;
             right: 20px;
@@ -301,6 +293,7 @@
             position: relative; width: 100%; height: 500px;
             background: #1a1c1e; border: 3px solid #000;
             overflow: hidden; margin-top: 15px; cursor: grab;
+            touch-action: none; /* Том 5: отключаем браузерный скролл/зум */
         }
         .tree-container:active { cursor: grabbing; }
         .tree-inner {
@@ -351,6 +344,29 @@
             transform-origin: 0 0; z-index: -1;
         }
         .tree-hint { color: #aaa; font-size: 0.65rem; text-align: center; margin-top: 8px; }
+
+        /* Том 5: кнопки зума дерева */
+        .tree-zoom-btns {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .tree-zoom-btn {
+            background: #4a4d54;
+            border: 2px solid #707480;
+            outline: 2px solid #000;
+            color: #fff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            font-size: 1rem;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            text-shadow: 1px 1px 0 #000;
+            box-shadow: 0 4px 0 #1e1f22;
+        }
+        .tree-zoom-btn:hover { background: #5c6069; }
+        .tree-zoom-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #1e1f22; }
 
         .achievements-list { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; max-height: 400px; overflow-y: auto; }
         .achievements-list::-webkit-scrollbar { width: 8px; background: #1e1f22; }
@@ -532,18 +548,6 @@
         .custom-modal-btn.green:hover { background: #246626; }
         .custom-modal-btn.red { background: #4a1d1d; border-color: #ff5555; color: #ff5555; }
         .custom-modal-btn.red:hover { background: #6a2d2d; }
-		
-		/* Том 14: админ-консоль */
-        .admin-field {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 6px 0; border-bottom: 1px solid #333;
-        }
-        .admin-field span { color: #fff; font-size: 0.8rem; }
-        .admin-field input {
-            padding: 6px; font-family: 'Segoe UI', Arial, sans-serif;
-            font-size: 0.75rem; background: #222; border: 2px solid #4e5058;
-            color: #fff; width: 200px;
-        }
 
         .dev-badge {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
@@ -777,7 +781,279 @@
             color: #4e5058;
             cursor: not-allowed;
         }
+        /* Том 16: блокировка во время анимации */
+        .casino-locked .casino-tab,
+        .casino-locked .casino-cur-btn,
+        .casino-locked .casino-choice-btn,
+        .casino-locked .casino-bet-row input,
+        .casino-locked .casino-bet-row button {
+            pointer-events: none;
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
 
+        /* Том 2: Эволюция */
+        .evolution-btn {
+            background: #4a2d1d;
+            border-color: #ffaa00;
+            color: #ffaa00;
+        }
+        .evo-card {
+            background: #3c3f45;
+            border: 3px solid #000;
+            padding: 15px;
+            margin-top: 12px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .evo-card.locked { opacity: 0.5; }
+        .evo-card.done { border-color: #55ff55; background: #2c3f2c; }
+        .evo-icon {
+            font-size: 2.5rem;
+            min-width: 60px;
+            text-align: center;
+        }
+        .evo-info {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .evo-name {
+            color: #ffff55;
+            font-size: 0.9rem;
+            text-shadow: 1px 1px 0 #000;
+        }
+        .evo-req {
+            color: #aaa;
+            font-size: 0.7rem;
+        }
+        .evo-reward {
+            color: #55ff55;
+            font-size: 0.75rem;
+        }
+        .evo-btn-buy {
+            background: #1b521c;
+            border: 2px solid #000;
+            color: #55ff55;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            font-size: 0.75rem;
+            padding: 8px 16px;
+            cursor: pointer;
+            text-shadow: 1px 1px 0 #000;
+        }
+        .evo-btn-buy:hover { background: #246626; }
+        .evo-btn-buy.disabled {
+            background: #222426;
+            color: #555;
+            cursor: not-allowed;
+        }
+        .evo-btn-buy.done {
+            background: #ffaa00;
+            color: #000;
+            font-weight: bold;
+            cursor: default;
+        }
+        .evo-progress {
+            color: #ffaa00;
+            font-size: 0.7rem;
+        }
+        .diamond-box {
+            font-size: 0.9rem;
+            color: #55ffff;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 0px #000;
+        }
+
+        /* Том 3: Второе измерение */
+        .dim2-btn {
+            background: #1d2d4a;
+            border-color: #55ffff;
+            color: #55ffff;
+        }
+        .dim2-fullscreen {
+            width: 100% !important;
+            height: 100vh !important;
+            max-width: 100% !important;
+            max-height: 100vh !important;
+            padding: 20px !important;
+            background-size: cover !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+            overflow-y: auto;
+        }
+        .dim2-area {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            height: 420px;
+            margin: 15px auto;
+            background: rgba(10, 14, 20, 0.6);
+            border: 3px solid #000;
+            overflow: hidden;
+            background-image:
+                radial-gradient(circle at 50% 50%, rgba(85, 255, 255, 0.08) 0%, transparent 70%);
+        }
+        .dim2-big-mushroom {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 140px;
+            height: 140px;
+            object-fit: contain;
+            image-rendering: pixelated;
+            z-index: 3;
+            filter: drop-shadow(0 0 20px rgba(85, 255, 255, 0.3));
+            transition: transform 0.08s;
+        }
+        .dim2-big-mushroom.pulse {
+            transform: translate(-50%, -50%) scale(1.08);
+        }
+        .dim2-slot {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            z-index: 2;
+            transition: transform 0.08s;
+        }
+        .dim2-slot img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            image-rendering: pixelated;
+            pointer-events: none;
+        }
+        .dim2-slot.empty {
+            opacity: 0.15;
+            filter: grayscale(1);
+        }
+        .dim2-slot.punch {
+            transform: scale(1.2);
+        }
+        .dim2-slot.slot-1 { top: 12%; left: 50%; margin-left: -30px; }
+        .dim2-slot.slot-2 { top: 32%; left: 6%; }
+        .dim2-slot.slot-3 { top: 52%; left: 6%; }
+        .dim2-slot.slot-4 { top: 72%; left: 50%; margin-left: -30px; }
+        .dim2-slot.slot-5 { top: 52%; right: 6%; }
+        .dim2-slot.slot-6 { top: 32%; right: 6%; }
+        /* Ножки маленьких грибов смотрят на большой гриб */
+        .dim2-slot.slot-1 img { transform: rotate(0deg); }
+        .dim2-slot.slot-2 img { transform: rotate(-90deg); }
+        .dim2-slot.slot-3 img { transform: rotate(-90deg); }
+        .dim2-slot.slot-4 img { transform: rotate(180deg); }
+        .dim2-slot.slot-5 img { transform: rotate(90deg); }
+        .dim2-slot.slot-6 img { transform: rotate(90deg); }
+        .dim2-info {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 10px;
+            color: #fff;
+            font-size: 0.85rem;
+            flex-wrap: wrap;
+            background: rgba(26, 28, 30, 0.9);
+            border: 2px solid #4e5058;
+            padding: 10px 15px;
+        }
+        .dim2-info span { color: #55ffff; }
+
+        .dim2-btn-buy {
+            display: block;
+            margin: 15px auto;
+            padding: 12px 30px;
+            background: #1d2d4a;
+            border: 3px solid #55ffff;
+            outline: 3px solid #000;
+            color: #55ffff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-shadow: 1px 1px 0 #000;
+        }
+        .dim2-btn-buy:hover { background: #2d4a6a; }
+        .dim2-btn-buy.disabled {
+            background: #222426;
+            border-color: #4e5058;
+            color: #4e5058;
+            cursor: not-allowed;
+        }
+
+        .dim2-upgrades {
+            max-width: 600px;
+            margin: 20px auto 0;
+        }
+        .dim2-upgrade {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(26, 28, 30, 0.9);
+            border: 2px solid #4e5058;
+            padding: 12px 15px;
+            margin-top: 10px;
+            gap: 10px;
+        }
+        .dim2-upgrade-info { flex-grow: 1; display: flex; flex-direction: column; gap: 3px; }
+        .dim2-upgrade-name { color: #fff; font-size: 0.8rem; }
+        .dim2-upgrade-desc { color: #aaa; font-size: 0.65rem; }
+        .dim2-upgrade-level { color: #ffff55; font-size: 0.7rem; }
+        .dim2-upgrade-btn {
+            background: #1b521c;
+            border: 2px solid #000;
+            color: #55ff55;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            font-size: 0.7rem;
+            padding: 8px 14px;
+            cursor: pointer;
+            text-shadow: 1px 1px 0 #000;
+            white-space: nowrap;
+        }
+        .dim2-upgrade-btn:hover { background: #246626; }
+        .dim2-upgrade-btn.disabled {
+            background: #222426;
+            color: #555;
+            cursor: not-allowed;
+        }
+        .dim2-upgrade-btn.maxed {
+            background: #ffaa00;
+            color: #000;
+            font-weight: bold;
+            cursor: default;
+        }
+        .dim2-title {
+            text-align: center;
+            color: #55ffff;
+            font-size: 1.3rem;
+            text-shadow: 2px 2px 0 #000;
+            margin-bottom: 10px;
+        }
+
+        /* Том 2: кнопка эволюции на телефоне */
+        .mobile-evo-btn {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 15;
+            padding: 8px 12px;
+            font-size: 1rem;
+        }
+        .mobile-dim2-btn {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 15;
+            padding: 8px 12px;
+            font-size: 1rem;
+            background: #1d2d4a;
+            border-color: #55ffff;
+            color: #55ffff;
+        }
+        @media (max-width: 955px) {
+            .mobile-evo-btn { display: block !important; }
+            .mobile-dim2-btn { display: block !important; }
+        }
+		
         /* Том 10: мобильная панель навигации */
         .mobile-nav {
             display: none;
@@ -788,7 +1064,7 @@
             height: 64px;
             background: #1a1c1e;
             border-top: 3px solid #3c3e44;
-            z-index: 500;
+            z-index: 1000; /* Том 5 fix: выше модалки */
             justify-content: space-around;
             align-items: center;
         }
@@ -863,10 +1139,17 @@
         /* ============================================
            ТОМ 10: АДАПТИВ ПОД ТЕЛЕФОНЫ (портрет)
            ============================================ */
-        @media (max-width: 768px) {
-            /* Панель снизу */
-            .mobile-nav { display: flex; }
-            body { padding-bottom: 64px; }
+        @media (max-width: 955px) {
+			/* Панель снизу */
+			.mobile-nav { display: flex; }
+			body { padding-bottom: 64px; }
+
+            /* Том 4: скрываем крестики у хабов на телефоне */
+            #closeShopHubBtn,
+            #closeMinigamesHubBtn,
+            #closeSettingsHubBtn { display: none !important; }
+            /* Том 4: скрываем крестик профиля на телефоне */
+            #closeProfileBtn { display: none !important; }
 
             /* Скрываем старые кнопки по углам */
             .top-left-btn,
@@ -931,6 +1214,7 @@
                 max-height: 85vh !important;
                 margin: 0 auto;
             }
+
             .shop-title { font-size: 1rem; }
 
             /* Магазин — карточки вертикально */
@@ -1049,7 +1333,7 @@
         }
 
         /* Скрываем панель и подсказку, если экран маленький по высоте */
-        @media (max-width: 768px) and (max-height: 600px) {
+        @media (max-width: 955px) and (max-height: 600px) {
             .clicker-area { width: 110px; height: 110px; }
             .game-box { padding: 15px 10px; }
             .score-box { font-size: 1rem; }
@@ -1088,7 +1372,18 @@
             color: #aaa;
             font-size: 0.75rem;
         }
-        @media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
+
+        /* Том 5 fix: принудительное включение мобильной версии */
+        body.force-mobile .mobile-nav { display: flex !important; }
+        body.force-mobile { padding-bottom: 64px; }
+        body.force-mobile .top-left-btn,
+        body.force-mobile .admin-btn,
+        body.force-mobile .bottom-left-btn,
+        body.force-mobile .right-buttons,
+        body.force-mobile .credits-btn,
+        body.force-mobile .casino-btn,
+        body.force-mobile .profile-btn { display: none !important; }
+        @media (max-width: 955px) and (orientation: landscape) and (max-height: 500px) {
             .rotate-overlay { display: flex; }
         }
 
@@ -1126,6 +1421,7 @@
     <div class="stats-top">
         <div class="stat-badge">УРОВЕНЬ: <span id="lvlDisplay">1</span> (XP: <span id="xpDisplay">0</span>/<span id="nextXpDisplay">100</span>)</div>
         <div class="stat-badge" style="color:#ff55ff; cursor:pointer;" id="prestigeBtn">ПЕРЕРОЖДЕНИЕ: <span id="prestigeDisplay">0</span></div>
+        <div class="stat-badge" style="color:#55ffff;">БРИЛЛИАНТЫ: <span id="diamondDisplay">0</span> 💎</div>
         <div class="stat-badge" style="color:#ffaa00; display:none; cursor:pointer;" id="levelRewardBtn">ЗАБРАТЬ НАГРАДУ УРОВНЯ!</div>
     </div>
 	
@@ -1137,14 +1433,19 @@
     </button>
 
     <button class="menu-btn top-left-btn" id="openQuestsBtn">ЗАДАНИЯ</button>
-<button class="menu-btn admin-btn" id="openAdminBtn" style="background:#1a1c1e; border-color:#ff5555; color:#ff5555; display:none;" title="Админ-консоль">🛡️</button>
+    <!-- Том 2: кнопка эволюции на телефоне -->
+    <button class="menu-btn mobile-evo-btn" id="openEvolutionMobileBtn" style="display:none;">🧬</button>
+    <!-- Том 3: кнопка 2-го измерения на телефоне -->
+    <button class="menu-btn mobile-dim2-btn" id="openDim2MobileBtn" style="display:none;">🌌</button>
     <button class="menu-btn bottom-left-btn" id="openShopBtn">МАГАЗИН</button>
 	<div class="right-buttons">
         <button class="menu-btn" id="openAchievementsBtn" style="background:#4a4d54; border-color:#ffff55; color:#ffff55;">ДОСТИЖЕНИЯ</button>
-        <button class="menu-btn" id="openSkillTreeBtn" style="background:#4a4d54; border-color:#ff55ff; color:#ff55ff;">НАВЫКИ</button>
+        <button class="menu-btn" id="openSkillTreeBtn" style="background:#4a4d54; border-color:#ff55ff; color:#ff55ff;">НАВЫКИ ПЕРЕРОЖДЕНИЯ</button>
+        <button class="menu-btn dim2-btn" id="openDim2Btn" style="display:none;">🌌 2 ИЗМЕРЕНИЕ</button>
+        <button class="menu-btn evolution-btn" id="openEvolutionBtn">🧬 ЭВОЛЮЦИЯ</button>
         <button class="menu-btn" id="openPrestigeBtn" style="background:#4a1d4a; border-color:#ff55ff; color:#ff55ff;">ПЕРЕРОЖДЕНИЕ</button>
         <button class="menu-btn locked" id="openMineBtn" style="background:#4a4d1d; border-color:#ffaa00; color:#ffaa00;">ШАХТА 🔒</button>
-        <button class="menu-btn locked" id="openUpgradeTreeBtn" style="background:#1d4a4a; border-color:#55ffff; color:#55ffff;">УЛУЧШЕНИЯ 🔒</button>
+        <button class="menu-btn locked" id="openUpgradeTreeBtn" style="background:#1d4a4a; border-color:#55ffff; color:#55ffff;">УЛУЧШЕНИЯ ДЕРЕВА 🔒</button>
         <button class="menu-btn locked" id="openCatchBtn" style="background:#1d4a1d; border-color:#55ff55; color:#55ff55;">ЛОВЛЯ ГРИБОВ 🔒</button>
         <button class="menu-btn locked" id="openFocusBtn" style="background:#4a1d4a; border-color:#ff55ff; color:#ff55ff;">ФОКУСЫ ТИПИЧНОГО 🔒</button>
         <button class="menu-btn" id="openSettingsBtn" style="background:#4a4d54; border-color:#aaa; color:#aaa;">НАСТРОЙКИ</button>
@@ -1221,6 +1522,8 @@
                 <div class="profile-stat-row"><span>💰 Текущая чача:</span><span id="statScore">0</span></div>
                 <div class="profile-stat-row"><span>🍄 Грибочки:</span><span id="statMushrooms">0</span></div>
                 <div class="profile-stat-row"><span>🔄 Перерождений:</span><span id="statPrestige">0</span></div>
+                <div class="profile-stat-row"><span>🧬 Эволюция:</span><span id="statEvolution">Нет</span></div>
+                <div class="profile-stat-row"><span>💎 Бриллианты:</span><span id="statDiamonds">0</span></div>
                 <div class="profile-stat-row"><span>⭐ Уровень:</span><span id="statLevel">0</span></div>
                 <div class="profile-stat-row"><span>🏆 Достижений:</span><span id="statAchievements">0/120</span></div>
                 <div class="profile-stat-row"><span>⚡ Чача в час:</span><span id="statChaPerHour" style="color:#55ff55;">0</span></div>
@@ -1323,7 +1626,12 @@
             <div class="tree-container" id="treeContainer">
                 <div class="tree-inner" id="treeInner"></div>
             </div>
-            <div class="tree-hint">🖱️ Зажмите ЛКМ — перемещение. Колёсико — зум.</div>
+            <div class="tree-zoom-btns">
+                <button class="tree-zoom-btn" id="treeZoomOutBtn">−</button>
+                <button class="tree-zoom-btn" id="treeZoomResetBtn">⟲</button>
+                <button class="tree-zoom-btn" id="treeZoomInBtn">+</button>
+            </div>
+            <div class="tree-hint">🖱️ Зажмите — перемещение. Колёсико или два пальца — зум.</div>
         </div>
     </div>
 
@@ -1352,6 +1660,78 @@
                 <button class="settings-btn green" id="claimAllQuestsBtn" style="padding:10px 24px; font-size:0.8rem;">🎁 СОБРАТЬ ВСЁ</button>
             </div>
             <div class="quests-scroller" id="questsContainer"></div>
+        </div>
+    </div>
+
+    <!-- Том 3: Второе измерение -->
+    <div class="modal-overlay" id="dim2Modal">
+        <div class="window-box dim2-fullscreen" id="dim2Fullscreen">
+            <button class="close-btn" id="closeDim2Btn">X</button>
+            <div class="dim2-title">🌌 ВТОРОЕ ИЗМЕРЕНИЕ</div>
+
+            <div class="dim2-info">
+                <div>💎 Бриллиантов: <span id="dim2Diamonds">0</span></div>
+                <div>⚡ В секунду: <span id="dim2PerSec">0</span></div>
+                <div>🍄 Грибов: <span id="dim2Count">0</span>/6</div>
+            </div>
+
+            <div class="dim2-area" id="dim2Area">
+                <img class="dim2-big-mushroom" id="dim2BigMushroom" src="iconsc.png" alt="Большой гриб">
+                <div class="dim2-slot empty slot-1" data-slot="1"><img src="iconsc.png" alt=""></div>
+                <div class="dim2-slot empty slot-2" data-slot="2"><img src="iconsc.png" alt=""></div>
+                <div class="dim2-slot empty slot-3" data-slot="3"><img src="iconsc.png" alt=""></div>
+                <div class="dim2-slot empty slot-4" data-slot="4"><img src="iconsc.png" alt=""></div>
+                <div class="dim2-slot empty slot-5" data-slot="5"><img src="iconsc.png" alt=""></div>
+                <div class="dim2-slot empty slot-6" data-slot="6"><img src="iconsc.png" alt=""></div>
+            </div>
+
+            <button class="dim2-btn-buy" id="dim2BuyBtn">КУПИТЬ ГРИБ</button>
+
+            <div class="dim2-upgrades">
+                <div class="dim2-upgrade">
+                    <div class="dim2-upgrade-info">
+                        <div class="dim2-upgrade-name">⚡ Скорость маленьких</div>
+                        <div class="dim2-upgrade-desc">Бьют быстрее, +5% к доходу за уровень</div>
+                        <div class="dim2-upgrade-level">Ур. <span id="dim2Up1Level">0</span> (+<span id="dim2Up1Bonus">0</span>%)</div>
+                    </div>
+                    <button class="dim2-upgrade-btn" id="dim2Up1Btn">КУПИТЬ</button>
+                </div>
+                <div class="dim2-upgrade">
+                    <div class="dim2-upgrade-info">
+                        <div class="dim2-upgrade-name">✖️ Множитель заработка</div>
+                        <div class="dim2-upgrade-desc">×1.05, ×1.10, ×1.15... до ×5.00</div>
+                        <div class="dim2-upgrade-level">Ур. <span id="dim2Up2Level">0</span> (×<span id="dim2Up2Mult">1.00</span>)</div>
+                    </div>
+                    <button class="dim2-upgrade-btn" id="dim2Up2Btn">КУПИТЬ</button>
+                </div>
+                <div class="dim2-upgrade">
+                    <div class="dim2-upgrade-info">
+                        <div class="dim2-upgrade-name">💎 Бриллианты/сек</div>
+                        <div class="dim2-upgrade-desc">+1 к базовой добыче за уровень</div>
+                        <div class="dim2-upgrade-level">Ур. <span id="dim2Up3Level">0</span></div>
+                    </div>
+                    <button class="dim2-upgrade-btn" id="dim2Up3Btn">КУПИТЬ</button>
+                </div>
+            </div>
+
+            <div style="text-align:center; color:#888; font-size:0.7rem; margin-top:20px;">
+                Работает автоматически. Кликать не нужно.
+            </div>
+        </div>
+    </div>
+
+    <!-- Том 2: Эволюция -->
+    <div class="modal-overlay" id="evolutionModal">
+        <div class="window-box">
+            <button class="close-btn" id="closeEvolutionBtn">X</button>
+            <div class="shop-title" style="color:#ffaa00;">🧬 ЭВОЛЮЦИЯ</div>
+            <p style="color:#fff; font-size:0.75rem; text-align:center; margin-bottom:15px;">
+                Каждая эволюция сбрасывает прогресс, но даёт постоянный бонус.
+            </p>
+            <p style="color:#fff; font-size:0.7rem; text-align:center; margin-bottom:10px;">
+                Текущая эволюция: <span id="evoCurrentDisplay" style="color:#ffaa00;">Нет</span>
+            </p>
+            <div id="evolutionContainer"></div>
         </div>
     </div>
 
@@ -1650,53 +2030,7 @@
                     <button class="settings-btn green" id="customBgBtn">ВЫБРАТЬ</button>
                 </div>
             </div>
-			<div class="version-text" id="versionText">Шерво Кликер v2.6.0</div>
-        </div>
-    </div>
-
-    <!-- Том 14: Админ-консоль -->
-    <div class="modal-overlay" id="adminModal">
-        <div class="window-box" style="width: 700px;">
-            <button class="close-btn" id="closeAdminBtn">X</button>
-            <div class="shop-title" style="color:#ff5555;">🛡️ АДМИН-КОНСОЛЬ</div>
-
-            <!-- Выбор аккаунта -->
-            <div class="settings-row">
-                <span>Аккаунт:</span>
-                <select id="adminUserSelect" style="padding:6px; font-family:'Segoe UI',Arial,sans-serif; font-size:0.75rem; background:#222; border:2px solid #4e5058; color:#fff; width:280px;">
-                    <option value="">— Выберите аккаунт —</option>
-                </select>
-            </div>
-
-            <!-- Параметры -->
-            <div id="adminFields" style="margin-top:15px;">
-                <div class="admin-field"><span>Чача:</span><input type="number" id="admin_s" min="0"></div>
-                <div class="admin-field"><span>Грибочки:</span><input type="number" id="admin_ms" min="0"></div>
-                <div class="admin-field"><span>Очки престижа:</span><input type="number" id="admin_pp" min="0"></div>
-                <div class="admin-field"><span>Уровень:</span><input type="number" id="admin_l" min="1"></div>
-                <div class="admin-field"><span>Перерождения:</span><input type="number" id="admin_p" min="0"></div>
-                <div class="admin-field"><span>Всего кликов:</span><input type="number" id="admin_tc" min="0"></div>
-                <div class="admin-field"><span>Опыт:</span><input type="number" id="admin_xp" min="0"></div>
-                <div class="admin-field"><span>Множитель клика:</span><input type="number" id="admin_acm" step="0.1" min="0.1"></div>
-                <div class="admin-field"><span>Множитель авто:</span><input type="number" id="admin_aam" step="0.1" min="0.1"></div>
-            </div>
-
-            <!-- Кнопки действий -->
-            <div style="margin-top:20px; display:flex; flex-direction:column; gap:8px;">
-                <button class="settings-btn" id="adminResetMine">Сбросить кулдаун шахты</button>
-                <button class="settings-btn" id="adminResetCatch">Сбросить кулдаун ловли</button>
-                <button class="settings-btn" id="adminResetBoost">Сбросить буст</button>
-                <button class="settings-btn blue" id="adminResetNormal">Сбросить сохранение (обычный)</button>
-                <button class="settings-btn blue" id="adminResetHardcore">Сбросить сохранение (хардкор)</button>
-                <button class="settings-btn blue" id="adminResetDeveloper">Сбросить сохранение (разработчик)</button>
-            </div>
-
-            <!-- Сохранить -->
-            <div style="margin-top:20px;">
-                <button class="settings-btn green" id="adminSaveBtn" style="width:100%; padding:12px;">СОХРАНИТЬ ИЗМЕНЕНИЯ</button>
-            </div>
-
-            <div id="adminMessage" style="text-align:center; color:#55ff55; font-size:0.75rem; margin-top:10px;"></div>
+			<div class="version-text" id="versionText">Шерво Кликер v26.10.7</div>
         </div>
     </div>
 
@@ -1747,7 +2081,6 @@
                 <button class="mobile-hub-btn" id="hubFocusBtn"><span class="hub-icon">🎩</span> ФОКУСЫ ТИПИЧНОГО</button>
                 <button class="mobile-hub-btn" id="hubCasinoBtn"><span class="hub-icon">🎰</span> КАЗИНО</button>
                 <button class="mobile-hub-btn" id="hubAchievementsBtn"><span class="hub-icon">🏆</span> ДОСТИЖЕНИЯ</button>
-                <button class="mobile-hub-btn" id="hubCreditsBtn"><span class="hub-icon">👥</span> РАЗРАБОТЧИКИ</button>
             </div>
         </div>
     </div>
@@ -1759,8 +2092,8 @@
             <div class="shop-title" style="color:#55ff55;">🛒 МАГАЗИН</div>
             <div class="mobile-hub">
                 <button class="mobile-hub-btn" id="hubShopBtn"><span class="hub-icon">🛍️</span> МАГАЗИН</button>
-                <button class="mobile-hub-btn" id="hubUpgradeTreeBtn"><span class="hub-icon">🌳</span> УЛУЧШЕНИЯ</button>
-                <button class="mobile-hub-btn" id="hubSkillTreeBtn"><span class="hub-icon">⭐</span> НАВЫКИ</button>
+                <button class="mobile-hub-btn" id="hubUpgradeTreeBtn"><span class="hub-icon">🌳</span> УЛУЧШЕНИЯ ДЕРЕВА</button>
+                <button class="mobile-hub-btn" id="hubSkillTreeBtn"><span class="hub-icon">⭐</span> НАВЫКИ ПЕРЕРОЖДЕНИЯ</button>
                 <button class="mobile-hub-btn" id="hubPrestigeBtn"><span class="hub-icon">🔄</span> ПЕРЕРОЖДЕНИЕ</button>
                 <button class="mobile-hub-btn" id="hubQuestsBtn"><span class="hub-icon">📋</span> ЗАДАНИЯ</button>
             </div>
@@ -1774,8 +2107,7 @@
             <div class="shop-title" style="color:#aaa;">⚙️ НАСТРОЙКИ</div>
             <div class="mobile-hub">
                 <button class="mobile-hub-btn" id="hubSettingsBtn"><span class="hub-icon">⚙️</span> НАСТРОЙКИ</button>
-                <button class="mobile-hub-btn" id="hubCreditsBtn2"><span class="hub-icon">👥</span> РАЗРАБОТЧИКИ</button>
-                <button class="mobile-hub-btn" id="hubAdminBtn" style="display:none;"><span class="hub-icon">🛡️</span> АДМИН-КОНСОЛЬ</button>
+                <button class="mobile-hub-btn" id="hubCreditsBtn2"><span class="hub-icon">👥</span> РАЗРАБОТЧИКИ</button>   
             </div>
         </div>
     </div>
@@ -1951,7 +2283,11 @@
         }
 
         // === ПЕРЕМЕННЫЕ ===
-        let _s = 0, _cp = 1, _ac = 0, _l = 1, _xp = 0, _nx = 100;
+        let _s = 0, _cp = 1, _ac = 0, _l = 1, _xp = 0, _nx = 10000;
+        // Том 11 fix: штамп админской правки (объявлен здесь, чтобы не было TDZ)
+        let _adminEditStamp = 0;
+        // Том 11+12 fix: флаг подписки на реальное время
+        let _saveWatchStarted = false;
         let _p = 0, _pp = 0, _tc = 0, _clr = 0;
         let _ucc = 5, _uac = 20, _acc = 5000, _aac = 10000;
         let _acc2 = 50000, _aac2 = 100000, _aac3 = 500000;
@@ -1981,6 +2317,19 @@
         let _focusMoveDir = 0;    // направление движения (-1, 0, 1)
         let _focusMoveTick = null; // интервал движения
 
+        // Том 2: Эволюция
+        let _evo = 0;          // текущий уровень эволюции (0–6)
+        let _dia = 0;          // бриллианты
+
+        // Том 3: Второе измерение
+        let _dim2Count = 0;        // количество купленных маленьких грибов (0–6)
+        let _dim2Up1 = 0;          // уровень "Скорость маленьких"
+        let _dim2Up2 = 0;          // уровень "Множитель заработка"
+        let _dim2Up3 = 0;          // уровень "Бриллианты/сек"
+        let _dim2Interval = null;  // интервал добычи
+        let _dim2PunchInterval = null; // интервал ударов
+        let _dim2PunchIndex = 0;   // какой слот бьёт сейчас
+
         // Том 11: Казино
         let _casinoGame = 'coin';        // текущая игра
         let _casinoCurrency = 'cha';     // валюта: 'cha' | 'mush'
@@ -1989,6 +2338,8 @@
         let _casinoSpins = 0;            // всего спинов
         let _casinoWins = 0;             // побед
         let _casinoLosses = 0;           // проигрышей
+        // Том 17: динамический шанс (30–60%)
+        let _casinoLossStreak = 0;       // проигрышей подряд
 
         let skills = {
             clickMaster: { level: 0, max: 10, cost: 1, name: 'Мастер Клика', icon: '👆', desc: '+10% к клику' },
@@ -2198,9 +2549,9 @@
             }
 
             target = Math.max(1, Math.floor(target));
-            // Том 23: награды уменьшены в 3 раза (обычный), в 2 (daily), в 1.5 (weekly)
-            let rewardScore = Math.floor(target * (type === 'normal' ? 1 : type === 'daily' ? 2.5 : 5));
-            let rewardXp = Math.floor(target * (type === 'normal' ? 0.7 : type === 'daily' ? 1.5 : 3));
+            // Том 6: обычные ×0.25, ежедневные ×1.25, еженедельные ×3.75
+            let rewardScore = Math.floor(target * (type === 'normal' ? 0.25 : type === 'daily' ? 1.25 : 3.75));
+            let rewardXp = Math.floor(target * (type === 'normal' ? 0.175 : type === 'daily' ? 0.75 : 2.25));
             return { uid: nextQuestUid(), template, target, rewardScore, rewardXp, claimed: false, favorite: false };
         }
 
@@ -2466,6 +2817,8 @@
             settings.lastOnline = Date.now();
             return {
                 _s, _cp, _ac, _l, _xp, _p, _pp, _tc, _clr,
+                // Том 11 fix: сохраняем штамп админской правки, чтобы не потерять его
+                _adminEditStamp: _adminEditStamp,
                 _ucc, _uac, _acc, _aac, _acc2, _aac2, _aac3,
                 _acm, _aam, _hac, _haa, _hac2, _haa2, _haa3,
                 _ms, minePlays, boostUses, catchPlays, xpTotal, skills, upgrades,
@@ -2481,6 +2834,8 @@
         // === ПРИМЕНИТЬ СОХРАНЕНИЕ ===
         function applySave(data) {
             if (!data) return;
+            // Том 11 fix: подхватываем штамп админской правки
+            _adminEditStamp = data._adminEditStamp || 0;
             _s = data._s || 0; _cp = data._cp || 1; _ac = data._ac || 0;
             _l = data._l || 1; _xp = data._xp || 0; _p = data._p || 0;
             _pp = data._pp || 0; _tc = data._tc || 0; _clr = data._clr || 0;
@@ -2501,6 +2856,13 @@
             _casinoSpins = data._casinoSpins || 0;
             _casinoWins = data._casinoWins || 0;
             _casinoLosses = data._casinoLosses || 0;
+            _casinoLossStreak = data._casinoLossStreak || 0;
+            _evo = data._evo || 0;
+            _dia = data._dia || 0;
+            _dim2Count = data._dim2Count || 0;
+            _dim2Up1 = data._dim2Up1 || 0;
+            _dim2Up2 = data._dim2Up2 || 0;
+            _dim2Up3 = data._dim2Up3 || 0;
             favoriteQuests = data.favoriteQuests || [];
             if (data.skills) for (let k in skills) if (data.skills[k]) skills[k].level = data.skills[k].level;
             if (data.upgrades) for (let k in upgrades) if (data.upgrades[k]) upgrades[k].level = data.upgrades[k].level;
@@ -2515,7 +2877,8 @@
             while (dailyQuests.length < 50) dailyQuests.push(generateQuestFromPool('daily'));
             while (weeklyQuests.length < 50) weeklyQuests.push(generateQuestFromPool('weekly'));
             if (data.settings) settings = { ...settings, ...data.settings };
-			_nx = _l * 100;
+			// Том 6: новая формула порога XP
+			_nx = Math.floor(10000 * Math.pow(1.15, _l - 1));
             applyBackground();
             // Том 6: обновляем тумблер автокликера
             updateAutoclickUI();
@@ -2550,9 +2913,9 @@
             if (!timeStr) timeStr = seconds + ' сек.';
             showAlert('💰 ОФФЛАЙН ЗАРАБОТОК', `Пока вас не было (${timeStr}),\nнакоплено ${Math.floor(earned).toLocaleString()} Чачи!`);
         }
-
-        // === СОХРАНИТЬ В FIREBASE ===
-        async function saveGame() {
+		
+		// === СОХРАНЯЕМ В  FIREBASE ===
+		async function saveGame() {
             if (!window.fbGetUser || !window.fbGetUser()) return;
             let save = collectSave();
             await window.fbSave(activeMode, save);
@@ -2571,7 +2934,16 @@
                     _cp = 100;
                     _ac = 100;
                     _pp = 9999;
-                    _ms = 999999999;   // ← добавили грибочки
+                    _ms = 999999999;
+                    _evo = 6;
+                    _dia = 999999;
+                    _dim2Count = 6;
+                    _dim2Up1 = 25;
+                    _dim2Up2 = 18;
+                    _dim2Up3 = 28;
+                    _l = 1;
+                    // Том 6: корректный порог XP
+                    _nx = Math.floor(10000 * Math.pow(1.15, _l - 1));
                 }
             }
             updateUI();
@@ -2696,8 +3068,11 @@
         let modalQueue = [];
         let modalActive = false;
 
-        // Показать модалку
         function showModal(title, text, buttons) {
+            // Том 4 fix: не даём очереди разрастаться
+            if (modalQueue.length >= 5) {
+                modalQueue = modalQueue.slice(-3); // оставляем последние 3
+            }
             modalQueue.push({ title, text, buttons });
             if (!modalActive) processModalQueue();
         }
@@ -2738,6 +3113,9 @@
 
         // Alert (одна кнопка ОК)
         function showAlert(title, text) {
+            // Том 4 fix: не дублировать одинаковые алерты
+            let last = modalQueue[modalQueue.length - 1];
+            if (last && last.title === title && last.text === text) return;
             showModal(title, text, [
                 { text: 'ОК', color: 'green', action: null }
             ]);
@@ -2775,7 +3153,8 @@
             let global = 1 + (upgrades.globalBoost.level * 0.25);
             let god = 1 + (upgrades.godMode.level * 0.50);
             let prestigeBonus = 1 + (_p * 0.05 * (1 + upgrades.prestigeBoost.level * 0.05));
-            return Math.max(1, Math.floor(base * skillBonus * up1 * up2 * up3 * global * god * prestigeBonus * (_ba ? 2 : 1) * getIncomeMultiplier()));
+            let evoBonus = 1 + getEvoBonus();
+                        return Math.max(1, Math.floor(base * skillBonus * up1 * up2 * up3 * global * god * prestigeBonus * evoBonus * (_ba ? 2 : 1) * getIncomeMultiplier()));
         }
         function getAutoPower() {
             let base = _ac * _aam;
@@ -2786,7 +3165,8 @@
             let global = 1 + (upgrades.globalBoost.level * 0.25);
             let god = 1 + (upgrades.godMode.level * 0.50);
             let prestigeBonus = 1 + (_p * 0.05 * (1 + upgrades.prestigeBoost.level * 0.05));
-                        return Math.max(1, Math.floor(base * skillBonus * up1 * up2 * up3 * global * god * prestigeBonus * (_ba ? 2 : 1) * getIncomeMultiplier()));
+            let evoBonus = 1 + getEvoBonus();
+            return Math.max(1, Math.floor(base * skillBonus * up1 * up2 * up3 * global * god * prestigeBonus * evoBonus * (_ba ? 2 : 1) * getIncomeMultiplier()));
         }
         function getDiscount() {
             let skillDiscount = skills.discount.level * 0.05;
@@ -2822,6 +3202,8 @@
             nextXpDisplay.textContent = _nx;
             prestigeDisplay.textContent = getPrestigeText(_p);
             prestigePointsDisplay.textContent = _pp;
+            let diaEl = document.getElementById('diamondDisplay');
+            if (diaEl) diaEl.textContent = _dia.toLocaleString();
             mushroomPointsDisplay.textContent = _ms;
 
 			clickPowerDisplay.textContent = `(клик: +${_cp})`;
@@ -2917,9 +3299,9 @@
 			}
 			if (upgradeBtn) {
 				if (_p < 1 && !isDeveloper) {
-					upgradeBtn.textContent = 'УЛУЧШЕНИЯ 🔒';
+					upgradeBtn.textContent = 'УЛУЧШЕНИЯ ДЕРЕВА 🔒';
 				} else {
-					upgradeBtn.textContent = 'УЛУЧШЕНИЯ';
+					upgradeBtn.textContent = 'УЛУЧШЕНИЯ ДЕРЕВА';
 				}
 			}
 			if (catchBtn) {
@@ -2960,14 +3342,29 @@
             if (document.getElementById('casinoModal').classList.contains('active')) {
                 casinoUpdateBalance();
             }
+            // Том 2: мобильная кнопка эволюции
+            updateMobileEvoBtn();
+            // Том 3: кнопки 2-го измерения
+            updateDim2Btns();
+            // Том 3: обновляем экран 2-го измерения, если открыт
+            if (document.getElementById('dim2Modal') && document.getElementById('dim2Modal').classList.contains('active')) {
+                renderDim2();
+            }
         }
 
 		function addXp(amount) {
             _xp += amount;
             xpTotal += amount;
+            let levelsGained = 0;
             while (_xp >= _nx) {
-                _xp -= _nx; _l++; _nx = _l * 100;
+                _xp -= _nx; _l++;
+                // Том 6: 10 000 XP × 1.15 за уровень
+                _nx = Math.floor(10000 * Math.pow(1.15, _l - 1));
+                levelsGained++;
+            }
+            if (levelsGained > 0) {
                 playSound('levelup');
+                // Показываем ОДНУ модалку вместо N
                 showAlert('⭐ УРОВЕНЬ ПОВЫШЕН!', `Новый уровень: ${_l}`);
             }
             updateUI();
@@ -3013,7 +3410,9 @@
 			_lct = now;
 			let currentPower = getClickPower();
 			_s += currentPower; _tc++;
-			addXp(currentPower);
+			// Том 6: опыт за клик 0.5, умножается на силу кирки
+			let clickXp = 0.5 * _cp;
+			addXp(clickXp);
 			playSound('click'); updateUI(); saveGame();
 			createFloatingText(event, `+${currentPower}`, '#55ff55');
 			if (settings.particles) spawnParticles(event);
@@ -3021,15 +3420,15 @@
 
 		levelRewardBtn.addEventListener('click', () => {
             _clr++;
-            let reward = _clr * 5 * 100;
+            let reward = _clr * 5 * 100 * 100;
             _s += reward;
             playSound('buy');
-            showAlert('🎁 НАГРАДА ЗА УРОВЕНЬ', `Получено: +${reward} Чачи`);
+            showAlert('🎁 НАГРАДА ЗА УРОВЕНЬ', `Получено: +${reward.toLocaleString()} Чачи`);
             updateUI(); saveGame();
         });
 
         document.getElementById('openShopBtn').addEventListener('click', () => { closeAllModals(); shopModal.classList.add('active'); });
-        document.getElementById('closeShopBtn').addEventListener('click', () => shopModal.classList.remove('active'));
+        document.getElementById('closeShopBtn').addEventListener('click', () => closeModalSmart('shopModal', 'shopHubModal'));
 		// Том 3: прокрутка магазина колёсиком мыши
 		// Том 3: прокрутка магазина колёсиком мыши (без задержки)
 		// Том 3: мягкая прокрутка магазина колёсиком
@@ -3089,29 +3488,53 @@
             });
         })();;
         document.getElementById('openQuestsBtn').addEventListener('click', () => { closeAllModals(); questsModal.classList.add('active'); renderQuests(); startQuestTimer(); });
-        document.getElementById('closeQuestsBtn').addEventListener('click', () => { questsModal.classList.remove('active'); stopQuestTimer(); });
+        document.getElementById('closeQuestsBtn').addEventListener('click', () => { closeModalSmart('questsModal', 'shopHubModal'); stopQuestTimer(); });
         document.getElementById('openSkillTreeBtn').addEventListener('click', () => { closeAllModals(); skillTreeModal.classList.add('active'); renderSkillTree(); });
         document.getElementById('closeSkillTreeBtn').addEventListener('click', () => skillTreeModal.classList.remove('active'));
         document.getElementById('openUpgradeTreeBtn').addEventListener('click', () => { if (_p < 1 && !isDeveloper) return; closeAllModals(); upgradeTreeModal.classList.add('active'); renderUpgradeTree(); });
-        document.getElementById('closeUpgradeTreeBtn').addEventListener('click', () => upgradeTreeModal.classList.remove('active'));
+        document.getElementById('closeUpgradeTreeBtn').addEventListener('click', () => closeModalSmart('upgradeTreeModal', 'shopHubModal'));
         document.getElementById('openAchievementsBtn').addEventListener('click', () => { closeAllModals(); achievementsModal.classList.add('active'); renderAchievements(); });
-        document.getElementById('closeAchievementsBtn').addEventListener('click', () => achievementsModal.classList.remove('active'));
+        document.getElementById('closeAchievementsBtn').addEventListener('click', () => closeModalSmart('achievementsModal', 'minigamesHubModal'));
+        document.getElementById('openEvolutionBtn').addEventListener('click', () => { closeAllModals(); evolutionModal.classList.add('active'); renderEvolution(); });
+        // Том 3: 2-е измерение
+        document.getElementById('openDim2Btn').addEventListener('click', () => {
+            if (_evo < 4) { showAlert('🔒 ЗАКРЫТО', 'Нужна 4-я эволюция.'); return; }
+            closeAllModals();
+            document.getElementById('dim2Modal').classList.add('active');
+            renderDim2();
+        });
+        document.getElementById('openDim2MobileBtn').addEventListener('click', () => {
+            if (_evo < 4) { showAlert('🔒 ЗАКРЫТО', 'Нужна 4-я эволюция.'); return; }
+            closeAllModals();
+            document.getElementById('dim2Modal').classList.add('active');
+            renderDim2();
+        });
+        document.getElementById('closeDim2Btn').addEventListener('click', () => {
+            document.getElementById('dim2Modal').classList.remove('active');
+        });
+        document.getElementById('dim2BuyBtn').addEventListener('click', dim2BuyMushroom);
+        document.getElementById('dim2Up1Btn').addEventListener('click', dim2BuyUp1);
+        document.getElementById('dim2Up2Btn').addEventListener('click', dim2BuyUp2);
+        document.getElementById('dim2Up3Btn').addEventListener('click', dim2BuyUp3);
+        document.getElementById('closeEvolutionBtn').addEventListener('click', () => evolutionModal.classList.remove('active'));
+        document.getElementById('openEvolutionMobileBtn').addEventListener('click', () => { closeAllModals(); evolutionModal.classList.add('active'); renderEvolution(); });
         document.getElementById('openPrestigeBtn').addEventListener('click', () => { closeAllModals(); prestigeModal.classList.add('active'); updateUI(); });
-        document.getElementById('closePrestigeBtn').addEventListener('click', () => prestigeModal.classList.remove('active'));
+        document.getElementById('closePrestigeBtn').addEventListener('click', () => closeModalSmart('prestigeModal', 'shopHubModal'));
         document.getElementById('openMineBtn').addEventListener('click', () => { if (_p < 1 && !isDeveloper) return; closeAllModals(); mineModal.classList.add('active'); initMine(); });
-        document.getElementById('closeMineBtn').addEventListener('click', () => { mineModal.classList.remove('active'); stopMine(); });
+        document.getElementById('closeMineBtn').addEventListener('click', () => { closeModalSmart('mineModal', 'minigamesHubModal'); stopMine(); });
         document.getElementById('openCatchBtn').addEventListener('click', () => { if (_p < 1 && !isDeveloper) return; closeAllModals(); catchModal.classList.add('active'); initCatch(); });
-        document.getElementById('closeCatchBtn').addEventListener('click', () => { catchModal.classList.remove('active'); stopCatch(); });
+        document.getElementById('closeCatchBtn').addEventListener('click', () => { closeModalSmart('catchModal', 'minigamesHubModal'); stopCatch(); });
 		// Том 21: Фокусы Типичного
         document.getElementById('openFocusBtn').addEventListener('click', () => { if (_p < 1 && !isDeveloper) return; closeAllModals(); focusModal.classList.add('active'); initFocus(); });
-        document.getElementById('closeFocusBtn').addEventListener('click', () => { focusModal.classList.remove('active'); stopFocus(); stopFocusMove(); });
+        document.getElementById('closeFocusBtn').addEventListener('click', () => { closeModalSmart('focusModal', 'minigamesHubModal'); stopFocus(); stopFocusMove(); });
         document.getElementById('focusLeftBtn').addEventListener('click', () => moveFocusPlayer(-1));
         document.getElementById('focusRightBtn').addEventListener('click', () => moveFocusPlayer(1));
         document.getElementById('startFocusBtn').addEventListener('click', startFocus);
         document.getElementById('openSettingsBtn').addEventListener('click', () => { closeAllModals(); settingsModal.classList.add('active'); renderBgPreviews(); });
-        document.getElementById('closeSettingsBtn').addEventListener('click', () => settingsModal.classList.remove('active'));
+		document.getElementById('closeSettingsBtn').addEventListener('click', () => closeModalSmart('settingsModal', 'settingsHubModal'));
+        document.getElementById('closeSkillTreeBtn').addEventListener('click', () => closeModalSmart('skillTreeModal', 'shopHubModal'));
         document.getElementById('openCreditsBtn').addEventListener('click', () => { closeAllModals(); document.getElementById('creditsModal').classList.add('active'); });
-        document.getElementById('closeCreditsBtn').addEventListener('click', () => document.getElementById('creditsModal').classList.remove('active'));
+        document.getElementById('closeCreditsBtn').addEventListener('click', () => closeModalSmart('creditsModal', 'settingsHubModal'));
 
         // Том 11: Казино
         document.getElementById('openCasinoBtn').addEventListener('click', () => {
@@ -3121,23 +3544,29 @@
             casinoUpdateBalance();
         });
         document.getElementById('closeCasinoBtn').addEventListener('click', () => {
-            document.getElementById('casinoModal').classList.remove('active');
+            closeModalSmart('casinoModal', 'minigamesHubModal');
         });
         document.querySelectorAll('.casino-tab').forEach(tab => {
-            tab.addEventListener('click', () => casinoSetGame(tab.dataset.casino));
+            tab.addEventListener('click', () => {
+                if (_casinoLocked) return; // Том 16: заблокировано
+                casinoSetGame(tab.dataset.casino);
+            });
         });
         document.querySelectorAll('.casino-cur-btn').forEach(btn => {
             btn.addEventListener('click', () => {
+                if (_casinoLocked) return; // Том 16: заблокировано
                 _casinoCurrency = btn.dataset.cur;
                 document.querySelectorAll('.casino-cur-btn').forEach(b => b.classList.toggle('active', b.dataset.cur === _casinoCurrency));
                 casinoUpdateBalance();
             });
         });
         document.getElementById('casinoBetDouble').addEventListener('click', () => {
+            if (_casinoLocked) return; // Том 16: заблокировано
             let inp = document.getElementById('casinoBet');
             inp.value = Math.max(CASINO_MIN_BET, (parseInt(inp.value) || CASINO_MIN_BET) * 2);
         });
         document.getElementById('casinoBetMax').addEventListener('click', () => {
+            if (_casinoLocked) return; // Том 16: заблокировано
             let inp = document.getElementById('casinoBet');
             inp.value = Math.max(CASINO_MIN_BET, casinoGetBalance());
         });
@@ -3154,6 +3583,7 @@
         _ucc = 5; _uac = 20;
         _acm = 1; _aam = 1;
         _hac = false; _haa = false; _hac2 = false; _haa2 = false; _haa3 = false;
+        // Том 2: эволюция НЕ сбрасывается при перерождении
         playSound('prestige'); updateUI(); saveGame();
         prestigeModal.classList.remove('active');
 	   // Пересчитываем автоклик (сила изменилась из-за сброса)
@@ -3408,6 +3838,63 @@
             e.preventDefault();
             let delta = e.deltaY > 0 ? -0.1 : 0.1;
             treeScale = Math.min(2, Math.max(0.3, treeScale + delta));
+            applyTreeTransform();
+        });
+
+        // === Том 5: Touch-управление деревом ===
+        let touchStartX = 0, touchStartY = 0;
+        let touchStartDist = 0, touchStartScale = 1;
+        let touchMode = null; // 'drag' | 'pinch'
+
+        function getTouchDist(t1, t2) {
+            let dx = t1.clientX - t2.clientX;
+            let dy = t1.clientY - t2.clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        treeContainer.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                // Один палец — drag
+                touchMode = 'drag';
+                touchStartX = e.touches[0].clientX - treeX;
+                touchStartY = e.touches[0].clientY - treeY;
+            } else if (e.touches.length === 2) {
+                // Два пальца — pinch
+                touchMode = 'pinch';
+                touchStartDist = getTouchDist(e.touches[0], e.touches[1]);
+                touchStartScale = treeScale;
+            }
+        }, { passive: false });
+
+        treeContainer.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (touchMode === 'drag' && e.touches.length === 1) {
+                treeX = e.touches[0].clientX - touchStartX;
+                treeY = e.touches[0].clientY - touchStartY;
+                applyTreeTransform();
+            } else if (touchMode === 'pinch' && e.touches.length === 2) {
+                let dist = getTouchDist(e.touches[0], e.touches[1]);
+                let ratio = dist / touchStartDist;
+                treeScale = Math.min(2, Math.max(0.3, touchStartScale * ratio));
+                applyTreeTransform();
+            }
+        }, { passive: false });
+
+        treeContainer.addEventListener('touchend', (e) => {
+            if (e.touches.length === 0) touchMode = null;
+        });
+
+        // Том 5: кнопки зума
+        document.getElementById('treeZoomInBtn').addEventListener('click', () => {
+            treeScale = Math.min(2, treeScale + 0.1);
+            applyTreeTransform();
+        });
+        document.getElementById('treeZoomOutBtn').addEventListener('click', () => {
+            treeScale = Math.max(0.3, treeScale - 0.1);
+            applyTreeTransform();
+        });
+        document.getElementById('treeZoomResetBtn').addEventListener('click', () => {
+            treeX = 0; treeY = 0; treeScale = 1;
             applyTreeTransform();
         });
 
@@ -3848,6 +4335,12 @@
 
         const CASINO_MIN_BET = 50;
 
+        // Том 17: динамический шанс выигрыша (30–60%)
+        function casinoGetWinChance() {
+            let chance = 0.30 + _casinoLossStreak * 0.05;
+            return Math.min(chance, 0.60);
+        }
+
         function casinoGetBalance() {
             return _casinoCurrency === 'cha' ? Math.floor(_s) : Math.floor(_ms);
         }
@@ -3869,11 +4362,30 @@
             return `${amount.toLocaleString()} ${_casinoCurrency === 'cha' ? '💰' : '🍄'}`;
         }
 
+        // Том 16: блокировка/разблокировка UI казино
+        function casinoSetLocked(locked) {
+            _casinoLocked = locked;
+            let modal = document.getElementById('casinoModal');
+            if (modal) {
+                modal.classList.toggle('casino-locked', locked);
+            }
+            let btn = document.getElementById('casinoSpinBtn');
+            if (btn) {
+                if (locked) {
+                    btn.classList.add('disabled');
+                    btn.textContent = 'КРУТИМ...';
+                } else {
+                    btn.classList.remove('disabled');
+                    btn.textContent = 'КРУТИТЬ';
+                }
+            }
+        }
+
         // Переключение игры
         function casinoSetGame(game) {
             _casinoGame = game;
             _casinoChoice = null;
-            _casinoLocked = false;
+            casinoSetLocked(false); // Том 16: сброс блокировки при смене игры
             document.querySelectorAll('.casino-tab').forEach(t => {
                 t.classList.toggle('active', t.dataset.casino === game);
             });
@@ -3935,10 +4447,7 @@
                 showAlert('⚠️ ВЫБЕРИ', 'Сначала выбери вариант.');
                 return;
             }
-            _casinoLocked = true;
-            let btn = document.getElementById('casinoSpinBtn');
-            btn.classList.add('disabled');
-            btn.textContent = 'КРУТИМ...';
+            casinoSetLocked(true);
             let display = document.getElementById('casinoDisplay');
             let result = document.getElementById('casinoResult');
             result.style.color = '#ffff55';
@@ -3971,11 +4480,17 @@
             let emoji = '';
 
             if (_casinoGame === 'coin') {
-                // 50/50
-                let outcome = Math.random() < 0.5 ? 'heads' : 'tails';
+                // Том 17: динамический шанс
+                let playerWins = Math.random() < casinoGetWinChance();
+                let outcome;
+                if (playerWins) {
+                    outcome = _casinoChoice;
+                } else {
+                    outcome = _casinoChoice === 'heads' ? 'tails' : 'heads';
+                }
                 let got = outcome === 'heads' ? 'ОРЁЛ' : 'РЕШКА';
                 emoji = outcome === 'heads' ? '🪙' : '🔴';
-                if (outcome === _casinoChoice) {
+                if (playerWins) {
                     win = bet * 2;
                     winText = `✅ ${got}! Выигрыш: +${casinoFormat(win)}`;
                     result.style.color = '#55ff55';
@@ -3984,10 +4499,18 @@
                     result.style.color = '#ff5555';
                 }
             } else if (_casinoGame === 'dice') {
-                // 1 из 6 → ×5
-                let roll = Math.floor(Math.random() * 6) + 1;
+                // Том 17: динамический шанс
+                let playerWins = Math.random() < casinoGetWinChance();
+                let roll;
+                if (playerWins) {
+                    roll = parseInt(_casinoChoice);
+                } else {
+                    do {
+                        roll = Math.floor(Math.random() * 6) + 1;
+                    } while (roll === parseInt(_casinoChoice));
+                }
                 emoji = ['⚀','⚁','⚂','⚃','⚄','⚅'][roll - 1];
-                if (roll === parseInt(_casinoChoice)) {
+                if (playerWins) {
                     win = bet * 5;
                     winText = `✅ Выпало ${roll}! Выигрыш: +${casinoFormat(win)}`;
                     result.style.color = '#55ff55';
@@ -3996,15 +4519,30 @@
                     result.style.color = '#ff5555';
                 }
             } else if (_casinoGame === 'roulette') {
-                // 0-14 красное, 15-29 чёрное, 30-36 зеро (упрощённо 50/50 с зеро)
-                let n = Math.floor(Math.random() * 37); // 0..36
+                // Том 17: динамический шанс
+                let playerWins = Math.random() < casinoGetWinChance();
                 let outcome;
-                if (n === 0) outcome = 'green';
-                else if (n % 2 === 0) outcome = 'red';
-                else outcome = 'black';
+                if (playerWins) {
+                    outcome = _casinoChoice;
+                } else {
+                    do {
+                        let r = Math.random();
+                        if (r < 0.35) outcome = 'red';
+                        else if (r < 0.70) outcome = 'black';
+                        else outcome = 'green';
+                    } while (outcome === _casinoChoice);
+                }
+                // Подбираем число под исход
+                let n;
+                if (outcome === 'green') n = 0;
+                else if (outcome === 'red') {
+                    do { n = Math.floor(Math.random() * 36) + 1; } while (n % 2 !== 0);
+                } else {
+                    do { n = Math.floor(Math.random() * 36) + 1; } while (n % 2 === 0);
+                }
                 emoji = outcome === 'red' ? '🔴' : outcome === 'black' ? '⚫' : '🟢';
                 let got = outcome === 'red' ? 'КРАСНОЕ' : outcome === 'black' ? 'ЧЁРНОЕ' : 'ЗЕРО';
-                if (outcome === _casinoChoice) {
+                if (playerWins) {
                     win = outcome === 'green' ? bet * 14 : bet * 2;
                     winText = `✅ ${got} (${n})! Выигрыш: +${casinoFormat(win)}`;
                     result.style.color = '#55ff55';
@@ -4013,10 +4551,36 @@
                     result.style.color = '#ff5555';
                 }
             } else if (_casinoGame === 'slots') {
-                // 3 барабана: 6 символов. Совпадение 2-х = ×3, 3-х = ×10, три 7 = ×100
+                // Том 17: динамический шанс
                 let symbols = ['🍒','🍋','🍇','⭐','💎','7️⃣'];
+                let playerWins = Math.random() < casinoGetWinChance();
                 let r = [];
-                for (let i = 0; i < 3; i++) r.push(symbols[Math.floor(Math.random() * symbols.length)]);
+                if (playerWins) {
+                    // Выигрышная комбинация: 2 или 3 совпадения
+                    let winRoll = Math.random();
+                    if (winRoll < 0.02) {
+                        // Три семёрки (очень редко)
+                        r = ['7️⃣', '7️⃣', '7️⃣'];
+                    } else if (winRoll < 0.10) {
+                        // Три в ряд (не 7)
+                        let s = symbols[Math.floor(Math.random() * 5)];
+                        r = [s, s, s];
+                    } else {
+                        // Два совпадения
+                        let s = symbols[Math.floor(Math.random() * symbols.length)];
+                        let other = symbols[Math.floor(Math.random() * symbols.length)];
+                        if (other === s) other = symbols[(symbols.indexOf(s) + 1) % symbols.length];
+                        let pos = Math.floor(Math.random() * 3);
+                        r = [s, s, s];
+                        r[pos] = other;
+                    }
+                } else {
+                    // Проигрышная комбинация: все разные
+                    do {
+                        r = [];
+                        for (let i = 0; i < 3; i++) r.push(symbols[Math.floor(Math.random() * symbols.length)]);
+                    } while (r[0] === r[1] || r[1] === r[2] || r[0] === r[2]);
+                }
                 emoji = r.join(' ');
                 if (r[0] === r[1] && r[1] === r[2]) {
                     if (r[0] === '7️⃣') {
@@ -4041,9 +4605,11 @@
             if (win > 0) {
                 casinoEarn(win);
                 _casinoWins++;
+                _casinoLossStreak = 0; // Том 17: сброс серии проигрышей
                 playSound('buy');
             } else {
                 _casinoLosses++;
+                _casinoLossStreak++;   // Том 17: увеличиваем серию
                 playSound('error');
             }
             result.textContent = winText;
@@ -4051,10 +4617,298 @@
             updateUI();
             saveGame();
 
-            _casinoLocked = false;
-            let btn = document.getElementById('casinoSpinBtn');
-            btn.classList.remove('disabled');
-            btn.textContent = 'КРУТИТЬ';
+            // Том 16: разблокировать UI
+            casinoSetLocked(false);
+        }
+
+        // ============================================
+        // ТОМ 2: ЭВОЛЮЦИЯ
+        // ============================================
+
+        const EVOLUTIONS = [
+            { id: 1, name: 'Маленький Гриб', icon: '🍄', reqP: 10, reqS: 1000000, reqMs: 0, reqDia: 0, bonus: 0.05 },
+            { id: 2, name: 'Грибочек',        icon: '🍄', reqP: 20, reqS: 5000000, reqMs: 0, reqDia: 0, bonus: 0.10 },
+            { id: 3, name: 'Гриб Стажёр',     icon: '🍄', reqP: 30, reqS: 10000000, reqMs: 0, reqDia: 0, bonus: 0.15 },
+            { id: 4, name: 'Гриб',            icon: '🍄', reqP: 10, reqS: 25000000, reqMs: 10000, reqDia: 0, bonus: 0.20 },
+            { id: 5, name: 'Гриб Начальник',  icon: '🍄', reqP: 0,  reqS: 50000000, reqMs: 0, reqDia: 10000, bonus: 0.50 },
+            { id: 6, name: 'Шерволист',       icon: '🌟', reqP: 0,  reqS: 100000000, reqMs: 0, reqDia: 100000, bonus: 1.00 }
+        ];
+
+        function getEvoBonus() {
+            let bonus = 0;
+            for (let i = 0; i < _evo; i++) bonus += EVOLUTIONS[i].bonus;
+            return bonus;
+        }
+
+        function canEvolve(evo) {
+            return _p >= evo.reqP && _s >= evo.reqS && _ms >= evo.reqMs && _dia >= evo.reqDia;
+        }
+
+        function renderEvolution() {
+            let container = document.getElementById('evolutionContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            let cur = document.getElementById('evoCurrentDisplay');
+            if (cur) cur.textContent = _evo === 0 ? 'Нет' : EVOLUTIONS[_evo - 1].name;
+            EVOLUTIONS.forEach((evo, i) => {
+                let isDone = _evo > i;
+                let isNext = _evo === i;
+                let can = canEvolve(evo);
+                let card = document.createElement('div');
+                card.className = `evo-card ${isDone ? 'done' : ''} ${!isNext && !isDone ? 'locked' : ''}`;
+                let reqText = [];
+                if (evo.reqP > 0) reqText.push(`${evo.reqP} перерождений`);
+                if (evo.reqS > 0) reqText.push(`${evo.reqS.toLocaleString()} чачи`);
+                if (evo.reqMs > 0) reqText.push(`${evo.reqMs.toLocaleString()} грибов`);
+                if (evo.reqDia > 0) reqText.push(`${evo.reqDia.toLocaleString()} бриллиантов`);
+                card.innerHTML = `
+                    <div class="evo-icon">${evo.icon}</div>
+                    <div class="evo-info">
+                        <div class="evo-name">${evo.name}</div>
+                        <div class="evo-req">Требуется: ${reqText.join(', ')}</div>
+                        <div class="evo-reward">Награда: +${Math.round(evo.bonus * 100)}% к клику и авто</div>
+                    </div>
+                    <button class="evo-btn-buy ${isDone ? 'done' : (isNext && can ? '' : 'disabled')}">
+                        ${isDone ? '✔ ПОЛУЧЕНО' : (isNext ? (can ? 'ЭВОЛЮЦИЯ' : 'НЕ ХВАТАЕТ') : '🔒')}
+                    </button>
+                `;
+                let btn = card.querySelector('.evo-btn-buy');
+                if (!isDone && isNext && can) {
+                    btn.addEventListener('click', () => doEvolution(evo));
+                }
+                container.appendChild(card);
+            });
+        }
+
+        function doEvolution(evo) {
+            showConfirm('🧬 ЭВОЛЮЦИЯ', `Ты уверен?\n\nЭволюция «${evo.name}» сбросит:\n— Перерождения\n— Чачу\n— Клик\n— Авто\n— Уровень\n— XP\n— Артефакты\n\nНаграда: +${Math.round(evo.bonus * 100)}% к клику и авто.`, () => {
+                _evo = evo.id;
+                _p = 0;  // сброс перерождений
+                _s = 0; _cp = 1; _ac = 0; _l = 1; _xp = 0; _clr = 0;
+                _ucc = 5; _uac = 20;
+                _acm = 1; _aam = 1;
+                _hac = false; _haa = false; _hac2 = false; _haa2 = false; _haa3 = false;
+                playSound('prestige');
+                updateUI();
+                saveGame();
+                renderEvolution();
+                showAlert('🧬 ЭВОЛЮЦИЯ!', `Ты стал «${evo.name}»!\nБонус: +${Math.round(evo.bonus * 100)}% к клику и авто.`);
+            });
+        }
+
+        // ============================================
+        // ТОМ 3: ВТОРОЕ ИЗМЕРЕНИЕ
+        // ============================================
+
+        function dim2GetBaseCost() {
+            return { cha: 1000000, ms: 1000 };
+        }
+        function dim2GetCost() {
+            let n = _dim2Count + 1;
+            let base = dim2GetBaseCost();
+            return { cha: base.cha * n, ms: base.ms * n };
+        }
+        function dim2GetUp1Cost() {
+            return { cha: Math.round(500000 * Math.pow(1.3, _dim2Up1)), ms: Math.round(500 * Math.pow(1.3, _dim2Up1)) };
+        }
+        function dim2GetUp2Cost() {
+            return { cha: Math.round(2000000 * Math.pow(1.3, _dim2Up2)), ms: Math.round(2000 * Math.pow(1.3, _dim2Up2)) };
+        }
+        function dim2GetUp3Cost() {
+            return { cha: Math.round(1000000 * Math.pow(1.3, _dim2Up3)), ms: Math.round(1000 * Math.pow(1.3, _dim2Up3)) };
+        }
+
+        // Множитель заработка (×1.05 за уровень, максимум ×5)
+        function dim2GetMult() {
+            let m = 1 + _dim2Up2 * 0.05;
+            return Math.min(m, 5);
+        }
+        function dim2IsUp2Maxed() {
+            return _dim2Up2 >= 80; // 80 уровней × 0.05 = 4.0 + 1.0 = 5.0
+        }
+
+        // Бриллианты/сек
+        function dim2GetPerSec() {
+            if (_dim2Count === 0) return 0;
+            let base = _dim2Count * (1 + _dim2Up3 * 1);
+            let speedBonus = 1 + _dim2Up1 * 0.05;
+            let mult = dim2GetMult();
+            return base * speedBonus * mult;
+        }
+
+        // Отрисовка
+        function renderDim2() {
+            let area = document.getElementById('dim2Area');
+            if (!area) return;
+
+            // Фон из настроек
+            let fs = document.getElementById('dim2Fullscreen');
+            if (fs && settings.background) {
+                fs.style.backgroundImage = `url('${settings.background}')`;
+            }
+
+            // Слоты
+            document.querySelectorAll('.dim2-slot').forEach(slot => {
+                let idx = parseInt(slot.dataset.slot);
+                if (idx <= _dim2Count) {
+                    slot.classList.remove('empty');
+                } else {
+                    slot.classList.add('empty');
+                }
+            });
+
+            // Инфо
+            document.getElementById('dim2Diamonds').textContent = _dia.toLocaleString();
+            document.getElementById('dim2PerSec').textContent = dim2GetPerSec().toFixed(2);
+            document.getElementById('dim2Count').textContent = _dim2Count;
+
+            // Кнопка покупки
+            let buyBtn = document.getElementById('dim2BuyBtn');
+            if (_dim2Count >= 6) {
+                buyBtn.textContent = '★ ВСЕ ГРИБЫ КУПЛЕНЫ ★';
+                buyBtn.classList.add('disabled');
+            } else {
+                let cost = dim2GetCost();
+                buyBtn.textContent = `КУПИТЬ ГРИБ (${cost.cha.toLocaleString()} 💰 + ${cost.ms.toLocaleString()} 🍄)`;
+                let canBuy = _s >= cost.cha && _ms >= cost.ms;
+                buyBtn.classList.toggle('disabled', !canBuy);
+            }
+
+            // Улучшение 1
+            document.getElementById('dim2Up1Level').textContent = _dim2Up1;
+            document.getElementById('dim2Up1Bonus').textContent = _dim2Up1 * 5;
+            let c1 = dim2GetUp1Cost();
+            let btn1 = document.getElementById('dim2Up1Btn');
+            btn1.textContent = `КУПИТЬ (${c1.cha.toLocaleString()} 💰 + ${c1.ms.toLocaleString()} 🍄)`;
+            btn1.classList.toggle('disabled', !(_s >= c1.cha && _ms >= c1.ms));
+
+            // Улучшение 2
+            document.getElementById('dim2Up2Level').textContent = _dim2Up2;
+            document.getElementById('dim2Up2Mult').textContent = dim2GetMult().toFixed(2);
+            let btn2 = document.getElementById('dim2Up2Btn');
+            if (dim2IsUp2Maxed()) {
+                btn2.textContent = '★ МАКС (×5.00) ★';
+                btn2.classList.add('maxed');
+                btn2.classList.remove('disabled');
+            } else {
+                let c2 = dim2GetUp2Cost();
+                btn2.textContent = `КУПИТЬ (${c2.cha.toLocaleString()} 💰 + ${c2.ms.toLocaleString()} 🍄)`;
+                btn2.classList.remove('maxed');
+                btn2.classList.toggle('disabled', !(_s >= c2.cha && _ms >= c2.ms));
+            }
+
+            // Улучшение 3
+            document.getElementById('dim2Up3Level').textContent = _dim2Up3;
+            let c3 = dim2GetUp3Cost();
+            let btn3 = document.getElementById('dim2Up3Btn');
+            btn3.textContent = `КУПИТЬ (${c3.cha.toLocaleString()} 💰 + ${c3.ms.toLocaleString()} 🍄)`;
+            btn3.classList.toggle('disabled', !(_s >= c3.cha && _ms >= c3.ms));
+        }
+
+        // Покупка маленького гриба
+        function dim2BuyMushroom() {
+            if (_dim2Count >= 6) return;
+            let cost = dim2GetCost();
+            if (_s < cost.cha || _ms < cost.ms) return;
+            _s -= cost.cha;
+            _ms -= cost.ms;
+            _dim2Count++;
+            playSound('buy');
+            updateUI();
+            saveGame();
+            renderDim2();
+        }
+
+        // Покупка улучшений
+        function dim2BuyUp1() {
+            let c = dim2GetUp1Cost();
+            if (_s < c.cha || _ms < c.ms) return;
+            _s -= c.cha; _ms -= c.ms;
+            _dim2Up1++;
+            startDim2Punch(); // пересчитать скорость ударов
+            playSound('buy'); updateUI(); saveGame(); renderDim2();
+        }
+        function dim2BuyUp2() {
+            if (dim2IsUp2Maxed()) return;
+            let c = dim2GetUp2Cost();
+            if (_s < c.cha || _ms < c.ms) return;
+            _s -= c.cha; _ms -= c.ms;
+            _dim2Up2++;
+            playSound('buy'); updateUI(); saveGame(); renderDim2();
+        }
+        function dim2BuyUp3() {
+            let c = dim2GetUp3Cost();
+            if (_s < c.cha || _ms < c.ms) return;
+            _s -= c.cha; _ms -= c.ms;
+            _dim2Up3++;
+            playSound('buy'); updateUI(); saveGame(); renderDim2();
+        }
+
+        // Тик добычи (раз в секунду)
+        function startDim2Income() {
+            if (_dim2Interval) clearInterval(_dim2Interval);
+            _dim2Interval = setInterval(() => {
+                if (_dim2Count === 0) return;
+                let perSec = dim2GetPerSec();
+                _dia += perSec;
+                updateUI();
+            }, 1000);
+        }
+
+        // Тик ударов (анимация)
+        function startDim2Punch() {
+            if (_dim2PunchInterval) clearInterval(_dim2PunchInterval);
+            _dim2PunchIndex = 0;
+            _dim2PunchInterval = setInterval(() => {
+                if (_dim2Count === 0) return;
+                let totalSlots = _dim2Count;
+                if (totalSlots === 0) return;
+                _dim2PunchIndex = (_dim2PunchIndex % totalSlots) + 1;
+                let slot = document.querySelector(`.dim2-slot[data-slot="${_dim2PunchIndex}"]`);
+                let big = document.getElementById('dim2BigMushroom');
+                if (slot) {
+                    slot.classList.add('punch');
+                    setTimeout(() => slot.classList.remove('punch'), 80);
+                }
+                if (big) {
+                    big.classList.add('pulse');
+                    setTimeout(() => big.classList.remove('pulse'), 80);
+                }
+                // Частицы
+                if (settings.particles) dim2SpawnParticles();
+            }, Math.max(150, 600 - _dim2Up1 * 50));
+        }
+
+        // Частицы от большого гриба
+        function dim2SpawnParticles() {
+            let area = document.getElementById('dim2Area');
+            if (!area) return;
+            let rect = area.getBoundingClientRect();
+            let cx = rect.width / 2;
+            let cy = rect.height / 2;
+            for (let i = 0; i < 4; i++) {
+                let p = document.createElement('div');
+                p.className = 'mc-particle';
+                p.style.left = cx + 'px';
+                p.style.top = cy + 'px';
+                p.style.position = 'absolute';
+                area.appendChild(p);
+                let angle = Math.random() * Math.PI * 2;
+                let speed = Math.random() * 3 + 1;
+                let vx = Math.cos(angle) * speed;
+                let vy = Math.sin(angle) * speed + 1;
+                let px = cx, py = cy;
+                let frame = 0;
+                let int = setInterval(() => {
+                    frame++;
+                    vy += 0.3;
+                    px += vx; py += vy;
+                    p.style.left = px + 'px';
+                    p.style.top = py + 'px';
+                    p.style.opacity = (1 - frame / 30).toString();
+                    if (frame > 30) { clearInterval(int); p.remove(); }
+                }, 30);
+            }
         }
 
         // Отрисовка наград
@@ -4093,12 +4947,51 @@
                 // === ТАЙМЕРЫ ===
         setInterval(() => {
             if (_ac > 0 || isDeveloper) { let currentAuto = getAutoPower(); _s += currentAuto; updateUI(); }
-        }, 1000);
+        }, 900);
 
-        // --- Автосохранение каждые 30 секунд ---
+        // --- Том 11+12: автосохранение каждые 5 секунд ---
         setInterval(() => {
             if (window.fbGetUser && window.fbGetUser()) saveGame();
-        }, 30000);
+        }, 5000);
+
+        // --- Том 11 fix: мгновенный подхват через Firebase onValue ---
+        // Никаких setInterval — подписка на изменения в базе.
+        // Любое изменение прилетает за ~0.1 сек на все устройства аккаунта.
+        let _lastSyncedStamp = 0;
+        let _isApplyingRemote = false; // защита от гонки: пока применяем remote — не сохраняем
+
+        function startSaveWatch() {
+            if (!window.fbWatchSave) {
+                setTimeout(startSaveWatch, 500);
+                return;
+            }
+            if (_saveWatchStarted) return;
+            _saveWatchStarted = true;
+            // ДИАГНОСТИКА: показываем в заголовке вкладки, что подписка стартовала
+            document.title = 'WATCH-STARTED';
+			window.fbWatchSave(activeMode, (d) => {
+				if (!d) return;
+				// Защита: 2 секунды после подхвата НЕ сохраняем своё
+				_isApplyingRemote = true;
+				clearTimeout(window._remoteLockTimer);
+				window._remoteLockTimer = setTimeout(() => { _isApplyingRemote = false; }, 2000);
+                let changed = false;
+                if (typeof d._s === 'number' && d._s !== _s) { _s = d._s; changed = true; }
+                if (typeof d._ms === 'number' && d._ms !== _ms) { _ms = d._ms; changed = true; }
+                if (typeof d._pp === 'number' && d._pp !== _pp) { _pp = d._pp; changed = true; }
+                if (typeof d._p === 'number' && d._p !== _p) { _p = d._p; changed = true; }
+                if (typeof d._l === 'number' && d._l !== _l) {
+                    _l = d._l;
+                    _nx = Math.floor(10000 * Math.pow(1.15, _l - 1));
+                    changed = true;
+                }
+                if (typeof d._xp === 'number' && d._xp !== _xp) { _xp = d._xp; changed = true; }
+                if (typeof d._tc === 'number' && d._tc !== _tc) { _tc = d._tc; changed = true; }
+                if (typeof d._acm === 'number' && d._acm !== _acm) { _acm = d._acm; changed = true; }
+                if (typeof d._aam === 'number' && d._aam !== _aam) { _aam = d._aam; changed = true; }
+				if (changed) updateUI();
+            });
+        }
 
         setInterval(() => {
             // Тик буста
@@ -4189,9 +5082,10 @@
                 let power = getClickPower();
                 _s += power;
                 _tc++;
-                addXp(1); // Автоклик тоже даёт XP
+                // Том 6: опыт за автоклик 0.5 × сила кирки
+                addXp(0.5 * _cp);
                 updateUI();
-            }, 100);
+            }, 200);
         }
         function stopAutoClick() {
             if (_autoClickInterval) { clearInterval(_autoClickInterval); _autoClickInterval = null; }
@@ -4258,7 +5152,9 @@
                 _acm, _aam, _hac, _haa, _hac2, _haa2, _haa3,
                 _ms, minePlays, boostUses, catchPlays, xpTotal, skills, upgrades,
                 _focusBest, _focusTotal,
-                _casinoSpins, _casinoWins, _casinoLosses,
+                _casinoSpins, _casinoWins, _casinoLosses, _casinoLossStreak,
+                _evo, _dia,
+                _dim2Count, _dim2Up1, _dim2Up2, _dim2Up3,
                 achievements: achievements.map(a => a.unlocked),
                 dailyResetTime, weeklyResetTime,
                 dailyQuests, weeklyQuests, normalQuests,
@@ -4299,6 +5195,13 @@
                     xpTotal = save.xpTotal || 0;
                     _focusBest = save._focusBest || 0;
                     _focusTotal = save._focusTotal || 0;
+                    _evo = save._evo || 0;
+                    _dia = save._dia || 0;
+                    _casinoLossStreak = save._casinoLossStreak || 0;
+                    _dim2Count = save._dim2Count || 0;
+                    _dim2Up1 = save._dim2Up1 || 0;
+                    _dim2Up2 = save._dim2Up2 || 0;
+                    _dim2Up3 = save._dim2Up3 || 0;
                     favoriteQuests = save.favoriteQuests || [];
                     if (save.skills) for (let k in skills) if (save.skills[k]) skills[k].level = save.skills[k].level;
                     if (save.upgrades) for (let k in upgrades) if (save.upgrades[k]) upgrades[k].level = save.upgrades[k].level;
@@ -4384,7 +5287,7 @@
         });
 		
 		// ============================================
-        // АККАУНТЫ + FIREBASE + YOUTUBE (v2.6.0)
+        // АККАУНТЫ + FIREBASE + YOUTUBE (v26.10.7)
         // ============================================
 
         // --- Список треков по умолчанию (увеличен) ---
@@ -4551,6 +5454,8 @@
             document.getElementById('statMushrooms').textContent = _ms.toLocaleString();
             document.getElementById('statPrestige').textContent = _p;
             document.getElementById('statLevel').textContent = _l;
+            document.getElementById('statEvolution').textContent = _evo === 0 ? 'Нет' : EVOLUTIONS[_evo - 1].name;
+            document.getElementById('statDiamonds').textContent = _dia.toLocaleString();
             let achCount = achievements.filter(a => a.unlocked).length;
             document.getElementById('statAchievements').textContent = `${achCount}/${achievements.length}`;
             document.getElementById('statChaPerHour').textContent = (getAutoPower() * 3600).toLocaleString();
@@ -4615,155 +5520,6 @@
             });
         });
 
-        // ============================================
-        // ТОМ 14: АДМИН-КОНСОЛЬ
-        // ============================================
-
-        const adminModal = document.getElementById('adminModal');
-        const adminUserSelect = document.getElementById('adminUserSelect');
-        const adminMessage = document.getElementById('adminMessage');
-        let adminCurrentUid = '';
-
-        function adminShowMessage(text, color) {
-            adminMessage.textContent = text;
-            adminMessage.style.color = color || '#55ff55';
-            setTimeout(() => { adminMessage.textContent = ''; }, 3000);
-        }
-
-        // Загрузить список пользователей в select
-        async function adminLoadUsers() {
-            if (!window.fbAdminListUsers) return;
-            let res = await window.fbAdminListUsers();
-            if (!res.success) { adminShowMessage('Ошибка: ' + res.error, '#ff5555'); return; }
-            adminUserSelect.innerHTML = '<option value="">— Выберите аккаунт —</option>';
-            res.users.forEach(u => {
-                let opt = document.createElement('option');
-                opt.value = u.uid;
-                opt.textContent = `${u.nickname} (${u.email})`;
-                adminUserSelect.appendChild(opt);
-            });
-        }
-
-        // Открытие админ-консоли
-        document.getElementById('openAdminBtn').addEventListener('click', async () => {
-            closeAllModals();
-            adminModal.classList.add('active');
-            await adminLoadUsers();
-        });
-        document.getElementById('closeAdminBtn').addEventListener('click', () => {
-            adminModal.classList.remove('active');
-        });
-
-        // Выбор пользователя
-        adminUserSelect.addEventListener('change', async () => {
-            let uid = adminUserSelect.value;
-            adminCurrentUid = uid;
-            if (!uid) return;
-            let res = await window.fbAdminLoadUser(uid);
-            if (!res.success) { adminShowMessage('Ошибка: ' + res.error, '#ff5555'); return; }
-            let d = res.data;
-            // Берём сохранение того режима, который активен у игрока
-            let mode = d.active_mode || 'normal';
-            let save = d['save_' + mode] || {};
-            document.getElementById('admin_s').value = save._s || 0;
-            document.getElementById('admin_ms').value = save._ms || 0;
-            document.getElementById('admin_pp').value = save._pp || 0;
-            document.getElementById('admin_l').value = save._l || 1;
-            document.getElementById('admin_p').value = save._p || 0;
-            document.getElementById('admin_tc').value = save._tc || 0;
-            document.getElementById('admin_xp').value = save._xp || 0;
-            document.getElementById('admin_acm').value = save._acm || 1;
-            document.getElementById('admin_aam').value = save._aam || 1;
-            adminShowMessage('Аккаунт загружен (режим: ' + mode + ')', '#ffff55');
-        });
-
-        // Сохранить изменения
-        document.getElementById('adminSaveBtn').addEventListener('click', async () => {
-            if (!adminCurrentUid) { adminShowMessage('Выбери аккаунт!', '#ff5555'); return; }
-            let res = await window.fbAdminLoadUser(adminCurrentUid);
-            if (!res.success) { adminShowMessage('Ошибка: ' + res.error, '#ff5555'); return; }
-            let d = res.data;
-            let mode = d.active_mode || 'normal';
-            let save = d['save_' + mode] || {};
-            // Обновляем поля
-            save._s = parseInt(document.getElementById('admin_s').value) || 0;
-            save._ms = parseInt(document.getElementById('admin_ms').value) || 0;
-            save._pp = parseInt(document.getElementById('admin_pp').value) || 0;
-            save._l = parseInt(document.getElementById('admin_l').value) || 1;
-            save._p = parseInt(document.getElementById('admin_p').value) || 0;
-            save._tc = parseInt(document.getElementById('admin_tc').value) || 0;
-            save._xp = parseInt(document.getElementById('admin_xp').value) || 0;
-            save._acm = parseFloat(document.getElementById('admin_acm').value) || 1;
-            save._aam = parseFloat(document.getElementById('admin_aam').value) || 1;
-            let upd = {};
-            upd['save_' + mode] = save;
-            let saveRes = await window.fbAdminSaveUser(adminCurrentUid, upd);
-            if (saveRes.success) adminShowMessage('✅ Сохранено!', '#55ff55');
-            else adminShowMessage('❌ ' + saveRes.error, '#ff5555');
-        });
-
-        // Сброс кулдауна шахты
-        document.getElementById('adminResetMine').addEventListener('click', async () => {
-            if (!adminCurrentUid) return;
-            let res = await window.fbAdminLoadUser(adminCurrentUid);
-            if (!res.success) return;
-            let d = res.data;
-            let mode = d.active_mode || 'normal';
-            let save = d['save_' + mode] || {};
-            save._mc = 0;
-            let upd = {}; upd['save_' + mode] = save;
-            await window.fbAdminSaveUser(adminCurrentUid, upd);
-            adminShowMessage('✅ Кулдаун шахты сброшен', '#55ff55');
-        });
-
-        // Сброс кулдауна ловли
-        document.getElementById('adminResetCatch').addEventListener('click', async () => {
-            if (!adminCurrentUid) return;
-            let res = await window.fbAdminLoadUser(adminCurrentUid);
-            if (!res.success) return;
-            let d = res.data;
-            let mode = d.active_mode || 'normal';
-            let save = d['save_' + mode] || {};
-            save._catchCooldown = 0;
-            let upd = {}; upd['save_' + mode] = save;
-            await window.fbAdminSaveUser(adminCurrentUid, upd);
-            adminShowMessage('✅ Кулдаун ловли сброшен', '#55ff55');
-        });
-
-        // Сброс буста
-        document.getElementById('adminResetBoost').addEventListener('click', async () => {
-            if (!adminCurrentUid) return;
-            let res = await window.fbAdminLoadUser(adminCurrentUid);
-            if (!res.success) return;
-            let d = res.data;
-            let mode = d.active_mode || 'normal';
-            let save = d['save_' + mode] || {};
-            save._ba = false;
-            save._btl = 0;
-            let upd = {}; upd['save_' + mode] = save;
-            await window.fbAdminSaveUser(adminCurrentUid, upd);
-            adminShowMessage('✅ Буст сброшен', '#55ff55');
-        });
-
-        // Сброс сохранения (обычный)
-        document.getElementById('adminResetNormal').addEventListener('click', async () => {
-            if (!adminCurrentUid) return;
-            await window.fbAdminResetSave(adminCurrentUid, 'normal');
-            adminShowMessage('✅ Сохранение (обычный) сброшено', '#55ff55');
-        });
-        // Сброс сохранения (хардкор)
-        document.getElementById('adminResetHardcore').addEventListener('click', async () => {
-            if (!adminCurrentUid) return;
-            await window.fbAdminResetSave(adminCurrentUid, 'hardcore');
-            adminShowMessage('✅ Сохранение (хардкор) сброшено', '#55ff55');
-        });
-        // Сброс сохранения (разработчик)
-        document.getElementById('adminResetDeveloper').addEventListener('click', async () => {
-            if (!adminCurrentUid) return;
-            await window.fbAdminResetSave(adminCurrentUid, 'developer');
-            adminShowMessage('✅ Сохранение (разработчик) сброшено', '#55ff55');
-        });
-
 		// ============================================
         // АВТОРИЗАЦИЯ + ПЕРЕКЛЮЧЕНИЕ РЕЖИМОВ
         // ============================================
@@ -4826,6 +5582,10 @@
             updateModeButtons();
             document.getElementById('devBadge').classList.toggle('active', newMode === 'developer');
             isDeveloper = (newMode === 'developer');
+            // Том 11 fix: перезапускаем подписку на новый режим
+            _saveWatchStarted = false;
+            if (window.fbUnwatchSave) window.fbUnwatchSave();
+            startSaveWatch();
         }
 
                 // --- ПЕРЕКЛЮЧАТЕЛЬ РЕЖИМОВ ---
@@ -4879,7 +5639,7 @@
         // ============================================
 
         function isMobile() {
-            return window.matchMedia('(max-width: 768px)').matches;
+            return window.matchMedia('(max-width: 955px)').matches;
         }
 
         // Переключение активной кнопки панели
@@ -4943,6 +5703,16 @@
             });
         }
 
+        // Том 4: умное закрытие модалки — на телефоне возвращает в хаб
+        function closeModalSmart(modalId, hubId) {
+            let modal = document.getElementById(modalId);
+            if (modal) modal.classList.remove('active');
+            if (isMobile() && hubId) {
+                let hub = document.getElementById(hubId);
+                if (hub) hub.classList.add('active');
+            }
+        }
+
         // Открытие модалок из хабов
         function hubOpen(hubId, targetModal) {
             closeAllModals();
@@ -4958,7 +5728,6 @@
             else if (targetModal === 'achievementsModal') { achievementsModal.classList.add('active'); renderAchievements(); }
             else if (targetModal === 'creditsModal') { creditsModal.classList.add('active'); }
             else if (targetModal === 'settingsModal') { settingsModal.classList.add('active'); renderBgPreviews(); }
-            else if (targetModal === 'adminModal') { adminModal.classList.add('active'); adminLoadUsers(); }
         }
 
         // Мини-игры
@@ -4976,7 +5745,7 @@
         });
         document.getElementById('hubCasinoBtn').addEventListener('click', () => hubOpen('minigamesHubModal', 'casinoModal'));
         document.getElementById('hubAchievementsBtn').addEventListener('click', () => hubOpen('minigamesHubModal', 'achievementsModal'));
-        document.getElementById('hubCreditsBtn').addEventListener('click', () => hubOpen('minigamesHubModal', 'creditsModal'));
+        // Том 4: кнопка "Разработчики" убрана из хаба мини-игр — обработчик удалён
 
         // Магазин-хаб
         document.getElementById('hubShopBtn').addEventListener('click', () => hubOpen('shopHubModal', 'shopModal'));
@@ -4991,15 +5760,21 @@
         // Настройки-хаб
         document.getElementById('hubSettingsBtn').addEventListener('click', () => hubOpen('settingsHubModal', 'settingsModal'));
         document.getElementById('hubCreditsBtn2').addEventListener('click', () => hubOpen('settingsHubModal', 'creditsModal'));
-        document.getElementById('hubAdminBtn').addEventListener('click', () => hubOpen('settingsHubModal', 'adminModal'));
 
-        // Показ админки в хабе настроек (если админ)
-        function updateAdminHubVisibility() {
-            let user = window.fbGetUser ? window.fbGetUser() : null;
-            let hubAdminBtn = document.getElementById('hubAdminBtn');
-            if (hubAdminBtn) {
-                hubAdminBtn.style.display = (user && user.email === 'kleymoment000@gmail.com') ? 'flex' : 'none';
-            }
+        // Том 2: показ мобильной кнопки эволюции
+        function updateMobileEvoBtn() {
+            let btn = document.getElementById('openEvolutionMobileBtn');
+            if (!btn) return;
+            btn.style.display = isMobile() ? 'block' : 'none';
+        }
+
+        // Том 3: показ кнопки 2-го измерения
+        function updateDim2Btns() {
+            let pcBtn = document.getElementById('openDim2Btn');
+            let mobBtn = document.getElementById('openDim2MobileBtn');
+            let unlocked = _evo >= 4;
+            if (pcBtn) pcBtn.style.display = unlocked ? 'block' : 'none';
+            if (mobBtn) mobBtn.style.display = (unlocked && isMobile()) ? 'block' : 'none';
         }
 
         // Обновление аватарки в нижней панели
@@ -5016,12 +5791,29 @@
             }
         }
 
+        // --- Том 3: запуск интервалов 2-го измерения ---
+        startDim2Income();
+        startDim2Punch();
+
+        // Том 5 fix: обновление мобильной панели при ресайзе
+        window.addEventListener('resize', () => {
+            if (isMobile()) {
+                document.body.classList.add('force-mobile');
+            } else {
+                document.body.classList.remove('force-mobile');
+            }
+            updateMobileEvoBtn();
+            updateDim2Btns();
+        });
+
         // --- waitForFirebase ---
         updateUI();
 
 		waitForFirebase(() => {
             window.fbOnAuthChange(async (user) => {
 				if (user) {
+				// Том 11 fix: запускаем мгновенную подписку на изменения
+                    startSaveWatch();
                     hideAuthModal();
                     // Том 8: загружаем аватар и дату регистрации
                     if (window.fbLoadAvatar) {
@@ -5040,8 +5832,7 @@
                             updateMobileNavAvatar();
                         }
                     }
-                    // Том 10: показываем админку в хабе настроек
-                    updateAdminHubVisibility();
+
                     // Узнаём активный режим
                     let res = await window.fbLoad('normal');
                     if (res.success && res.mode) {
@@ -5072,8 +5863,8 @@
                         // Том 20: добавляем оффлайн-доход
                         if (offlineEarned > 0) {
                             _s += offlineEarned;
-                            // Том 20: оффлайн даёт опыт как автоклик (10 XP/сек)
-                            let offlineXp = offlineSeconds * 10;
+                            // Том 6: оффлайн даёт 0.5 XP × сила кирки в секунду
+                            let offlineXp = offlineSeconds * 0.5 * _cp;
                             if (offlineXp > 0) addXp(offlineXp);
                             setTimeout(() => showOfflineModal(offlineEarned, offlineSeconds), 500);
                         }
@@ -5083,13 +5874,7 @@
                     // Обновляем UI и переключатель
                     updateUI();
                     updateModeButtons();
-                    updateAccountUI(user);
-                    // Том 14: показываем кнопку админ-консоли только админу
-                    if (user.email === 'kleymoment000@gmail.com') {
-                        document.getElementById('openAdminBtn').style.display = 'block';
-                    } else {
-                        document.getElementById('openAdminBtn').style.display = 'none';
-                    }
+
                     // Автоклик
                     if (settings.autoClick && (_p >= 5 || isDeveloper)) {
                         startAutoClick();
@@ -5100,7 +5885,7 @@
                 }
             });
         });
-		
+
     </script>
     <script type="module" src="firebase.js"></script>
 </body>
