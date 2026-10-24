@@ -11,9 +11,16 @@ const urlsToCache = [
 
 // Установка — кэшируем основные файлы
 self.addEventListener('install', event => {
+    self.skipWaiting();
     event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => cache.addAll(urlsToCache))
+        caches.open(CACHE_NAME).then(cache => {
+            // Кэшируем по одному, игнорируя ошибки
+            return Promise.all(
+                urlsToCache.map(url => 
+                    cache.add(url).catch(err => console.log('Файл не найден:', url))
+                )
+            );
+        })
     );
 });
 
