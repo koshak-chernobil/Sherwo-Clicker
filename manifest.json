@@ -1,0 +1,22 @@
+{
+    "name": "Шерво Кликер",
+    "short_name": "Шерво",
+    "description": "Кликер с грибами, казино и Sherwo",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#1a1c1e",
+    "theme_color": "#1a1c1e",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "iconsc.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "iconsc.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
