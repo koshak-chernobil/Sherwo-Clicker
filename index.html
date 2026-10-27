@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="icon" type="image/png" href="iconsc.png">
-    <title>Шерво Кликер v26.10.9</title>
+    <title>Шерво Кликер v26.10.10</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a1c1e">
     <style>
         body {
             margin: 0; padding: 0;
-            font-family: 'Segoe UI', Arial, sans-serif'', sans-serif;
+            font-family: 'Segoe UI', Arial, sans-serif;
             background-image: url('bg.png');
             background-color: #1a1c1e;
             background-size: cover;
@@ -19,19 +19,29 @@
             background-attachment: fixed;
             display: flex; align-items: center; justify-content: center;
             min-height: 100vh; user-select: none; overflow: hidden;
-            overscroll-behavior: none;
         }
-        .stats-top { position: fixed; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 5; }
+        .stats-top { position: fixed; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 5; width: 260px; }
         .stat-badge {
-            background: rgba(43, 45, 49, 0.9); border: 3px solid #3c3e44;
+            background: rgba(43, 45, 49, 0.45);
+            -webkit-backdrop-filter: blur(14px) saturate(150%);
+            backdrop-filter: blur(14px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
             padding: 8px 15px; color: #ffffff; font-size: 0.85rem;
-            text-shadow: 2px 2px 0px #000; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            text-shadow: 2px 2px 0px #000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08);
         }
         .game-box {
-            text-align: center; background: rgba(43, 45, 49, 0.85);
-            backdrop-filter: blur(4px); border: 4px solid #3c3e44;
-            outline: 4px solid #1e1f22; padding: 40px 30px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.8); z-index: 2;
+            text-align: center;
+            background: rgba(43, 45, 49, 0.45);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
+            backdrop-filter: blur(20px) saturate(160%);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 24px;
+            outline: 4px solid rgba(30, 31, 34, 0.6);
+            padding: 40px 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+            z-index: 2;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
         .score-box { font-size: 1.6rem; color: #ffffff; margin-bottom: 10px; text-shadow: 3px 3px 0px #000000; }
@@ -49,9 +59,14 @@
         .autoclick-toggle-box {
             display: flex; align-items: center; justify-content: center;
             gap: 15px; margin-top: 20px;
-            background: #2c2e33; border: 3px solid #4e5058;
-            outline: 3px solid #000; padding: 10px 20px;
+            background: rgba(44, 46, 51, 0.45);
+            -webkit-backdrop-filter: blur(12px) saturate(150%);
+            backdrop-filter: blur(12px) saturate(150%);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 14px;
+            outline: 3px solid rgba(0,0,0,0.6); padding: 10px 20px;
             cursor: pointer; transition: border-color 0.2s;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
         }
         .autoclick-toggle-box:hover { border-color: #55ff55; }
         .autoclick-toggle-box.locked {
@@ -99,7 +114,8 @@
             z-index: 10;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
+            width: 230px;
         }
         /* Том 2: кнопка разработчиков — слева от настроек */
         .credits-btn {
@@ -114,20 +130,24 @@
         .top-right-buttons {
             position: fixed;
             top: 20px;
-            right: 290px;
+            right: 300px;
             z-index: 10;
             display: flex;
             flex-direction: row;
-            align-items: stretch;   /* все кнопки одной высоты */
+            align-items: center; /* Выравниваем по центру, чтобы не раздувались */
             gap: 10px;
+            flex-wrap: wrap;
+            max-width: 420px;
+            justify-content: flex-end;
         }
         .top-right-buttons .menu-btn {
             position: static;
-            height: auto;
+            height: 44px; /* Фиксируем высоту */
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 12px 20px;
+            padding: 0 20px;
+            box-sizing: border-box;
         }
 		
 		/* Том 8: кнопка профиля — внутри контейнера */
@@ -140,11 +160,15 @@
             gap: 8px;
         }
         .profile-btn-avatar {
-            width: 24px; height: 24px;
+            width: 28px; height: 28px;
+            min-width: 28px; min-height: 28px;
+            flex-shrink: 0;
+            box-sizing: border-box;
             border: 2px solid #000;
             object-fit: cover;
             image-rendering: pixelated;
             display: none;
+            border-radius: 50% !important;
         }
         .profile-btn.has-avatar .profile-btn-avatar { display: block; }
         .profile-btn.has-avatar .profile-btn-icon { display: none; }
@@ -195,23 +219,32 @@
         .profile-stat-row span:last-child { color: #ffff55; }
         
         .menu-btn {
-            background: #4a4d54; border: 3px solid #707480; outline: 2px solid #000;
-            color: #ffffff; font-family: 'Segoe UI', Arial, sans-serif'', sans-serif; font-size: 0.9rem;
+            background: rgba(74, 77, 84, 0.45);
+            -webkit-backdrop-filter: blur(12px) saturate(150%);
+            backdrop-filter: blur(12px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            outline: 2px solid rgba(0, 0, 0, 0.6);
+            color: #ffffff; font-family: 'Segoe UI', Arial, sans-serif; font-size: 0.9rem;
             padding: 12px 24px; cursor: pointer; text-shadow: 2px 2px 0px #000;
-            box-shadow: 0 6px 0 #1e1f22;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
         }
-        .menu-btn:hover { background: #5c6069; }
-        .menu-btn:active { transform: translateY(3px); box-shadow: 0 3px 0 #1e1f22; }
-        .menu-btn.locked { background: #222426; border-color: #33353b; color: #555; cursor: not-allowed; }
+        .menu-btn:hover { background: rgba(92, 96, 105, 0.55); }
+        .menu-btn:active { transform: translateY(1px); box-shadow: 0 2px 6px rgba(0,0,0,0.4); }
+        .menu-btn.locked { background: rgba(34, 36, 38, 0.6); border-color: rgba(255,255,255,0.05); color: #555; cursor: not-allowed; }
         
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.75); z-index: 100;
+            background: rgba(0, 0, 0, 0.75); /* Чуть темнее, без размытия */
+            z-index: 100;
             display: flex; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
-            touch-action: pan-y;
-            overscroll-behavior: contain;
+            opacity: 0; pointer-events: none;
+            /* Убрали transition, чтобы модалки открывались мгновенно */
         }
+        .modal-overlay.active {
+            opacity: 1; pointer-events: auto;
+        }
+
         .modal-overlay.active { touch-action: auto; }
 		/* Том 12 fix: модалка уведомлений всегда выше */
         #customModal { z-index: 270; }
@@ -228,9 +261,14 @@
         /* Убираем старый класс, он больше не нужен */
         #imageViewerImg.zoomed { transform: scale(2); cursor: zoom-out; }
         .window-box {
-            background: #2c2e33; border: 4px solid #4e5058; outline: 4px solid #000;
+            background: rgba(44, 46, 51, 0.55);
+            -webkit-backdrop-filter: blur(22px) saturate(160%);
+            backdrop-filter: blur(22px) saturate(160%);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 22px;
+            outline: 4px solid rgba(0, 0, 0, 0.6);
             width: 750px; max-width: 90%; padding: 25px; position: relative;
-            box-shadow: 0 20px 45px rgba(0,0,0,0.8);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
             max-height: 80vh; overflow-y: auto;
         }
         .close-btn {
@@ -252,8 +290,15 @@
         .cards-list::-webkit-scrollbar { height: 10px; background: #1e1f22; }
         .cards-list::-webkit-scrollbar-thumb { background: #4e5058; border: 2px solid #1e1f22; }
         .card {
-            background: #3c3f45; border: 3px solid #000; width: 190px; flex-shrink: 0;
-            display: flex; flex-direction: column; box-shadow: 0 8px 0px rgba(0,0,0,0.4);
+            background: rgba(60, 63, 69, 0.45);
+            -webkit-backdrop-filter: blur(10px) saturate(150%);
+            backdrop-filter: blur(10px) saturate(150%);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 16px;
+            overflow: hidden;
+            width: 190px; flex-shrink: 0;
+            display: flex; flex-direction: column;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08);
         }
         .card-top { background: #70ff45; padding: 10px; text-align: center; border-bottom: 3px solid #000; }
         .card-title { color: #000000; font-size: 0.75rem; font-weight: bold; }
@@ -305,7 +350,12 @@
         .quests-scroller::-webkit-scrollbar { width: 8px; background: #1e1f22; }
         .quests-scroller::-webkit-scrollbar-thumb { background: #4e5058; }
         .quest-item {
-            background: #3c3f45; border: 2px solid #000; padding: 12px;
+            background: rgba(60, 63, 69, 0.45);
+            -webkit-backdrop-filter: blur(10px) saturate(150%);
+            backdrop-filter: blur(10px) saturate(150%);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 14px;
+            padding: 12px;
             display: flex; justify-content: space-between; align-items: center;
         }
         .quest-item.completed { border-color: #55ff55; background: #2c3f2c; }
@@ -425,7 +475,12 @@
         .achievements-list::-webkit-scrollbar { width: 8px; background: #1e1f22; }
         .achievements-list::-webkit-scrollbar-thumb { background: #4e5058; }
         .achievement-item {
-            background: #3c3f45; border: 2px solid #000; padding: 10px;
+            background: rgba(60, 63, 69, 0.45);
+            -webkit-backdrop-filter: blur(10px) saturate(150%);
+            backdrop-filter: blur(10px) saturate(150%);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 14px;
+            padding: 10px;
             display: flex; align-items: center; gap: 15px;
         }
         .achievement-item.locked { opacity: 0.5; }
@@ -510,14 +565,17 @@
             max-width: 360px;
         }
         .notif-toast {
-            background: #232529;
-            border: 3px solid #4e5058;
-            outline: 3px solid #000;
+            background: rgba(35, 37, 41, 0.55);
+            -webkit-backdrop-filter: blur(18px) saturate(160%);
+            backdrop-filter: blur(18px) saturate(160%);
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 16px;
+            outline: 3px solid rgba(0,0,0,0.6);
             padding: 12px 16px;
             display: flex;
             align-items: center;
             gap: 12px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.7);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08);
             pointer-events: auto;
             cursor: pointer;
             min-width: 280px;
@@ -597,11 +655,14 @@
                 right: 10px;
                 left: 10px;
                 max-width: none;
+                width: calc(100% - 20px); /* Том 2 fix: уведомления не врезаются в край */
             }
             .notif-toast {
                 min-width: 0;
                 max-width: none;
                 width: 100%;
+                box-sizing: border-box;
+                padding: 10px 12px;
             }
         }
 
@@ -745,6 +806,7 @@
         }
         .custom-modal-btn {
             background: #4a4d54; border: 3px solid #707480; outline: 2px solid #000;
+            border-radius: 10px;
             color: #ffffff; font-family: 'Segoe UI', Arial, sans-serif;
             font-size: 0.8rem; padding: 10px 24px; cursor: pointer;
             text-shadow: 2px 2px 0px #000;
@@ -906,10 +968,123 @@
             text-align: center;
         }
         .casino-display {
-            font-size: 3rem;
             margin: 15px 0;
-            text-shadow: 3px 3px 0 #000;
-            min-height: 3.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 150px;
+        }
+
+        /* Монетка */
+        .coin {
+            width: 100px; height: 100px;
+            background: radial-gradient(circle, #ffd700 40%, #ffaa00 100%);
+            border: 4px solid #b8860b;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; color: #b8860b; font-weight: bold;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.5);
+            animation: coinFlip 0.6s linear infinite;
+            transform-style: preserve-3d;
+        }
+        @keyframes coinFlip {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+        .coin.heads { background: radial-gradient(circle, #ffd700 40%, #ffaa00 100%); }
+        .coin.tails { background: radial-gradient(circle, #d3d3d3 40%, #a9a9a9 100%); border-color: #808080; color: #808080; }
+
+        /* Кубик */
+        .dice {
+            width: 100px; height: 100px;
+            background: #fff;
+            border: 3px solid #000;
+            border-radius: 15px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            padding: 10px;
+            box-sizing: border-box;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.5);
+            animation: diceRoll 0.3s ease-in-out infinite;
+        }
+        @keyframes diceRoll {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(15deg); }
+            75% { transform: rotate(-15deg); }
+        }
+        .dice-dot {
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            background: #000;
+            align-self: center; justify-self: center;
+            width: 18px; height: 18px;
+        }
+        .dice-dot.hidden { opacity: 0; }
+
+        /* Рулетка */
+        .roulette-wheel {
+            width: 150px; height: 150px;
+            border-radius: 50%;
+            border: 6px solid #b8860b;
+            background: conic-gradient(
+                #ff0000 0deg 10deg, #000 10deg 20deg, #ff0000 20deg 30deg, #000 30deg 40deg,
+                #ff0000 40deg 50deg, #000 50deg 60deg, #ff0000 60deg 70deg, #000 70deg 80deg,
+                #ff0000 80deg 90deg, #000 90deg 100deg, #ff0000 100deg 110deg, #000 110deg 120deg,
+                #ff0000 120deg 130deg, #000 130deg 140deg, #ff0000 140deg 150deg, #000 150deg 160deg,
+                #ff0000 160deg 170deg, #000 170deg 180deg, #ff0000 180deg 190deg, #000 190deg 200deg,
+                #ff0000 200deg 210deg, #000 210deg 220deg, #ff0000 220deg 230deg, #000 230deg 240deg,
+                #ff0000 240deg 250deg, #000 250deg 260deg, #ff0000 260deg 270deg, #000 270deg 280deg,
+                #ff0000 280deg 290deg, #000 290deg 300deg, #ff0000 300deg 310deg, #000 310deg 320deg,
+                #ff0000 320deg 330deg, #000 330deg 340deg, #ff0000 340deg 350deg, #000 350deg 360deg,
+                #00ff00 0deg 0deg
+            );
+            position: relative;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.5);
+            animation: rouletteSpin 0.8s linear infinite;
+        }
+        @keyframes rouletteSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .roulette-ball {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 12px; height: 12px;
+            background: #fff;
+            border-radius: 50%;
+            border: 2px solid #000;
+            transform: translate(-50%, -50%);
+            animation: ballSpin 1s linear infinite;
+        }
+        @keyframes ballSpin {
+            0% { transform: translate(-50%, -50%) rotate(0deg) translate(50px) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg) translate(50px) rotate(-360deg); }
+        }
+
+        /* Слоты */
+        .slot-machine {
+            display: flex;
+            gap: 10px;
+            background: #1a1c1e;
+            padding: 15px;
+            border: 4px solid #ffaa00;
+            border-radius: 10px;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.5);
+        }
+        .slot-reel {
+            width: 80px; height: 100px;
+            background: #fff;
+            border: 3px solid #000;
+            border-radius: 5px;
+            overflow: hidden;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-size: 3rem;
+            /* Анимация отключена, мы делаем её через JS */
+        }
+        @keyframes reelSpin {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100px); }
         }
         .casino-result {
             font-size: 0.9rem;
@@ -1281,12 +1456,30 @@
             left: 0;
             right: 0;
             height: 64px;
-            background: #1a1c1e;
-            border-top: 3px solid #3c3e44;
-            z-index: 1000; /* Том 5 fix: выше модалки */
+            /* Том 2: Liquid Glass — только для мобильной панели */
+            background: rgba(26, 28, 30, 0.55);
+            -webkit-backdrop-filter: blur(18px) saturate(160%);
+            backdrop-filter: blur(18px) saturate(160%);
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            z-index: 1000;
             justify-content: space-around;
             align-items: center;
+            overflow: hidden;
         }
+        /* Том 2: «жидкая» кромка сверху панели */
+        .mobile-nav::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg,
+                rgba(255,255,255,0) 0%,
+                rgba(255,255,255,0.25) 50%,
+                rgba(255,255,255,0) 100%);
+            pointer-events: none;
+        }
+
         .mobile-nav-btn {
             flex: 1;
             height: 100%;
@@ -1299,19 +1492,43 @@
             align-items: center;
             justify-content: center;
             position: relative;
-            transition: color 0.2s, background 0.2s;
+            z-index: 1;
+            -webkit-tap-highlight-color: transparent;
+            /* Том 2: плавный «жидкий» отклик */
+            transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.15s ease;
+        }
+        .mobile-nav-btn:active {
+            transform: scale(0.88);
+            color: #fff;
+        }
+        /* Том 2: «капля» под активной кнопкой */
+        .mobile-nav-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 18px;
+            height: 3px;
+            border-radius: 3px;
+            background: linear-gradient(90deg, #55ff55, #aaffaa);
+            box-shadow: 0 0 8px rgba(85, 255, 85, 0.7);
+            animation: navDrop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes navDrop {
+            0% { transform: translateX(-50%) scaleX(0.2); opacity: 0; }
+            100% { transform: translateX(-50%) scaleX(1); opacity: 1; }
+        }
+        .mobile-nav-btn.active {
+            color: #55ff55;
         }
         .mobile-nav-btn:hover { color: #fff; }
         .mobile-nav-btn.active {
             color: #55ff55;
-            background: rgba(85, 255, 85, 0.08);
+            background: transparent; /* Убираем старый фон, он теперь у подложки */
         }
         .mobile-nav-btn.active::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
-            background: #55ff55;
+            display: none; /* Убираем старую полоску */
         }
         .mobile-nav-btn img {
             width: 32px; height: 32px;
@@ -1342,16 +1559,20 @@
             align-items: center;
             gap: 15px;
             padding: 15px 20px;
-            background: #3c3f45;
-            border: 3px solid #000;
+            background: rgba(60, 63, 69, 0.45);
+            -webkit-backdrop-filter: blur(12px) saturate(150%);
+            backdrop-filter: blur(12px) saturate(150%);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 14px;
             color: #fff;
             font-family: 'Segoe UI', Arial, sans-serif;
             font-size: 0.95rem;
             cursor: pointer;
             text-shadow: 1px 1px 0 #000;
             text-align: left;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
         }
-        .mobile-hub-btn:hover { background: #4a4d54; }
+        .mobile-hub-btn:hover { background: rgba(74, 77, 84, 0.55); }
         .mobile-hub-btn .hub-icon { font-size: 1.5rem; }
         .mobile-hub-btn.locked { background: #222426; color: #555; cursor: not-allowed; }
 
@@ -1361,7 +1582,10 @@
         @media (max-width: 955px) {
 			/* Панель снизу */
 			.mobile-nav { display: flex; }
-			body { padding-bottom: 64px; }
+			body { 
+                padding-bottom: 64px; 
+                padding-top: 0 !important;
+            }
 
             /* Том 2 fix: модалки нормально скроллятся пальцем */
             .window-box {
@@ -1392,14 +1616,44 @@
             .right-buttons,
             .credits-btn,
             .casino-btn,
-            .top-right-buttons { display: none !important; }
+            .top-right-buttons,
+            #openAbyssBtn { display: none !important; }
+            
+            /* Контейнер с индикаторами на телефоне */
+            .desktop-only-block {
+                display: block !important; /* Отключаем flex, чтобы позиционировать по отдельности */
+                position: static !important;
+            }
+            
+            /* Индикатор сохранения — слева (сдвинут вправо) */
+            #saveIndicatorWrapper {
+                display: block !important;
+                position: fixed !important;
+                top: 68px !important; 
+                left: 29px !important; /* 12 + 17 */
+                right: auto !important; 
+                z-index: 6 !important;
+            }
+            
+            /* Индикатор синхронизации — справа (сдвинут влево) */
+            #syncIndicatorWrapper {
+                display: block !important;
+                position: fixed !important;
+                top: 68px !important; 
+                right: 29px !important; /* 12 + 17 */
+                left: auto !important; 
+                z-index: 6 !important;
+            }
+            
+            /* Скрываем кнопку заданий на телефоне (она в магазине) */
+            #openQuestsBtn { display: none !important; }
 
             /* Центральный блок */
             .game-box {
                 padding: 20px 15px;
                 width: 95%;
                 max-width: 95%;
-                margin-top: -30px;
+                /* margin-top убран отсюда — он задаётся в отдельном блоке ниже */
             }
             .score-box { font-size: 1.2rem; }
             .mushroom-box { font-size: 0.85rem; }
@@ -1424,21 +1678,67 @@
             .autoclick-knob { width: 18px; height: 18px; }
             .autoclick-toggle-box.active .autoclick-knob { left: 26px; }
 
-            /* Stats сверху */
+            /* Том 2 fix: Плашки в один столбик между кнопками */
             .stats-top {
-                top: 8px;
-                right: 8px;
-                gap: 6px;
-                max-width: 55%;
+                top: 10px;
+                right: auto;
+                left: 50%;
+                transform: translateX(-50%);
+                width: calc(100% - 130px); /* Место под кнопки слева/справа */
+                max-width: none;
+                display: flex;
+                flex-direction: column; /* Столбиком */
+                gap: 4px;
+                align-items: stretch;
+                z-index: 5;
             }
-            .stat-badge {
-                font-size: 0.65rem;
-                padding: 5px 10px;
-                border-width: 2px;
-                border-left: none;
-                border-right: none;
+            
+            /* Все плашки на телефоне */
+            .stats-top .stat-badge {
+                width: 100%;
+                padding: 6px 10px;
+                font-size: 0.7rem;
+                border-radius: 10px;
+                box-sizing: border-box;
             }
-            .stat-badge:nth-child(2) { font-size: 0.6rem; }
+            
+            /* Верхняя строка внутри плашки (УРОВЕНЬ / XP) */
+            .stats-top .stat-badge > div:first-child {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 4px;
+            }
+            
+            .stats-top .stat-badge span {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            /* Кнопки Эволюции и 2D — в верхних углах */
+            .mobile-evo-btn {
+                top: 10px;
+                left: 10px;
+                padding: 6px 10px;
+                font-size: 0.9rem;
+                display: flex !important;
+                z-index: 6;
+            }
+            .mobile-dim2-btn {
+                top: 10px;
+                right: 10px;
+                padding: 6px 10px;
+                font-size: 0.9rem;
+                display: flex !important;
+                z-index: 6;
+            }
+            
+            /* Центральный блок сдвигаем вниз под плашки */
+            .game-box {
+                margin-top: 175px; /* Чуть больше, т.к. плашки теперь столбиком */
+                margin-bottom: auto;
+                flex-shrink: 0;
+            }
 
             /* Модалки */
             .window-box {
@@ -1447,8 +1747,6 @@
                 padding: 20px 15px !important;
                 max-height: 85vh !important;
                 margin: 0 auto;
-                overflow-y: auto !important;
-                -webkit-overflow-scrolling: touch;
             }
 
             .shop-title { font-size: 1rem; }
@@ -2354,7 +2652,160 @@
         @media (max-width: 955px) and (orientation: landscape) and (max-height: 500px) {
             .rotate-overlay { display: flex; }
         }
+        /* Том 2: уважаем системные настройки — отключаем «жидкие» анимации */
+        @media (prefers-reduced-motion: reduce) {
+            .mobile-nav-btn,
+            .mobile-nav-btn.active::after {
+                transition: none !important;
+                animation: none !important;
+            }
+        }
+        /* Том 2: Глобальное скругление для всех кнопок и маленьких элементов */
+        button, 
+        .close-btn, 
+        .settings-btn, 
+        .custom-modal-btn, 
+        .friend-btn-sm, 
+        .q-btn, 
+        .q-btn-star,
+        .casino-tab,
+        .casino-choice-btn,
+        .casino-cur-btn,
+        .casino-spin-btn,
+        .sherwo-sidebar-close,
+        .sherwo-icon-btn,
+        .tree-zoom-btn,
+        .mode-btn {
+            border-radius: 10px !important;
+        }
 
+        /* Мелкие кнопки действий (крестики, иконки в друзьях) */
+        .close-btn,
+        .sherwo-sidebar-close,
+        .sherwo-icon-btn {
+            border-radius: 8px !important;
+        }
+
+        /* Круглые аватарки и иконки не должны скругляться */
+        .sherwo-chat-avatar,
+        .friend-avatar,
+        .sherwo-msg-avatar,
+        .group-avatar-option img {
+            border-radius: 4px !important;
+        }
+        /* Том 2 fix: Аватарки в профиле и нижней панели — круглые */
+        .profile-avatar,
+        .mobile-nav-avatar {
+            border-radius: 50% !important;
+        }
+        .group-avatar-option,
+        .profile-avatar-box,
+        .profile-avatar-empty {
+            border-radius: 8px !important;
+        }
+		/* Подсказка для индикатора сохранения */
+        #saveStatusDot:hover ~ #saveStatusTooltip,
+        #saveStatusDot:hover + #saveStatusTooltip {
+            opacity: 1 !important;
+        }
+        /* Альтернативный способ через JS (для мобилок) */
+        #saveStatusTooltip.show {
+            opacity: 1 !important;
+        }
+
+        /* ============================================ */
+        /* АНИМАЦИИ ДЛЯ МИНИ-ИГР */
+        /* ============================================ */
+
+        /* 1. Шахта: пульсация грибов */
+        @keyframes minePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+        .mine-cell.mushroom, .mine-cell.gold {
+            animation: minePulse 1s ease-in-out infinite;
+        }
+
+        /* Взрыв при клике в шахте */
+        @keyframes minePop {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.8; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        .mine-pop {
+            position: absolute;
+            pointer-events: none;
+            font-size: 2rem;
+            animation: minePop 0.4s ease-out forwards;
+            z-index: 100;
+        }
+
+        /* 2. Ловля грибов: плавное появление */
+        @keyframes catchAppear {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .catch-mushroom {
+            animation: catchAppear 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        /* 3. Фокусы: тряска при столкновении */
+        @keyframes focusShake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        .focus-shake {
+            animation: focusShake 0.4s ease-in-out;
+        }
+
+        /* Искры при бонусе в Фокусах */
+        @keyframes focusSpark {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(2.5) translateY(-30px); opacity: 0; }
+        }
+        .focus-spark {
+            position: absolute;
+            pointer-events: none;
+            font-size: 1.5rem;
+            animation: focusSpark 0.6s ease-out forwards;
+            z-index: 100;
+        }
+
+        /* 4. Казино: тряска экрана при выигрыше */
+        @keyframes casinoWin {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(-3px, -3px); }
+            50% { transform: translate(3px, 3px); }
+            75% { transform: translate(-3px, 3px); }
+        }
+        .casino-win-shake {
+            animation: casinoWin 0.4s ease-in-out;
+        }
+
+        /* Вспышка при выигрыше в казино */
+        @keyframes casinoFlash {
+            0% { box-shadow: 0 0 0 0 rgba(85, 255, 85, 0.7); }
+            100% { box-shadow: 0 0 0 30px rgba(85, 255, 85, 0); }
+        }
+        .casino-win-flash {
+            animation: casinoFlash 0.8s ease-out;
+        }
+
+        /* 5. Осколки Бездны: взрыв при ловле бриллианта */
+        @keyframes abyssBoom {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            50% { transform: scale(1.8) rotate(15deg); opacity: 0.7; }
+            100% { transform: scale(0) rotate(30deg); opacity: 0; }
+        }
+        .abyss-boom {
+            position: absolute;
+            pointer-events: none;
+            font-size: 2rem;
+            animation: abyssBoom 0.4s ease-out forwards;
+            z-index: 100;
+        }
     </style>
 </head>
 <body>
@@ -2406,8 +2857,24 @@
     </div>
 
     <div class="stats-top">
-        <div class="stat-badge">УРОВЕНЬ: <span id="lvlDisplay">1</span> (XP: <span id="xpDisplay">0</span>/<span id="nextXpDisplay">100</span>)</div>
-        <div class="stat-badge" style="color:#ff55ff; cursor:pointer;" id="prestigeBtn">ПЕРЕРОЖДЕНИЕ: <span id="prestigeDisplay">0</span></div>
+        <div class="stat-badge" style="min-width: 220px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                <span>УРОВЕНЬ: <span id="lvlDisplay">1</span></span>
+                <span style="color:#aaa;">XP: <span id="xpDisplay">0</span>/<span id="nextXpDisplay">100</span></span>
+            </div>
+            <div style="width:100%; height:8px; background:#1a1c1e; border:1px solid #000; border-radius:6px; overflow:hidden;">
+                <div id="xpProgressBar" style="height:100%; width:0%; background:linear-gradient(90deg,#55ff55,#aaffaa); transition:width 0.3s ease;"></div>
+            </div>
+        </div>
+        <div class="stat-badge" style="color:#ff55ff; cursor:pointer; min-width: 220px;" id="prestigeBtn">
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                <span>ПЕРЕРОЖДЕНИЕ: <span id="prestigeDisplay">0</span></span>
+                <span id="prestigeProgressText" style="color:#aaa; font-size:0.7rem;">0 / 150K</span>
+            </div>
+            <div style="width:100%; height:8px; background:#1a1c1e; border:1px solid #000; border-radius:6px; overflow:hidden;">
+                <div id="prestigeProgressBar" style="height:100%; width:0%; background:linear-gradient(90deg,#ff55ff,#ffaaff); transition:width 0.3s ease;"></div>
+            </div>
+        </div>
         <div class="stat-badge" style="color:#55ffff;">БРИЛЛИАНТЫ: <span id="diamondDisplay">0</span> 💎</div>
         <div class="stat-badge" style="color:#ffaa00; display:none; cursor:pointer;" id="levelRewardBtn">ЗАБРАТЬ НАГРАДУ УРОВНЯ!</div>
     </div>
@@ -2434,24 +2901,72 @@
         </button>
     </div>
 
-    <button class="menu-btn top-left-btn" id="openQuestsBtn">ЗАДАНИЯ</button>
+    <!-- Кнопка заданий (только ПК) -->
+    <button class="menu-btn top-left-btn desktop-only-block" id="openQuestsBtn">ЗАДАНИЯ</button>
+
+    <!-- Индикаторы (ПК) -->
+    <div class="desktop-only-block" style="position: fixed; top: 37px; left: 150px; z-index: 10; display: flex; align-items: center; gap: 12px;">
+        
+        <!-- Основной индикатор сохранения -->
+        <div id="saveIndicatorWrapper" style="position: relative;">
+            <div id="saveStatusDot" style="width: 12px; height: 12px; border-radius: 50%; background: #555; border: 1px solid #000; box-shadow: 0 0 5px rgba(0,0,0,0.5); transition: background 0.3s, box-shadow 0.3s; cursor: help;"></div>
+            
+            <div id="saveStatusTooltip" style="position: absolute; top: 22px; left: 50%; transform: translateX(-50%); background: rgba(20, 22, 25, 0.95); border: 1px solid #4e5058; border-radius: 8px; padding: 10px 15px; color: #fff; font-size: 0.7rem; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 20; box-shadow: 0 4px 12px rgba(0,0,0,0.6); text-align: left; line-height: 1.6;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#555; border:1px solid #000;"></span>
+                    <span style="color:#aaa;">Покой</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#55aaff; border:1px solid #000; box-shadow: 0 0 5px #55aaff;"></span>
+                    <span style="color:#55aaff;">💾 Сохранение...</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#55ff55; border:1px solid #000; box-shadow: 0 0 5px #55ff55;"></span>
+                    <span style="color:#55ff55;">✅ Сохранено</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#ff5555; border:1px solid #000; box-shadow: 0 0 5px #ff5555;"></span>
+                    <span style="color:#ff5555;">❌ Ошибка!</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- НОВЫЙ Индикатор синхронизации -->
+        <div id="syncIndicatorWrapper" style="position: relative; cursor: help;">
+            <div id="syncStatusDot" style="width: 12px; height: 12px; border-radius: 50%; background: #555; border: 1px solid #000; box-shadow: 0 0 5px rgba(0,0,0,0.5); transition: background 0.3s, box-shadow 0.3s;"></div>
+            <div id="syncStatusTooltip" style="position: absolute; top: 22px; left: 50%; transform: translateX(-50%); background: rgba(20, 22, 25, 0.95); border: 1px solid #ffaa00; border-radius: 8px; padding: 6px 12px; color: #fff; font-size: 0.7rem; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 20; box-shadow: 0 4px 12px rgba(0,0,0,0.6);">
+                🔄 Синхронизация
+            </div>
+        </div>
+
+    </div>
     <!-- Том 2: кнопка эволюции на телефоне -->
     <button class="menu-btn mobile-evo-btn" id="openEvolutionMobileBtn" style="display:none;">🧬</button>
     <!-- Том 3: кнопка 2-го измерения на телефоне -->
     <button class="menu-btn mobile-dim2-btn" id="openDim2MobileBtn" style="display:none;">🌌</button>
     <button class="menu-btn bottom-left-btn" id="openShopBtn">МАГАЗИН</button>
 	<div class="right-buttons">
+        <button class="menu-btn" id="openUpgraderBtn" style="background:#2c3e50; border-color:#ffaa00; color:#ffaa00;">⚖️ АПГРЕЙДЕР</button>
         <button class="menu-btn" id="openAchievementsBtn" style="background:#4a4d54; border-color:#ffff55; color:#ffff55;">ДОСТИЖЕНИЯ</button>
         <button class="menu-btn" id="openSkillTreeBtn" style="background:#4a4d54; border-color:#ff55ff; color:#ff55ff;">НАВЫКИ ПЕРЕРОЖДЕНИЯ</button>
         <button class="menu-btn dim2-btn" id="openDim2Btn" style="display:none;">🌌 2 ИЗМЕРЕНИЕ</button>
-        <button class="menu-btn evolution-btn" id="openEvolutionBtn">🧬 ЭВОЛЮЦИЯ</button>
-        <button class="menu-btn" id="openPrestigeBtn" style="background:#4a1d4a; border-color:#ff55ff; color:#ff55ff;">ПЕРЕРОЖДЕНИЕ</button>
+        <button class="menu-btn evolution-btn" id="openEvolutionBtn" style="position:relative;">
+            🧬 ЭВОЛЮЦИЯ
+            <span id="evoNotifyBadge" style="display:none; position:absolute; top:-6px; right:-6px; background:#ffaa00; color:#000; font-size:0.6rem; padding:2px 6px; border-radius:10px; border:2px solid #000;">!</span>
+        </button>
+        <button class="menu-btn" id="openPrestigeBtn" style="background:#4a1d4a; border-color:#ff55ff; color:#ff55ff; position:relative;">
+            ПЕРЕРОЖДЕНИЕ
+            <span id="prestigeNotifyBadge" style="display:none; position:absolute; top:-6px; right:-6px; background:#ff5555; color:#fff; font-size:0.6rem; padding:2px 6px; border-radius:10px; border:2px solid #000;">!</span>
+        </button>
         <button class="menu-btn locked" id="openMineBtn" style="background:#4a4d1d; border-color:#ffaa00; color:#ffaa00;">ШАХТА 🔒</button>
         <button class="menu-btn locked" id="openUpgradeTreeBtn" style="background:#1d4a4a; border-color:#55ffff; color:#55ffff;">УЛУЧШЕНИЯ ДЕРЕВА 🔒</button>
         <button class="menu-btn locked" id="openCatchBtn" style="background:#1d4a1d; border-color:#55ff55; color:#55ff55;">ЛОВЛЯ ГРИБОВ 🔒</button>
         <button class="menu-btn locked" id="openFocusBtn" style="background:#4a1d4a; border-color:#ff55ff; color:#ff55ff;">ФОКУСЫ ТИПИЧНОГО 🔒</button>
         <button class="menu-btn" id="openSettingsBtn" style="background:#4a4d54; border-color:#aaa; color:#aaa;">НАСТРОЙКИ</button>
     </div>
+    <!-- Том 3: Осколки Бездны (над Разработчиками) -->
+    <button class="menu-btn locked" id="openAbyssBtn" style="position: fixed; right: 270px; bottom: 76px; z-index: 10; background:#1d2d4a; border-color:#55ffff; color:#55ffff; white-space: nowrap;">🌌 ОСКОЛКИ БЕЗДНЫ 🔒</button>
+
     <!-- Том 2: кнопка разработчиков — слева от настроек -->
     <button class="menu-btn credits-btn" id="openCreditsBtn" style="background:#2c3e50; border-color:#55ffff; color:#55ffff;">РАЗРАБОТЧИКИ</button>
     <!-- Том 11: Казино — левее разработчиков -->
@@ -3100,6 +3615,30 @@
         </div>
     </div>
 	
+    <!-- Том 3: Осколки Бездны -->
+    <div class="modal-overlay" id="abyssModal">
+        <div class="window-box" style="width: 600px;">
+            <button class="close-btn" id="closeAbyssBtn">X</button>
+            <div class="shop-title" style="color:#55ffff;">🌌 ОСКОЛКИ БЕЗДНЫ</div>
+            
+            <div class="mine-info">
+                <span>Очки: <span id="abyssScore">0</span></span>
+                <span>Время: <span id="abyssTimer">15</span>с</span>
+            </div>
+
+            <div class="focus-area" id="abyssArea" style="height: 350px; background: #0a0f1a; border-color: #1d2d4a;">
+                <!-- Сюда падают объекты -->
+            </div>
+
+            <button class="mine-btn-big" id="startAbyssBtn" style="background:#1d2d4a; border-color:#55ffff; color:#55ffff;">НАЧАТЬ</button>
+            
+            <div style="text-align:center; color:#888; font-size:0.7rem; margin-top:15px;">
+                Ловите 💎 (+10 очков) и избегайте 💣 (-20 очков).<br>
+                1 очко = 1 💎 Бриллиант в конце.
+            </div>
+        </div>
+    </div>
+
 	<!-- Том 21: Фокусы Типичного -->
     <div class="modal-overlay" id="focusModal">
         <div class="window-box" style="width: 700px;">
@@ -3134,6 +3673,61 @@
         </div>
     </div>
 
+    <!-- Том 3: Апгрейдер -->
+    <div class="modal-overlay" id="upgraderModal">
+        <div class="window-box" style="width: 600px; text-align: center;">
+            <button class="close-btn" id="closeUpgraderBtn">X</button>
+            <div class="shop-title" style="color:#ffaa00;">⚖️ АПГРЕЙДЕР</div>
+            <p style="color:#aaa; font-size:0.75rem; margin-bottom:15px;">Положи валюту и попробуй выбить то, что нужно!</p>
+            
+            <div style="display:flex; justify-content:center; align-items:center; gap:20px; margin-bottom:20px;">
+                <!-- Что даем -->
+                <div style="background:#1a1c1e; padding:10px; border:2px solid #4e5058; border-radius:10px; flex:1;">
+                    <div style="color:#fff; font-size:0.8rem; margin-bottom:5px;">Вы отдаете:</div>
+                    <select id="upgraderGiveType" style="width:100%; padding:8px; background:#222; border:2px solid #4e5058; color:#fff; margin-bottom:8px;">
+                        <option value="cha">💰 Чача</option>
+                        <option value="mush">🍄 Грибочки</option>
+                        <option value="dia">💎 Бриллианты</option>
+                    </select>
+                    <input type="number" id="upgraderGiveAmount" value="150" min="1" style="width:100%; box-sizing:border-box; padding:8px; background:#222; border:2px solid #4e5058; color:#fff; text-align:center;">
+                    <div id="upgraderGiveValue" style="color:#aaa; font-size:0.7rem; margin-top:5px; text-align:center;">Ценность: 0</div>
+                </div>
+
+                <!-- Стрелка -->
+                <div style="font-size:2rem; color:#ffaa00;">➜</div>
+
+                <!-- Что хотим -->
+                <div style="background:#1a1c1e; padding:10px; border:2px solid #4e5058; border-radius:10px; flex:1;">
+                    <div style="color:#fff; font-size:0.8rem; margin-bottom:5px;">Хотите получить:</div>
+                    <select id="upgraderWantType" style="width:100%; padding:8px; background:#222; border:2px solid #4e5058; color:#fff; margin-bottom:8px;">
+                        <option value="mush">🍄 Грибочки</option>
+                        <option value="cha">💰 Чача</option>
+                        <option value="dia">💎 Бриллианты</option>
+                    </select>
+                    <input type="number" id="upgraderWantAmount" value="1" min="1" style="width:100%; box-sizing:border-box; padding:8px; background:#222; border:2px solid #4e5058; color:#fff; text-align:center;">
+                    <div id="upgraderWantValue" style="color:#aaa; font-size:0.7rem; margin-top:5px; text-align:center;">Ценность: 0</div>
+                </div>
+            </div>
+
+            <!-- Колесо удачи -->
+            <div style="position:relative; width: 250px; height: 250px; margin: 0 auto 20px auto;">
+                <!-- Кольцо рисуется здесь -->
+                <canvas id="upgraderCanvas" width="250" height="250"></canvas>
+                
+                <!-- Стрелка (вращается) -->
+                <div id="upgraderArrow" style="position:absolute; top:0; left:0; width:100%; height:100%; transition: transform 3s cubic-bezier(0.2, 0.8, 0.2, 1); pointer-events:none;">
+                    <div style="position:absolute; top:-10px; left:50%; transform:translateX(-50%); font-size:1.5rem; color:#fff; text-shadow:0 0 5px #000;">▼</div>
+                </div>
+            </div>
+            <div style="font-size:0.65rem; color:#888; margin-bottom:10px;">
+                1 💰 Чача = 10 | 1 🍄 Гриб = 100 000 💰 | 1 💎 Бриллиант = 10 000 000 💰
+            </div>
+
+            <button class="custom-modal-btn green" id="upgraderSpinBtn" style="width:100%; padding:15px; font-size:1.1rem;">КРУТИТЬ</button>
+            <div id="upgraderResult" style="margin-top:15px; font-size:0.9rem; min-height:1.2em; color:#ffff55;"></div>
+        </div>
+    </div>
+
     <!-- Том 11: Казино -->
     <div class="modal-overlay" id="casinoModal">
         <div class="window-box" style="width: 700px;">
@@ -3153,7 +3747,9 @@
             </div>
 
             <div class="casino-area">
-                <div class="casino-display" id="casinoDisplay">🪙</div>
+                <div class="casino-display" id="casinoDisplay">
+                    <!-- Сюда JS будет вставлять визуал -->
+                </div>
                 <div class="casino-result" id="casinoResult">Выбери сторону и крути!</div>
 
                 <div id="casinoChoices" class="casino-choice">
@@ -3284,7 +3880,7 @@
                     <button class="settings-btn green" id="customBgBtn">ВЫБРАТЬ</button>
                 </div>
             </div>
-			<div class="version-text" id="versionText">Шерво Кликер v26.10.8</div>
+			<div class="version-text" id="versionText">Шерво Кликер v26.10.10</div>
         </div>
     </div>
 
@@ -3333,7 +3929,9 @@
                 <button class="mobile-hub-btn" id="hubMineBtn"><span class="hub-icon">⛏️</span> ШАХТА</button>
                 <button class="mobile-hub-btn" id="hubCatchBtn"><span class="hub-icon">🍄</span> ЛОВЛЯ ГРИБОВ</button>
                 <button class="mobile-hub-btn" id="hubFocusBtn"><span class="hub-icon">🎩</span> ФОКУСЫ ТИПИЧНОГО</button>
+                <button class="mobile-hub-btn locked" id="hubAbyssBtn"><span class="hub-icon">🌌</span> ОСКОЛКИ БЕЗДНЫ 🔒</button>
                 <button class="mobile-hub-btn" id="hubCasinoBtn"><span class="hub-icon">🎰</span> КАЗИНО</button>
+                <button class="mobile-hub-btn" id="hubUpgraderBtn"><span class="hub-icon">⚖️</span> АПГРЕЙДЕР</button>
                 <button class="mobile-hub-btn" id="hubAchievementsBtn"><span class="hub-icon">🏆</span> ДОСТИЖЕНИЯ</button>
                 <button class="mobile-hub-btn" id="hubFriendsBtn" style="border-color:#55ffff; color:#55ffff;"><span class="hub-icon">👥</span> ДРУЗЬЯ</button>
                 <button class="mobile-hub-btn" id="hubSherwoBtn" style="border-color:#ff55ff; color:#ff55ff;"><span class="hub-icon">💬</span> SHERWO</button>
@@ -3560,6 +4158,8 @@
         let _adminEditStamp = 0;
         // Том 11+12 fix: флаг подписки на реальное время
         let _saveWatchStarted = false;
+        // Флаг: данные с сервера загружены
+        let _isLoadedFromServer = false;
         let _p = 0, _pp = 0, _tc = 0, _clr = 0;
         let _ucc = 5, _uac = 20, _acc = 5000, _aac = 10000;
         let _acc2 = 50000, _aac2 = 100000, _aac3 = 500000;
@@ -3659,16 +4259,18 @@
 
         let achievements = [];
         const achTypes = [
-            { type: 'clicks', name: 'Кликер', desc: 'Сделайте {n} кликов', icon: '👆', targets: [1, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000], check: (n) => _tc >= n },
-            { type: 'score', name: 'Богач', desc: 'Накопите {n} Чачи', icon: '💰', targets: [100, 500, 1000, 5000, 10000, 50000, 100000, 500000, 1000000, 5000000, 10000000, 50000000, 100000000, 500000000, 1000000000], check: (n) => _s >= n },
-            { type: 'level', name: 'Опытный', desc: 'Достигните {n} уровня', icon: '⭐', targets: [2, 3, 5, 7, 10, 15, 20, 25, 30, 40, 50, 75, 100, 150, 200], check: (n) => _l >= n },
-            { type: 'prestige', name: 'Перерожденец', desc: 'Совершите {n} перерождений', icon: '🔄', targets: [1, 2, 3, 5, 7, 10, 15, 20, 25, 30, 40, 50, 75, 100, 150], check: (n) => _p >= n },
-            { type: 'auto', name: 'Автоматизатор', desc: 'Купите {n} заводов', icon: '🏭', targets: [1, 5, 10, 25, 50, 100, 250, 500, 1000], check: (n) => _ac >= n },
-            { type: 'clickPower', name: 'Силач', desc: 'Прокачайте клик до {n}', icon: '💪', targets: [5, 10, 25, 50, 100, 250, 500, 1000], check: (n) => _cp >= n },
-            { type: 'boost', name: 'Алхимик', desc: 'Используйте {n} зелий', icon: '🧪', targets: [1, 3, 5, 10, 25, 50, 100], check: (n) => _ba || _btl > 0 },
-            { type: 'skill', name: 'Мастер', desc: 'Прокачайте {n} навыков', icon: '🧠', targets: [1, 2, 3, 4, 5, 10, 15, 20, 25, 30], check: (n) => Object.values(skills).reduce((s, sk) => s + sk.level, 0) >= n },
-            { type: 'mushroom', name: 'Грибник', desc: 'Соберите {n} грибочков', icon: '🍄', targets: [1, 10, 50, 100, 500, 1000, 5000, 10000], check: (n) => _ms >= n },
-            { type: 'upgrade', name: 'Улучшатель', desc: 'Купите {n} улучшений', icon: '🔧', targets: [1, 5, 10, 25, 50, 100], check: (n) => Object.values(upgrades).reduce((s, u) => s + u.level, 0) >= n }
+            { type: 'clicks', name: 'Кликер', desc: 'Сделайте {n} кликов', icon: '👆', targets: [100, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000, 250000, 500000, 1000000], check: (n) => _tc >= n },
+            { type: 'score', name: 'Богач', desc: 'Накопите {n} Чачи', icon: '💰', targets: [10000, 50000, 100000, 500000, 1000000, 5000000, 10000000, 50000000, 100000000, 500000000, 1000000000], check: (n) => _s >= n },
+            { type: 'level', name: 'Опытный', desc: 'Достигните {n} уровня', icon: '⭐', targets: [10, 20, 30, 40, 50, 75, 100, 150, 200, 300, 500], check: (n) => _l >= n },
+            { type: 'prestige', name: 'Перерожденец', desc: 'Совершите {n} перерождений', icon: '🔄', targets: [5, 10, 20, 30, 40, 50, 75, 100, 150, 200], check: (n) => _p >= n },
+            { type: 'auto', name: 'Автоматизатор', desc: 'Купите {n} заводов', icon: '🏭', targets: [5, 10, 25, 50, 100, 250, 500, 1000, 2500], check: (n) => _ac >= n },
+            { type: 'clickPower', name: 'Силач', desc: 'Прокачайте клик до {n}', icon: '💪', targets: [10, 25, 50, 100, 250, 500, 1000, 2500], check: (n) => _cp >= n },
+            { type: 'boost', name: 'Алхимик', desc: 'Используйте {n} зелий', icon: '🧪', targets: [5, 10, 25, 50, 100, 250], check: (n) => boostUses >= n },
+            { type: 'skill', name: 'Мастер', desc: 'Прокачайте {n} навыков', icon: '🧠', targets: [2, 4, 6, 8, 10, 15, 20, 25, 30], check: (n) => Object.values(skills).reduce((s, sk) => s + sk.level, 0) >= n },
+            { type: 'mushroom', name: 'Грибник', desc: 'Соберите {n} грибочков', icon: '🍄', targets: [100, 500, 1000, 5000, 10000, 50000, 100000], check: (n) => _ms >= n },
+            { type: 'upgrade', name: 'Улучшатель', desc: 'Купите {n} улучшений', icon: '🔧', targets: [10, 25, 50, 100, 200, 300], check: (n) => Object.values(upgrades).reduce((s, u) => s + u.level, 0) >= n },
+            { type: 'diamond', name: 'Ювелир', desc: 'Накопите {n} бриллиантов', icon: '💎', targets: [100, 500, 1000, 5000, 10000, 50000], check: (n) => _dia >= n },
+            { type: 'evo', name: 'Эволюционер', desc: 'Достигните {n} эволюции', icon: '🧬', targets: [1, 2, 3, 4, 5, 6], check: (n) => _evo >= n }
         ];
         let achId = 0;
         achTypes.forEach(t => {
@@ -3684,31 +4286,35 @@
             });
         });
         const newAch = [
-            { name: 'Шахтёр', desc: 'Сыграйте в шахту 10 раз', icon: '⛏️' },
-            { name: 'Грибной магнат', desc: 'Накопите 10 000 грибочков', icon: '🍄' },
+            { name: 'Шахтёр', desc: 'Сыграйте в шахту 50 раз', icon: '⛏️' },
+            { name: 'Грибной магнат', desc: 'Накопите 50 000 грибочков', icon: '🍄' },
             { name: 'Коллекционер', desc: 'Купите все артефакты', icon: '📦' },
             { name: 'Дерево', desc: 'Прокачайте все улучшения до 10 ур.', icon: '🌳' },
-            { name: 'Богатей', desc: 'Накопите 1 000 000 000 000 Чачи', icon: '💸' },
+            { name: 'Богатей', desc: 'Накопите 10 000 000 000 000 Чачи', icon: '💸' },
             { name: 'Пятисотый', desc: 'Достигните 500 уровня', icon: '🎖️' },
             { name: 'Перерожденец+', desc: 'Совершите 500 перерождений', icon: '🔮' },
             { name: 'Алмазный', desc: 'Прокачайте клик до 10 000', icon: '💎' },
             { name: 'Автоматизатор+', desc: 'Купите 10 000 заводов', icon: '🤖' },
-            { name: 'Безумец', desc: 'Сделайте 10 000 000 кликов', icon: '🤯' },
-            { name: 'Грибочек-бог', desc: 'Соберите 1 000 000 грибочков', icon: '👑' },
-            { name: 'Скорость', desc: 'Используйте 1000 зелий', icon: '⚡' },
+            { name: 'Безумец', desc: 'Сделайте 50 000 000 кликов', icon: '🤯' },
+            { name: 'Грибочек-бог', desc: 'Соберите 10 000 000 грибочков', icon: '👑' },
+            { name: 'Скорость', desc: 'Используйте 5000 зелий', icon: '⚡' },
             { name: 'Мастер дерева', desc: 'Прокачайте все улучшения до макс.', icon: '🌲' },
             { name: 'Легенда кликера', desc: 'Достигните 1000 уровня', icon: '🏆' },
             { name: 'Бесконечность+', desc: 'Совершите 1000 перерождений', icon: '♾️' },
             { name: 'Чача-император', desc: 'Накопите 1 000 000 000 000 000 Чачи', icon: '👑' },
-            { name: 'Клик-титан', desc: 'Сделайте 100 000 000 кликов', icon: '💥' },
-            { name: 'Грибной олигарх', desc: 'Соберите 10 000 000 грибочков', icon: '💰' },
+            { name: 'Клик-титан', desc: 'Сделайте 500 000 000 кликов', icon: '💥' },
+            { name: 'Грибной олигарх', desc: 'Соберите 50 000 000 грибочков', icon: '💰' },
             { name: 'Мега-фермер', desc: 'Купите 100 000 заводов', icon: '🏗️' },
-            { name: 'Абсолют', desc: 'Прокачайте всё до максимума', icon: '🌟' }
+            { name: 'Абсолют', desc: 'Прокачайте всё до максимума', icon: '🌟' },
+            { name: 'Долгожитель', desc: 'Играйте в игру 100 дней подряд', icon: '📅' },
+            { name: 'Синхронизатор', desc: 'Играйте на 3+ устройствах', icon: '🔄' },
+            { name: 'Неудачник', desc: 'Проиграйте в казино 100 раз подряд', icon: '💀' },
+            { name: 'Счастливчик', desc: 'Выиграйте в казино 100 раз подряд', icon: '🍀' }
         ];
         newAch.forEach((a, i) => {
             achievements.push({ id: 'new_' + i, name: a.name, desc: a.desc, icon: a.icon, unlocked: false, check: () => false });
         });
-        achievements = achievements.slice(0, 120);
+        achievements = achievements.slice(0, 150);
 
         const PRESTIGE_BASE = 100000;
 		const PRESTIGE_MULT = 1.5;
@@ -3833,8 +4439,13 @@
 
             target = Math.max(1, Math.floor(target));
             // Том 6: обычные ×0.25, ежедневные ×1.25, еженедельные ×3.75
-            let rewardScore = Math.floor(target * (type === 'normal' ? 0.25 : type === 'daily' ? 1.25 : 3.75));
-            let rewardXp = Math.floor(target * (type === 'normal' ? 0.175 : type === 'daily' ? 0.75 : 2.25));
+            let baseScore = Math.floor(target * (type === 'normal' ? 0.25 : type === 'daily' ? 1.25 : 3.75));
+            let baseXp = Math.floor(target * (type === 'normal' ? 0.175 : type === 'daily' ? 0.75 : 2.25));
+            
+            // Защита от 0: минимум 1 чача и 1 XP за задание
+            let rewardScore = Math.max(1, baseScore);
+            let rewardXp = Math.max(1, baseXp);
+            
             return { uid: nextQuestUid(), template, target, rewardScore, rewardXp, claimed: false, favorite: false };
         }
 
@@ -3885,11 +4496,25 @@
         function showQuestToast(q) {
             // Том 5: через новую систему уведомлений
             if (typeof showNotif === 'function') {
+                let title = '✅ Задание выполнено!';
+                let text = `${q.type || ''}: +${q.rewardScore} Чачи, +${q.rewardXp} XP`;
+                
+                // Проверка: если такое же уведомление уже висит — не показываем
+                let stack = document.getElementById('notifStack');
+                if (stack) {
+                    let existing = Array.from(stack.children).find(el => {
+                        let titleEl = el.querySelector('.notif-title');
+                        let textEl = el.querySelector('.notif-text');
+                        return titleEl && titleEl.textContent === title && textEl && textEl.textContent === text;
+                    });
+                    if (existing) return; // Уже висит — выходим
+                }
+                
                 showNotif({
                     type: 'quest',
                     icon: '✅',
-                    title: 'Задание выполнено!',
-                    text: `${q.type || ''}: +${q.rewardScore} Чачи, +${q.rewardXp} XP`
+                    title: title,
+                    text: text
                 });
             }
         }
@@ -4018,8 +4643,11 @@
         }
 
         // === ПОЛУЧЕНИЕ НАГРАДЫ ПО UID ===
+        let _claimingQuest = false; // Защита от двойного клика
         window.claimRewardByUid = function(uid) {
             if (!uid) return;
+            if (_claimingQuest) return; // Если уже забираем — выходим
+            
             // Ищем квест во всех массивах
             let quests = null;
             let idx = -1;
@@ -4031,6 +4659,10 @@
             if (idx === -1) return;
             let q = quests[idx];
             if (q.claimed || getQuestProgress(q) < q.target) return;
+            
+            _claimingQuest = true; // Блокируем
+            
+            // ... (дальнейший код награды)
             // Том 6: бонус questMaster — +5% за уровень
             let questBonus = 1 + skills.questMaster.level * 0.05;
             let scoreGain = Math.floor(q.rewardScore * questBonus);
@@ -4047,10 +4679,16 @@
             saveGame();
             renderQuests();
             updateUI();
+            
+            _claimingQuest = false; // Разблокируем
         };
 		
-		// === ТОМ 22: СОБРАТЬ ВСЁ ===
+        // === ТОМ 22: СОБРАТЬ ВСЁ ===
+        let _claimingAll = false; // Защита от двойного вызова
         window.claimAllQuests = function() {
+            if (_claimingAll) return;
+            _claimingAll = true;
+            
             let allQuests = [
                 ...normalQuests,
                 ...dailyQuests,
@@ -4095,6 +4733,8 @@
             renderQuests();
             updateUI();
             showAlert('🎁 СОБРАНО ВСЁ', `Забрано заданий: ${claimed}\nПолучено: +${finalScore} Чачи, +${totalXp} XP`);
+            
+            _claimingAll = false;
         };
 
         function setCookie(name, value) {
@@ -4110,7 +4750,7 @@
             settings.lastOnline = Date.now();
             return {
                 _s, _cp, _ac, _l, _xp, _p, _pp, _tc, _clr,
-                // Том 11 fix: сохраняем штамп админской правки, чтобы не потерять его
+                _lastSavedAt: Date.now(), // <-- НОВОЕ: метка времени сохранения
                 _adminEditStamp: _adminEditStamp,
                 _ucc, _uac, _acc, _aac, _acc2, _aac2, _aac3,
                 _acm, _aam, _hac, _haa, _hac2, _haa2, _haa3,
@@ -4120,6 +4760,9 @@
                 achievements: achievements.map(a => a.unlocked),
                 dailyResetTime, weeklyResetTime,
                 dailyQuests, weeklyQuests, normalQuests,
+                autoBuyBoost: settings.autoBuyBoost,
+                _ba: _ba,   // <-- ДОБАВЛЕНО: флаг буста
+                _btl: _btl, // <-- ДОБАВЛЕНО: время буста
                 settings
             };
         }
@@ -4129,6 +4772,8 @@
             if (!data) return;
             // Том 11 fix: подхватываем штамп админской правки
             _adminEditStamp = data._adminEditStamp || 0;
+            // Том 3: подхватываем время последнего сохранения
+            window._lastLocalSavedAt = data._lastSavedAt || 0;
             _s = data._s || 0; _cp = data._cp || 1; _ac = data._ac || 0;
             _l = data._l || 1; _xp = data._xp || 0; _p = data._p || 0;
             _pp = data._pp || 0; _tc = data._tc || 0; _clr = data._clr || 0;
@@ -4185,6 +4830,15 @@
             while (dailyQuests.length < 50) dailyQuests.push(generateQuestFromPool('daily'));
             while (weeklyQuests.length < 50) weeklyQuests.push(generateQuestFromPool('weekly'));
             if (data.settings) settings = { ...settings, ...data.settings };
+            if (data.autoBuyBoost !== undefined) settings.autoBuyBoost = data.autoBuyBoost;
+            
+            // Подхватываем буст
+            if (data._ba !== undefined) {
+                _ba = data._ba;
+                _btl = data._btl || 0;
+                if (boostBox) boostBox.style.display = _ba ? 'block' : 'none';
+                if (boostTimer) boostTimer.textContent = _btl;
+            }
 			// Том 6: новая формула порога XP
 			_nx = Math.floor(10000 * Math.pow(1.15, _l - 1));
             applyBackground();
@@ -4222,11 +4876,182 @@
             showAlert('💰 ОФФЛАЙН ЗАРАБОТОК', `Пока вас не было (${timeStr}),\nнакоплено ${Math.floor(earned).toLocaleString()} Чачи!`);
         }
 		
-		// === СОХРАНЯЕМ В  FIREBASE ===
-		async function saveGame() {
+		// ============================================
+        // ЛУЧШАЯ СИСТЕМА СОХРАНЕНИЯ (v2)
+        // ============================================
+        
+        // Флаги состояния
+        let _saveInFlight = false;        // Идет ли сейчас запрос
+        let _savePending = false;         // Есть ли отложенный запрос (пришел во время активного)
+        let _saveLastSuccess = 0;         // Время последнего успешного сохранения
+        let _saveLastAttempt = 0;         // Время последней попытки
+        let _saveQueue = null;            // Отложенный пакет данных (если нет сети)
+        let _saveRetryTimer = null;       // Таймер для повтора при ошибке
+        let _dotResetTimer = null;        // Таймер сброса индикатора
+
+        // Функция для индикатора СИНХРОНИЗАЦИИ
+        let _syncDotTimer = null;
+        function _setSyncDotState(state) {
+            let dot = document.getElementById('syncStatusDot');
+            if (!dot) return;
+            
+            clearTimeout(_syncDotTimer);
+            
+            if (state === 'sync') {
+                // Оранжевый — идёт синхронизация
+                dot.style.background = '#ffaa00';
+                dot.style.boxShadow = '0 0 10px #ffaa00';
+                // Через 1.5 сек тухнем
+                _syncDotTimer = setTimeout(() => {
+                    dot.style.background = '#555';
+                    dot.style.boxShadow = 'none';
+                }, 1500);
+            } else if (state === 'error') {
+                // Красный — ошибка синхронизации (например, нет сети)
+                dot.style.background = '#ff5555';
+                dot.style.boxShadow = '0 0 10px #ff5555';
+            } else {
+                // Серый — покой
+                dot.style.background = '#555';
+                dot.style.boxShadow = 'none';
+            }
+        }
+
+        // Том 2: Функция для основного индикатора сохранения
+        function _setDotState(state) {
+            let dot = document.getElementById('saveStatusDot');
+            if (!dot) return;
+            
+            clearTimeout(_dotResetTimer);
+            
+            let color = '#555';
+            
+            if (state === 'saving') {
+                color = '#55aaff';
+            } else if (state === 'success') {
+                color = '#55ff55';
+                _dotResetTimer = setTimeout(() => _setDotState('idle'), 1500);
+            } else if (state === 'error') {
+                color = '#ff5555';
+            } else if (state === 'pending') {
+                color = '#ffaa00';
+            }
+            
+            dot.style.background = color;
+            dot.style.boxShadow = color !== '#555' ? `0 0 8px ${color}` : 'none';
+        }
+
+        // --- Подсказка при наведении (постоянная легенда) ---
+        (function() {
+            let dot = document.getElementById('saveStatusDot');
+            let tooltip = document.getElementById('saveStatusTooltip');
+            if (dot && tooltip) {
+                dot.addEventListener('mouseenter', () => {
+                    tooltip.style.opacity = '1';
+                });
+                dot.addEventListener('mouseleave', () => {
+                    tooltip.style.opacity = '0';
+                });
+                dot.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    tooltip.style.opacity = '1';
+                    clearTimeout(window._tooltipTouchTimer);
+                    window._tooltipTouchTimer = setTimeout(() => {
+                        tooltip.style.opacity = '0';
+                    }, 3000);
+                }, { passive: false });
+            }
+
+            // НОВЫЙ ИНДИКАТОР СИНХРОНИЗАЦИИ
+            let syncDot = document.getElementById('syncStatusDot');
+            let syncTooltip = document.getElementById('syncStatusTooltip');
+            if (syncDot && syncTooltip) {
+                syncDot.addEventListener('mouseenter', () => {
+                    syncTooltip.style.opacity = '1';
+                });
+                syncDot.addEventListener('mouseleave', () => {
+                    syncTooltip.style.opacity = '0';
+                });
+                syncDot.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    syncTooltip.style.opacity = '1';
+                    clearTimeout(window._syncTooltipTouchTimer);
+                    window._syncTooltipTouchTimer = setTimeout(() => {
+                        syncTooltip.style.opacity = '0';
+                    }, 3000);
+                }, { passive: false });
+            }
+        })();
+
+        // Основная функция сохранения (с очередью и повтором)
+        async function saveGame(force = false) {
             if (!window.fbGetUser || !window.fbGetUser()) return;
+            if (!_isLoadedFromServer && !force) return; // Ждём загрузки
+            if (typeof _isApplyingRemote !== 'undefined' && _isApplyingRemote) return;
+            
+            // Если уже идет сохранение — ставим флаг "надо повторить"
+            if (_saveInFlight) {
+                _savePending = true;
+                return;
+            }
+            
+            // Кэшируем текущие данные (для сравнения при синхронизации)
+            window._localSaveCache = collectSave();
+            
+            // Если нет сети и не force — откладываем
+            if (!navigator.onLine && !force) {
+                _setDotState('pending');
+                return;
+            }
+            
+            _saveInFlight = true;
+            _saveLastAttempt = Date.now();
+            _setDotState('saving');
+            
             let save = collectSave();
-            await window.fbSave(activeMode, save);
+            
+            try {
+                let res = await window.fbSave(activeMode, save);
+                
+                if (res && res.success) {
+                    _saveLastSuccess = Date.now();
+                    _saveQueue = null; // Очередь пуста
+                    _setDotState('success');
+                    
+                    // Если во время сохранения пришел новый запрос — сохраняем еще раз
+                    if (_savePending) {
+                        _savePending = false;
+                        _saveInFlight = false;
+                        setTimeout(() => saveGame(), 100);
+                        return;
+                    }
+                } else {
+                    // Firebase вернул ошибку
+                    _setDotState('error');
+                    _saveQueue = save;
+                    // Повтор через 10 секунд
+                    clearTimeout(_saveRetryTimer);
+                    _saveRetryTimer = setTimeout(() => {
+                        if (_saveQueue && !_saveInFlight) saveGame(true);
+                    }, 10000);
+                }
+            } catch (err) {
+                console.warn('Ошибка сохранения:', err);
+                _setDotState('error');
+                _saveQueue = save;
+                // Повтор через 10 секунд
+                clearTimeout(_saveRetryTimer);
+                _saveRetryTimer = setTimeout(() => {
+                    if (_saveQueue && !_saveInFlight) saveGame(true);
+                }, 10000);
+            } finally {
+                _saveInFlight = false;
+            }
+        }
+
+        // Мгновенное сохранение (для критичных событий)
+        function saveGameNow() {
+            return saveGame(true);
         }
 
         // === ЗАГРУЗИТЬ ИЗ FIREBASE ===
@@ -4501,8 +5326,25 @@
             lvlDisplay.textContent = _l;
             xpDisplay.textContent = _xp;
             nextXpDisplay.textContent = _nx;
+            // Том 2: полоска прогресса уровня
+            let xpBar = document.getElementById('xpProgressBar');
+            if (xpBar) {
+                let percent = Math.min(100, (_xp / _nx) * 100);
+                xpBar.style.width = percent + '%';
+            }
             prestigeDisplay.textContent = getPrestigeText(_p);
             prestigePointsDisplay.textContent = _pp;
+            // Том 2: полоска прогресса перерождения
+            let prestigeBar = document.getElementById('prestigeProgressBar');
+            let prestigeText = document.getElementById('prestigeProgressText');
+            if (prestigeBar && prestigeText) {
+                let pCost = getPrestigeCost();
+                let pPercent = Math.min(100, (_s / pCost) * 100);
+                prestigeBar.style.width = pPercent + '%';
+                let shortCost = pCost >= 1000000 ? (pCost/1000000).toFixed(1)+'M' : pCost >= 1000 ? (pCost/1000).toFixed(0)+'K' : pCost;
+                let shortCur = _s >= 1000000 ? (_s/1000000).toFixed(1)+'M' : _s >= 1000 ? (_s/1000).toFixed(0)+'K' : Math.floor(_s);
+                prestigeText.textContent = `${shortCur} / ${shortCost}`;
+            }
             let diaEl = document.getElementById('diamondDisplay');
             if (diaEl) diaEl.textContent = _dia.toLocaleString();
             mushroomPointsDisplay.textContent = _ms;
@@ -4569,6 +5411,18 @@
             prestigeBtn.style.color = _s >= cost ? '#55ff55' : '#ff55ff';
             if (_l >= (_clr + 1) * 5) levelRewardBtn.style.display = 'block';
             else levelRewardBtn.style.display = 'none';
+
+            // Том 1: уведомление о возможности перерождения / эволюции
+            let canPrestige = _s >= cost;
+            let canEvolveNow = false;
+            if (_evo < EVOLUTIONS.length) {
+                let nextEvo = EVOLUTIONS[_evo];
+                canEvolveNow = canEvolve(nextEvo);
+            }
+            let prestigeBadge = document.getElementById('prestigeNotifyBadge');
+            if (prestigeBadge) prestigeBadge.style.display = canPrestige ? 'inline-block' : 'none';
+            let evoBadge = document.getElementById('evoNotifyBadge');
+            if (evoBadge) evoBadge.style.display = canEvolveNow ? 'inline-block' : 'none';
             
             if (prestigeCurrentScore) prestigeCurrentScore.textContent = Math.floor(_s);
             if (prestigeCostDisplay) prestigeCostDisplay.textContent = cost.toLocaleString();
@@ -4636,9 +5490,8 @@
                 document.getElementById('autoClickToggle').disabled = false;
             }
             
-            renderSkillTree();
-            checkAchievements();
-            checkQuestsCompletion();
+            // Том 2 perf: тяжёлые проверки вынесены в отдельные таймеры (см. ниже)
+            // renderSkillTree(); checkAchievements(); checkQuestsCompletion();
             // Том 11: обновляем баланс казино, если открыто
             if (document.getElementById('casinoModal').classList.contains('active')) {
                 casinoUpdateBalance();
@@ -4647,6 +5500,9 @@
             updateMobileEvoBtn();
             // Том 3: кнопки 2-го измерения
             updateDim2Btns();
+            
+            // Том 3: Осколки Бездны
+            updateAbyssBtn();
             // Том 3: обновляем экран 2-го измерения, если открыт
             if (document.getElementById('dim2Modal') && document.getElementById('dim2Modal').classList.contains('active')) {
                 renderDim2();
@@ -4774,29 +5630,85 @@
                 }
             }, { passive: false });
         })();
-		// Том 3: перетаскивание списка мышью (без задержки)
+		// Том 3: перетаскивание списка мышью + инерция после отпускания
         (function() {
             let cardsList = document.querySelector('.cards-list');
             if (!cardsList) return;
-            let isDown = false, startX = 0, scrollStart = 0;
+            let isDown = false;
+            let startX = 0;
+            let scrollStart = 0;
+            let lastX = 0;         // последняя позиция мыши
+            let lastTime = 0;      // время последнего движения
+            let velocity = 0;      // скорость (px / мс)
+            let momentumId = null; // id requestAnimationFrame для инерции
+
+            function stopMomentum() {
+                if (momentumId) {
+                    cancelAnimationFrame(momentumId);
+                    momentumId = null;
+                }
+            }
+
+            function applyMomentum() {
+                // Затухание: 0.95 за кадр (плавное скольжение)
+                velocity *= 0.95;
+                if (Math.abs(velocity) < 0.05) {
+                    momentumId = null;
+                    return;
+                }
+                let max = cardsList.scrollWidth - cardsList.clientWidth;
+                let next = cardsList.scrollLeft - velocity * 16; // 16мс ≈ 1 кадр
+                if (next <= 0) { cardsList.scrollLeft = 0; momentumId = null; return; }
+                if (next >= max) { cardsList.scrollLeft = max; momentumId = null; return; }
+                cardsList.scrollLeft = next;
+                momentumId = requestAnimationFrame(applyMomentum);
+            }
+
             cardsList.addEventListener('mousedown', (e) => {
                 if (e.target.closest('.card-bottom')) return; // не мешаем кликам по кнопкам
+                stopMomentum(); // если была инерция — останавливаем
                 isDown = true;
                 startX = e.pageX;
+                lastX = e.pageX;
+                lastTime = performance.now();
+                velocity = 0;
                 scrollStart = cardsList.scrollLeft;
                 cardsList.style.cursor = 'grabbing';
             });
+
             window.addEventListener('mouseup', () => {
+                if (!isDown) return;
                 isDown = false;
                 cardsList.style.cursor = 'grab';
+                // Запускаем инерцию, если скорость достаточная
+                if (Math.abs(velocity) > 0.1) {
+                    momentumId = requestAnimationFrame(applyMomentum);
+                }
             });
+
             window.addEventListener('mousemove', (e) => {
                 if (!isDown) return;
                 e.preventDefault();
+                let now = performance.now();
+                let dt = now - lastTime;
+                if (dt > 0) {
+                    // Мгновенная скорость = смещение мыши / время
+                    velocity = (e.pageX - lastX) / dt;
+                    lastX = e.pageX;
+                    lastTime = now;
+                }
                 let walk = (e.pageX - startX) * 1.5;
                 cardsList.scrollLeft = scrollStart - walk;
             });
-        })();;
+
+            // Том 3 fix: если курсор ушёл за пределы окна — отпускаем
+            window.addEventListener('blur', () => {
+                if (isDown) {
+                    isDown = false;
+                    cardsList.style.cursor = 'grab';
+                }
+            });
+        })();
         document.getElementById('openQuestsBtn').addEventListener('click', () => { closeAllModals(); questsModal.classList.add('active'); renderQuests(); startQuestTimer(); });
         document.getElementById('closeQuestsBtn').addEventListener('click', () => { closeModalSmart('questsModal', 'shopHubModal'); stopQuestTimer(); });
         document.getElementById('openSkillTreeBtn').addEventListener('click', () => { closeAllModals(); skillTreeModal.classList.add('active'); renderSkillTree(); });
@@ -4928,7 +5840,7 @@
         _acm = 1; _aam = 1;
         _hac = false; _haa = false; _hac2 = false; _haa2 = false; _haa3 = false;
         // Том 2: эволюция НЕ сбрасывается при перерождении
-        playSound('prestige'); updateUI(); saveGame();
+        playSound('prestige'); updateUI(); saveGameNow();
         prestigeModal.classList.remove('active');
 	   // Пересчитываем автоклик (сила изменилась из-за сброса)
         if (settings.autoClick && _p >= 3) { stopAutoClick(); startAutoClick(); }
@@ -4955,7 +5867,14 @@
 
 		buyClickBtn.addEventListener('click', () => {
             let cost = Math.round(_ucc * getDiscount() * getPriceMultiplier());
-            if (_s >= cost || isDeveloper) { _s -= cost; _cp += 1; _ucc = getNextCost(_ucc, _cp, 1.3); playSound('buy'); updateUI(); saveGame(); }
+            if (_s >= cost || isDeveloper) { 
+                _s -= cost; 
+                _cp += 1; 
+                _ucc = getNextCost(_ucc, _cp, 1.3); 
+                playSound('buy'); 
+                updateUI(); 
+                saveGameNow(); // Мгновенно
+            }
         });
         buyAutoBtn.addEventListener('click', () => {
             let cost = Math.round(_uac * getDiscount() * getPriceMultiplier());
@@ -5356,11 +6275,33 @@
             if (cell.classList.contains('mushroom')) {
                 _msc += getMineReward();
                 mineScoreEl.textContent = _msc;
+                // Анимация взрыва
+                let pop = document.createElement('div');
+                pop.className = 'mine-pop';
+                pop.textContent = '🍄';
+                let rect = cell.getBoundingClientRect();
+                pop.style.left = (rect.left + rect.width/2 - 15) + 'px';
+                pop.style.top = (rect.top + rect.height/2 - 15) + 'px';
+                pop.style.position = 'fixed';
+                document.body.appendChild(pop);
+                setTimeout(() => pop.remove(), 400);
+                
                 cell.classList.remove('mushroom'); cell.textContent = '';
                 playSound('mine');
             } else if (cell.classList.contains('gold')) {
                 _msc += getMineReward() * 3;
                 mineScoreEl.textContent = _msc;
+                // Анимация взрыва
+                let pop = document.createElement('div');
+                pop.className = 'mine-pop';
+                pop.textContent = '🌟';
+                let rect = cell.getBoundingClientRect();
+                pop.style.left = (rect.left + rect.width/2 - 15) + 'px';
+                pop.style.top = (rect.top + rect.height/2 - 15) + 'px';
+                pop.style.position = 'fixed';
+                document.body.appendChild(pop);
+                setTimeout(() => pop.remove(), 400);
+                
                 cell.classList.remove('gold'); cell.textContent = '';
                 playSound('buy');
             }
@@ -5454,6 +6395,17 @@
                 _cc += getCatchReward();
                 catchScoreEl.textContent = _cc;
                 playSound('mine');
+                // Анимация взрыва
+                let pop = document.createElement('div');
+                pop.className = 'mine-pop';
+                pop.textContent = m.textContent;
+                let rect = m.getBoundingClientRect();
+                pop.style.left = (rect.left + rect.width/2 - 15) + 'px';
+                pop.style.top = (rect.top + rect.height/2 - 15) + 'px';
+                pop.style.position = 'fixed';
+                document.body.appendChild(pop);
+                setTimeout(() => pop.remove(), 400);
+                
                 m.remove();
             });
             catchArea.appendChild(m);
@@ -5462,7 +6414,251 @@
         }
         startCatchBtn.addEventListener('click', startCatch);
 		
-		// ============================================
+        // ============================================
+        // ТОМ 3: ОСКОЛКИ БЕЗДНЫ
+        // ============================================
+        let _abyssScore = 0;
+        let _abyssTimer = 15;
+        let _abyssActive = false;
+        let _abyssCooldown = 0;
+        let _abyssInterval = null;
+        let _abyssSpawnTimeout = null;
+        let _abyssObjects = [];
+
+        // Проверка разблокировки (4-я эволюция)
+        function updateAbyssBtn() {
+            let isUnlocked = _evo >= 4;
+            
+            let hubBtn = document.getElementById('hubAbyssBtn');
+            let pcBtn = document.getElementById('openAbyssBtn');
+            
+            if (hubBtn) {
+                if (isUnlocked) {
+                    hubBtn.classList.remove('locked');
+                    hubBtn.innerHTML = '<span class="hub-icon">🌌</span> ОСКОЛКИ БЕЗДНЫ';
+                } else {
+                    hubBtn.classList.add('locked');
+                    hubBtn.innerHTML = '<span class="hub-icon">🌌</span> ОСКОЛКИ БЕЗДНЫ 🔒';
+                }
+            }
+            if (pcBtn) {
+                if (isUnlocked) {
+                    pcBtn.classList.remove('locked');
+                    pcBtn.textContent = '🌌 ОСКОЛКИ БЕЗДНЫ';
+                } else {
+                    pcBtn.classList.add('locked');
+                    pcBtn.textContent = '🌌 ОСКОЛКИ БЕЗДНЫ 🔒';
+                }
+            }
+        }
+
+        // Инициализация окна
+        function initAbyss() {
+            _abyssActive = false;
+            _abyssTimer = 15;
+            _abyssScore = 0;
+            document.getElementById('abyssScore').textContent = '0';
+            document.getElementById('abyssTimer').textContent = '15';
+            document.getElementById('abyssArea').innerHTML = '';
+            
+            let btn = document.getElementById('startAbyssBtn');
+            
+            if (_abyssCooldown > Date.now()) {
+                let left = Math.ceil((_abyssCooldown - Date.now()) / 1000);
+                btn.textContent = `ПЕРЕЗАРЯДКА (${left}с)`;
+                btn.classList.add('disabled');
+                let cdInt = setInterval(() => {
+                    if (_abyssCooldown <= Date.now()) {
+                        clearInterval(cdInt);
+                        btn.textContent = 'НАЧАТЬ';
+                        btn.classList.remove('disabled');
+                    } else {
+                        let l = Math.ceil((_abyssCooldown - Date.now()) / 1000);
+                        btn.textContent = `ПЕРЕЗАРЯДКА (${l}с)`;
+                    }
+                }, 500);
+            } else {
+                btn.textContent = 'НАЧАТЬ';
+                btn.classList.remove('disabled');
+            }
+        }
+
+        // Спавн объектов
+        function spawnAbyssObject() {
+            if (!_abyssActive) return;
+            let area = document.getElementById('abyssArea');
+            
+            // Ограничиваем количество объектов
+            if (_abyssObjects.length > 10) {
+                _abyssSpawnTimeout = setTimeout(spawnAbyssObject, 200);
+                return;
+            }
+
+            let isMine = Math.random() < 0.4; // 40% шанс мины
+            let el = document.createElement('div');
+            el.style.position = 'absolute';
+            el.style.fontSize = isMine ? '2.2rem' : '2rem';
+            el.style.userSelect = 'none';
+            el.style.cursor = 'pointer';
+            el.style.zIndex = '10';
+            el.textContent = isMine ? '💣' : '💎';
+            
+            let x = Math.random() * 90;
+            el.style.left = x + '%';
+            el.style.top = '-50px';
+            
+            area.appendChild(el);
+
+            let obj = {
+                el: el,
+                x: x,
+                y: -50,
+                speed: 3 + Math.random() * 3,
+                isMine: isMine
+            };
+            _abyssObjects.push(obj);
+
+            // Обработчик клика
+            el.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
+                if (!_abyssActive) return;
+                
+                let rect = el.getBoundingClientRect();
+                let pop = document.createElement('div');
+                pop.className = 'abyss-boom';
+                pop.textContent = isMine ? '💥' : '💎';
+                pop.style.left = (rect.left + rect.width/2 - 15) + 'px';
+                pop.style.top = (rect.top + rect.height/2 - 15) + 'px';
+                pop.style.position = 'fixed';
+                document.body.appendChild(pop);
+                setTimeout(() => pop.remove(), 400);
+                
+                if (isMine) {
+                    _abyssScore = Math.max(0, _abyssScore - 20);
+                    playSound('error');
+                    area.style.transform = 'translate(5px, 5px)';
+                    setTimeout(() => area.style.transform = 'none', 100);
+                } else {
+                    _abyssScore += 10;
+                    playSound('mine');
+                }
+                document.getElementById('abyssScore').textContent = _abyssScore;
+                
+                obj.el.remove();
+                _abyssObjects = _abyssObjects.filter(o => o !== obj);
+            });
+
+            _abyssSpawnTimeout = setTimeout(spawnAbyssObject, Math.max(200, 600 - _abyssScore / 10));
+        }
+
+        // Старт игры
+        function startAbyss() {
+            if (_abyssActive) return;
+            if (_abyssCooldown > Date.now()) return;
+
+            _abyssActive = true;
+            _abyssTimer = 15;
+            _abyssScore = 0;
+            _abyssObjects = [];
+            document.getElementById('abyssScore').textContent = '0';
+            document.getElementById('abyssTimer').textContent = '15';
+            document.getElementById('abyssArea').innerHTML = '';
+
+            let btn = document.getElementById('startAbyssBtn');
+            btn.textContent = 'ИДЁТ...';
+            btn.classList.add('disabled');
+
+            spawnAbyssObject();
+
+            // Тик движения
+            let moveTick = setInterval(() => {
+                if (!_abyssActive) { clearInterval(moveTick); return; }
+                let area = document.getElementById('abyssArea');
+                let h = area.clientHeight;
+                for (let i = _abyssObjects.length - 1; i >= 0; i--) {
+                    let obj = _abyssObjects[i];
+                    obj.y += obj.speed;
+                    obj.el.style.top = obj.y + 'px';
+                    if (obj.y > h + 50) {
+                        obj.el.remove();
+                        _abyssObjects.splice(i, 1);
+                    }
+                }
+            }, 30);
+
+            // Тик таймера
+            _abyssInterval = setInterval(() => {
+                if (!_abyssActive) return;
+                _abyssTimer--;
+                document.getElementById('abyssTimer').textContent = _abyssTimer;
+                if (_abyssTimer <= 0) {
+                    endAbyss();
+                }
+            }, 1000);
+        }
+
+        // Конец игры
+        function endAbyss() {
+            _abyssActive = false;
+            if (_abyssInterval) { clearInterval(_abyssInterval); _abyssInterval = null; }
+            if (_abyssSpawnTimeout) { clearTimeout(_abyssSpawnTimeout); _abyssSpawnTimeout = null; }
+            document.getElementById('abyssArea').innerHTML = '';
+            _abyssObjects = [];
+
+            let diaGained = Math.floor(_abyssScore);
+            _dia += diaGained;
+
+            _abyssCooldown = Date.now() + 60000; // 60 сек
+            let btn = document.getElementById('startAbyssBtn');
+            btn.textContent = 'ПЕРЕЗАРЯДКА (60с)';
+            btn.classList.add('disabled');
+
+            let cdInt = setInterval(() => {
+                if (_abyssCooldown <= Date.now()) {
+                    clearInterval(cdInt);
+                    btn.textContent = 'НАЧАТЬ';
+                    btn.classList.remove('disabled');
+                } else {
+                    let l = Math.ceil((_abyssCooldown - Date.now()) / 1000);
+                    btn.textContent = `ПЕРЕЗАРЯДКА (${l}с)`;
+                }
+            }, 500);
+
+            showAlert('🌌 ИГРА ОКОНЧЕНА', `Вы набрали ${_abyssScore} очков.\nПолучено бриллиантов: ${diaGained} 💎`);
+            playSound('quest');
+            updateUI();
+            saveGameNow();
+        }
+
+        // Привязка событий
+        document.getElementById('hubAbyssBtn').addEventListener('click', () => {
+            if (_evo < 4) { showAlert('🔒 ЗАКРЫТО', 'Нужна 4-я эволюция.'); return; }
+            closeAllModals();
+            document.getElementById('abyssModal').classList.add('active');
+            initAbyss();
+        });
+        
+        // Если добавил ПК-кнопку:
+        const pcAbyssBtn = document.getElementById('openAbyssBtn');
+        if (pcAbyssBtn) {
+            pcAbyssBtn.addEventListener('click', () => {
+                if (_evo < 4) { showAlert('🔒 ЗАКРЫТО', 'Нужна 4-я эволюция.'); return; }
+                closeAllModals();
+                document.getElementById('abyssModal').classList.add('active');
+                initAbyss();
+            });
+        }
+
+        document.getElementById('closeAbyssBtn').addEventListener('click', () => {
+            document.getElementById('abyssModal').classList.remove('active');
+            _abyssActive = false; 
+            if (_abyssInterval) clearInterval(_abyssInterval);
+            if (_abyssSpawnTimeout) clearTimeout(_abyssSpawnTimeout);
+        });
+
+        document.getElementById('startAbyssBtn').addEventListener('click', startAbyss);
+
+        // ============================================
         // ТОМ 21: ФОКУСЫ ТИПИЧНОГО
         // ============================================
 
@@ -5634,13 +6830,26 @@
                         if (Math.abs(px - ox) < 50) {
                             // Столкновение
                             if (obj.type === 'cart') {
-                                // Конец игры
+                                // Конец игры — тряска
+                                let area = document.getElementById('focusArea');
+                                area.classList.add('focus-shake');
+                                setTimeout(() => area.classList.remove('focus-shake'), 400);
+                                
                                 obj.el.remove();
                                 _focusObjects.splice(i, 1);
                                 endFocus('crash');
                                 return;
                             } else if (obj.type === 'mushroom') {
-                                // Бонус
+                                // Бонус — искры
+                                let area = document.getElementById('focusArea');
+                                let spark = document.createElement('div');
+                                spark.className = 'focus-spark';
+                                spark.textContent = '✨';
+                                spark.style.left = obj.el.style.left;
+                                spark.style.top = obj.el.style.top;
+                                area.appendChild(spark);
+                                setTimeout(() => spark.remove(), 600);
+                                
                                 _focusScore += 100;
                                 document.getElementById('focusScore').textContent = _focusScore;
                                 obj.el.remove();
@@ -5782,16 +6991,227 @@
         }
 
         // ============================================
+        // ТОМ 3: АПГРЕЙДЕР (КОЛЬЦО И СТРЕЛКА)
+        // ============================================
+        let _upgraderSpinning = false;
+        let _upgraderTotalRotation = 0; // Накопительный угол для стрелки
+
+        const UPGRADER_RATES = {
+            'cha': 10,
+            'mush': 100000,
+            'dia': 10000000
+        };
+
+        function upgraderGetBalance(type) {
+            if (type === 'cha') return Math.floor(_s);
+            if (type === 'mush') return Math.floor(_ms);
+            if (type === 'dia') return Math.floor(_dia);
+            return 0;
+        }
+
+        function upgraderSpend(type, amount) {
+            if (type === 'cha') _s -= amount;
+            if (type === 'mush') _ms -= amount;
+            if (type === 'dia') _dia -= amount;
+        }
+
+        function upgraderEarn(type, amount) {
+            if (type === 'cha') _s += amount;
+            if (type === 'mush') _ms += amount;
+            if (type === 'dia') _dia += amount;
+        }
+
+        function upgraderDrawWheel(chancePercent) {
+            const canvas = document.getElementById('upgraderCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            const outerRadius = 120;
+            const innerRadius = 80;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Углы в радианах
+            let winAngle = (chancePercent / 100) * Math.PI * 2;
+            let loseAngle = Math.PI * 2 - winAngle;
+
+            // В Canvas 0 радиан = 3 часа (вправо). Сдвигаем на -90 градусов (вверх)
+            let startOffset = -Math.PI / 2;
+
+            // Функция для рисования сектора по часовой стрелке
+            function drawSector(start, end, color) {
+                if (end - start <= 0) return;
+                ctx.beginPath();
+                // Внешняя дуга — по часовой (false)
+                ctx.arc(cx, cy, outerRadius, start, end, false);
+                // Внутренняя дуга — против часовой (true), чтобы замкнуть фигуру
+                ctx.arc(cx, cy, innerRadius, end, start, true);
+                ctx.closePath();
+                ctx.fillStyle = color;
+                ctx.fill();
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            // Серый (проигрыш) — от start до start+loseAngle (по часовой)
+            drawSector(startOffset, startOffset + loseAngle, '#333');
+
+            // Желтый (выигрыш) — от start+loseAngle до start+2PI (по часовой)
+            drawSector(startOffset + loseAngle, startOffset + Math.PI * 2, '#ffaa00');
+
+            // Внутренний круг
+            ctx.beginPath();
+            ctx.arc(cx, cy, innerRadius, 0, Math.PI * 2);
+            ctx.fillStyle = '#1a1c1e';
+            ctx.fill();
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        function upgraderUpdateWheel() {
+            if (_upgraderSpinning) return;
+            
+            let giveType = document.getElementById('upgraderGiveType').value;
+            let giveAmount = parseInt(document.getElementById('upgraderGiveAmount').value) || 0;
+            let wantType = document.getElementById('upgraderWantType').value;
+            let wantAmount = parseInt(document.getElementById('upgraderWantAmount').value) || 0;
+            
+            // Выводим ценность
+            let giveValue = giveAmount * UPGRADER_RATES[giveType];
+            let wantValue = wantAmount * UPGRADER_RATES[wantType];
+            
+            document.getElementById('upgraderGiveValue').textContent = `Ценность: ${giveValue.toLocaleString()}`;
+            document.getElementById('upgraderWantValue').textContent = `Ценность: ${wantValue.toLocaleString()}`;
+
+            if (giveAmount <= 0 || wantAmount <= 0) {
+                upgraderDrawWheel(0);
+                return;
+            }
+
+            // Шанс: если giveValue == wantValue, шанс будет 100% (полностью желтый)
+            let chance = Math.min(100, Math.max(0, (giveValue / wantValue) * 100));
+            upgraderDrawWheel(chance);
+        }
+
+        // Слушатели
+        document.getElementById('upgraderGiveType').addEventListener('change', upgraderUpdateWheel);
+        document.getElementById('upgraderGiveAmount').addEventListener('input', upgraderUpdateWheel);
+        document.getElementById('upgraderWantType').addEventListener('change', upgraderUpdateWheel);
+        document.getElementById('upgraderWantAmount').addEventListener('input', upgraderUpdateWheel);
+
+        function openUpgraderModal() {
+            closeAllModals();
+            document.getElementById('upgraderModal').classList.add('active');
+            _upgraderSpinning = false;
+            document.getElementById('upgraderSpinBtn').textContent = 'КРУТИТЬ';
+            document.getElementById('upgraderSpinBtn').classList.remove('disabled');
+            document.getElementById('upgraderResult').textContent = '';
+            
+            // Полный сброс стрелки (мгновенно)
+            let arrow = document.getElementById('upgraderArrow');
+            arrow.style.transition = 'none';
+            arrow.style.transform = 'rotate(0deg)';
+            _upgraderTotalRotation = 0; // Обнуляем накопленный угол
+            
+            setTimeout(() => { arrow.style.transition = 'transform 3s cubic-bezier(0.2, 0.8, 0.2, 1)'; }, 50);
+
+            upgraderUpdateWheel();
+        }
+
+        document.getElementById('openUpgraderBtn').addEventListener('click', openUpgraderModal);
+        document.getElementById('hubUpgraderBtn').addEventListener('click', openUpgraderModal);
+        document.getElementById('closeUpgraderBtn').addEventListener('click', () => {
+            if (_upgraderSpinning) return;
+            document.getElementById('upgraderModal').classList.remove('active');
+        });
+
+        // Логика крутки
+        document.getElementById('upgraderSpinBtn').addEventListener('click', () => {
+            if (_upgraderSpinning) return;
+
+            let giveType = document.getElementById('upgraderGiveType').value;
+            let giveAmount = parseInt(document.getElementById('upgraderGiveAmount').value) || 0;
+            let wantType = document.getElementById('upgraderWantType').value;
+            let wantAmount = parseInt(document.getElementById('upgraderWantAmount').value) || 0;
+
+            if (giveAmount <= 0 || wantAmount <= 0) {
+                showAlert('⚠️ ОШИБКА', 'Введите положительные числа.');
+                return;
+            }
+
+            if (upgraderGetBalance(giveType) < giveAmount) {
+                showAlert('❌ НЕ ХВАТАЕТ', 'У вас нет столько валюты для обмена.');
+                return;
+            }
+
+            _upgraderSpinning = true;
+            let btn = document.getElementById('upgraderSpinBtn');
+            btn.textContent = 'КРУТИМ...';
+            btn.classList.add('disabled');
+            document.getElementById('upgraderResult').textContent = '';
+
+            upgraderSpend(giveType, giveAmount);
+
+            let giveValue = giveAmount * UPGRADER_RATES[giveType];
+            let wantValue = wantAmount * UPGRADER_RATES[wantType];
+            let chance = Math.min(100, Math.max(0, (giveValue / wantValue) * 100));
+
+            let isWin = Math.random() * 100 < chance;
+
+            let arrow = document.getElementById('upgraderArrow');
+            
+            let winAngle = (chance / 100) * 360;
+            let loseAngle = 360 - winAngle;
+            
+            let targetAngle = 0;
+            if (isWin) {
+                // Выигрыш: от loseAngle до 360
+                targetAngle = loseAngle + Math.random() * winAngle;
+            } else {
+                // Проигрыш: от 0 до loseAngle
+                targetAngle = Math.random() * loseAngle;
+            }
+
+            // Прибавляем к накопленному углу, чтобы стрелка всегда крутилась по часовой стрелке
+            // 1800 градусов = 5 полных оборотов
+            _upgraderTotalRotation += 1800 + targetAngle;
+
+            arrow.style.transform = `rotate(${_upgraderTotalRotation}deg)`;
+
+            setTimeout(() => {
+                _upgraderSpinning = false;
+                btn.textContent = 'КРУТИТЬ';
+                btn.classList.remove('disabled');
+
+                let resEl = document.getElementById('upgraderResult');
+                if (isWin) {
+                    upgraderEarn(wantType, wantAmount);
+                    resEl.textContent = `🎉 УСПЕХ! Вы получили ${wantAmount} ${wantType === 'cha' ? '💰' : wantType === 'mush' ? '🍄' : '💎'}`;
+                    resEl.style.color = '#55ff55';
+                    playSound('achievement');
+                } else {
+                    resEl.textContent = `❌ ПРОИГРЫШ... Вы потеряли ${giveAmount} ${giveType === 'cha' ? '💰' : giveType === 'mush' ? '🍄' : '💎'}`;
+                    resEl.style.color = '#ff5555';
+                    playSound('error');
+                }
+                updateUI();
+                saveGame();
+            }, 3050);
+        });
+
+        // ============================================
         // ТОМ 11: КАЗИНО
         // ============================================
 
         const CASINO_MIN_BET = 50;
+        let _rouletteCurrentRotation = 0;
 
-        // Том 17: динамический шанс выигрыша (30–60%)
-        // Том 6: бонус casinoLuck — +2% за уровень
         function casinoGetWinChance() {
             let chance = 0.30 + _casinoLossStreak * 0.05 + (skills.casinoLuck.level * 0.02);
-            return Math.min(chance, 0.80); // Максимум 80% (было 60%)
+            return Math.min(chance, 0.80);
         }
 
         function casinoGetBalance() {
@@ -5815,13 +7235,10 @@
             return `${amount.toLocaleString()} ${_casinoCurrency === 'cha' ? '💰' : '🍄'}`;
         }
 
-        // Том 16: блокировка/разблокировка UI казино
         function casinoSetLocked(locked) {
             _casinoLocked = locked;
             let modal = document.getElementById('casinoModal');
-            if (modal) {
-                modal.classList.toggle('casino-locked', locked);
-            }
+            if (modal) modal.classList.toggle('casino-locked', locked);
             let btn = document.getElementById('casinoSpinBtn');
             if (btn) {
                 if (locked) {
@@ -5834,11 +7251,10 @@
             }
         }
 
-        // Переключение игры
         function casinoSetGame(game) {
             _casinoGame = game;
             _casinoChoice = null;
-            casinoSetLocked(false); // Том 16: сброс блокировки при смене игры
+            casinoSetLocked(false);
             document.querySelectorAll('.casino-tab').forEach(t => {
                 t.classList.toggle('active', t.dataset.casino === game);
             });
@@ -5847,31 +7263,49 @@
             let result = document.getElementById('casinoResult');
             result.style.color = '#ffff55';
             result.textContent = 'Выбери и крути!';
+            display.innerHTML = '';
+
             if (game === 'coin') {
-                display.textContent = '🪙';
-                choices.innerHTML = `
-                    <button class="casino-choice-btn gold" data-choice="heads">ОРЁЛ</button>
-                    <button class="casino-choice-btn gold" data-choice="tails">РЕШКА</button>
-                `;
+                display.innerHTML = `<div class="coin heads" id="coinVisual" style="animation: none; transform: rotateY(0deg);">🦅</div>`;
+                choices.innerHTML = `<button class="casino-choice-btn gold" data-choice="heads">ОРЁЛ</button><button class="casino-choice-btn gold" data-choice="tails">РЕШКА</button>`;
             } else if (game === 'dice') {
-                display.textContent = '🎲';
+                display.innerHTML = `<div class="dice" id="diceVisual" style="animation: none; transform: rotate(0deg); background:#fff; border-color:#fff;"></div>`;
                 choices.innerHTML = '';
                 for (let i = 1; i <= 6; i++) {
                     choices.innerHTML += `<button class="casino-choice-btn" data-choice="${i}">${i}</button>`;
                 }
             } else if (game === 'roulette') {
-                display.textContent = '🎡';
+                // СТРЕЛКА СВЕРХУ (СМОТРИТ ВНИЗ НА 180 ГРАДУСОВ)
+                display.innerHTML = `
+                    <div style="position:relative; width:200px; height:200px; margin:0 auto;">
+                        <div id="rouletteArrow" style="position:absolute; top:-25px; left:50%; transform:translateX(-50%); font-size:2rem; color:#fff; text-shadow:0 0 5px #000; z-index:10;">▼</div>
+                      <div id="rouletteWheel" style="width:100%; height:100%; border-radius:50%; border:5px solid #000; transition: none; background: conic-gradient(#ff0000 0deg 120deg, #808080 120deg 180deg, #000000 180deg 300deg, #00ff00 300deg 360deg); transform: rotate(${_rouletteCurrentRotation}deg);"></div>
+                    </div>
+                `;
                 choices.innerHTML = `
                     <button class="casino-choice-btn red" data-choice="red">🔴 КРАСНОЕ ×2</button>
                     <button class="casino-choice-btn black" data-choice="black">⚫ ЧЁРНОЕ ×2</button>
                     <button class="casino-choice-btn green" data-choice="green">🟢 ЗЕРО ×14</button>
                 `;
             } else if (game === 'slots') {
-                display.textContent = '🎰';
+                let reelHTML = '';
+                for (let i = 0; i < 3; i++) {
+                    let strip = '';
+                    // 50 случайных символов
+                    for (let j = 0; j < 50; j++) {
+                        strip += `<div class="reel-item" style="height:100px; display:flex; align-items:center; justify-content:center; font-size:3rem; flex-shrink:0;">${['🍒','🍋','🍇','⭐','💎','7️⃣'][Math.floor(Math.random() * 6)]}</div>`;
+                    }
+                    reelHTML += `
+                        <div class="slot-reel" style="width:80px; height:100px; background:#fff; border:3px solid #000; border-radius:5px; overflow:hidden; position:relative;">
+                            <div class="reel-strip" id="reel${i+1}" style="position:absolute; top:0; left:0; width:100%; display:flex; flex-direction:column; transition: none;">${strip}</div>
+                        </div>
+                    `;
+                }
+                display.innerHTML = `<div class="slot-machine" style="display:flex; gap:10px; background:#1a1c1e; padding:15px; border:4px solid #ffaa00; border-radius:10px;">${reelHTML}</div>`;
                 choices.innerHTML = '';
                 result.textContent = 'Совпадение ×10, три семёрки ×100!';
             }
-            // Навешиваем обработчики на кнопки выбора
+            
             choices.querySelectorAll('.casino-choice-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     _casinoChoice = btn.dataset.choice;
@@ -5882,195 +7316,192 @@
             casinoUpdateBalance();
         }
 
-        // Общая функция прокрутки
         async function casinoSpin() {
             if (_casinoLocked) return;
             let betInput = document.getElementById('casinoBet');
             let bet = parseInt(betInput.value) || 0;
-            if (bet < CASINO_MIN_BET) {
-                showAlert('⚠️ МИН. СТАВКА', `Минимальная ставка — ${CASINO_MIN_BET}.`);
-                return;
-            }
-            if (bet > casinoGetBalance()) {
-                showAlert('❌ НЕ ХВАТАЕТ', `У тебя только ${casinoFormat(casinoGetBalance())}.`);
-                return;
-            }
-            // Слоты — без выбора
-            if (_casinoGame !== 'slots' && !_casinoChoice) {
-                showAlert('⚠️ ВЫБЕРИ', 'Сначала выбери вариант.');
-                return;
-            }
+            if (bet < CASINO_MIN_BET) { showAlert('⚠️ МИН. СТАВКА', `Минимальная ставка — ${CASINO_MIN_BET}.`); return; }
+            if (bet > casinoGetBalance()) { showAlert('❌ НЕ ХВАТАЕТ', `У тебя только ${casinoFormat(casinoGetBalance())}.`); return; }
+            if (_casinoGame !== 'slots' && !_casinoChoice) { showAlert('⚠️ ВЫБЕРИ', 'Сначала выбери вариант.'); return; }
+            
             casinoSetLocked(true);
-            let display = document.getElementById('casinoDisplay');
             let result = document.getElementById('casinoResult');
             result.style.color = '#ffff55';
+            result.textContent = 'Крутим...';
 
             casinoSpend(bet);
             casinoUpdateBalance();
             _casinoSpins++;
 
-            // Анимация прокрутки
-            let frames = 0;
-            let animInterval = setInterval(() => {
-                frames++;
-                if (_casinoGame === 'coin') display.textContent = Math.random() < 0.5 ? '🪙' : '🔴';
-                else if (_casinoGame === 'dice') display.textContent = ['⚀','⚁','⚂','⚃','⚄','⚅'][Math.floor(Math.random()*6)];
-                else if (_casinoGame === 'roulette') display.textContent = ['🔴','⚫','🟢'][Math.floor(Math.random()*3)];
-                else if (_casinoGame === 'slots') display.textContent = ['🍒','🍋','🍇','⭐','💎','7️⃣'][Math.floor(Math.random()*6)] + ['🍒','🍋','🍇','⭐','💎','7️⃣'][Math.floor(Math.random()*6)] + ['🍒','🍋','🍇','⭐','💎','7️⃣'][Math.floor(Math.random()*6)];
-                if (frames > 15) {
-                    clearInterval(animInterval);
-                    casinoResolve(bet);
+            if (_casinoGame === 'coin') {
+                let coin = document.getElementById('coinVisual');
+                coin.style.animation = 'coinFlip 0.6s linear infinite';
+                setTimeout(() => casinoResolve(bet), 2000);
+            } 
+            else if (_casinoGame === 'dice') {
+                let dice = document.getElementById('diceVisual');
+                dice.style.animation = 'diceRoll 0.3s ease-in-out infinite';
+                let interval = setInterval(() => {
+                    renderDiceVisual(dice, Math.floor(Math.random() * 6) + 1);
+                }, 100);
+                setTimeout(() => { clearInterval(interval); casinoResolve(bet); }, 2000);
+            } 
+            else if (_casinoGame === 'roulette') {
+                // 1. Определяем, на что ставил игрок (red, black, green)
+                // Но у нас появилось "серое" (пустое) поле. 
+                // Алгоритм: если выигрыш — ставим на цвет игрока. Если проигрыш — ставим на серое или другой цвет.
+                let playerWins = Math.random() < casinoGetWinChance();
+                let outcome = '';
+
+                if (playerWins) {
+                    outcome = _casinoChoice; // Выигрыш — показываем цвет игрока
+                } else {
+                    // Проигрыш — выбираем случайно из того, на что НЕ ставил игрок
+                    let pool = ['red', 'black', 'green', 'grey'].filter(c => c !== _casinoChoice);
+                    outcome = pool[Math.floor(Math.random() * pool.length)];
                 }
-            }, 80);
+                
+                // 2. Выбираем случайный угол внутри нужного сектора
+                let randomAngle = 0;
+                if (outcome === 'red') randomAngle = Math.random() * 120;           // 0 - 120
+                if (outcome === 'grey') randomAngle = 120 + Math.random() * 60;     // 120 - 180
+                if (outcome === 'black') randomAngle = 180 + Math.random() * 120;   // 180 - 300
+                if (outcome === 'green') randomAngle = 300 + Math.random() * 60;    // 300 - 360
+
+                // 3. Стрелка сверху (0 градусов). 
+                // Чтобы нужный угол оказался под стрелкой, поворачиваем на 360 - randomAngle
+                let targetAngle = 360 - randomAngle;
+
+                // 4. Крутим на 5 полных оборотов + доворот
+                let currentNormalized = _rouletteCurrentRotation % 360;
+                if (currentNormalized < 0) currentNormalized += 360;
+                
+                let diff = targetAngle - currentNormalized;
+                if (diff < 0) diff += 360;
+
+                _rouletteCurrentRotation += 1800 + diff;
+
+                let wheel = document.getElementById('rouletteWheel');
+                wheel.style.transition = 'transform 5s cubic-bezier(0.1, 0.8, 0.2, 1)';
+                wheel.style.transform = `rotate(${_rouletteCurrentRotation}deg)`;
+                
+                setTimeout(() => casinoResolve(bet), 5000);
+            } 
+            else if (_casinoGame === 'slots') {
+                // Останавливаем барабаны по очереди (5, 10, 15 секунд)
+                let reels = [document.getElementById('reel1'), document.getElementById('reel2'), document.getElementById('reel3')];
+                
+                reels.forEach((el, index) => {
+                    el.style.transition = 'none';
+                    el.style.transform = 'translateY(0)';
+                    
+                    setTimeout(() => {
+                        let duration = (index + 1) * 5000; // 5с, 10с, 15с
+                        el.style.transition = `transform ${duration}ms cubic-bezier(0.1, 0.8, 0.2, 1)`;
+                        el.style.transform = `translateY(-${(index + 1) * 1000}px)`; 
+                    }, 50);
+                });
+
+                // Результат показываем через 15 секунд
+                setTimeout(() => casinoResolve(bet), 15500);
+            }
         }
 
-        // Подсчёт результата
+        function renderDiceVisual(diceEl, value) {
+            let dots = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
+            let html = '';
+            for (let i = 0; i < 9; i++) {
+                if (dots[value].includes(i)) html += `<div class="dice-dot"></div>`;
+                else html += `<div class="dice-dot hidden"></div>`;
+            }
+            diceEl.innerHTML = html;
+            diceEl.style.background = '#fff';
+            diceEl.style.borderColor = '#000';
+        }
+
         function casinoResolve(bet) {
-            let display = document.getElementById('casinoDisplay');
             let result = document.getElementById('casinoResult');
             let win = 0;
             let winText = '';
-            let emoji = '';
 
             if (_casinoGame === 'coin') {
-                // Том 17: динамический шанс
                 let playerWins = Math.random() < casinoGetWinChance();
-                let outcome;
-                if (playerWins) {
-                    outcome = _casinoChoice;
-                } else {
-                    outcome = _casinoChoice === 'heads' ? 'tails' : 'heads';
-                }
+                let outcome = playerWins ? _casinoChoice : (_casinoChoice === 'heads' ? 'tails' : 'heads');
                 let got = outcome === 'heads' ? 'ОРЁЛ' : 'РЕШКА';
-                emoji = outcome === 'heads' ? '🪙' : '🔴';
-                if (playerWins) {
-                    win = bet * 2;
-                    winText = `✅ ${got}! Выигрыш: +${casinoFormat(win)}`;
-                    result.style.color = '#55ff55';
-                } else {
-                    winText = `❌ ${got}. Потеряно: ${casinoFormat(bet)}`;
-                    result.style.color = '#ff5555';
-                }
-            } else if (_casinoGame === 'dice') {
-                // Том 17: динамический шанс
+                let coin = document.getElementById('coinVisual');
+                coin.style.animation = 'none';
+                coin.style.transition = 'transform 1s ease-out';
+                coin.style.transform = `rotateY(${outcome === 'heads' ? 0 : 180}deg)`;
+                coin.textContent = outcome === 'heads' ? '🦅' : '🪙';
+                if (playerWins) { win = bet * 2; winText = `✅ ${got}! Выигрыш: +${casinoFormat(win)}`; result.style.color = '#55ff55'; }
+                else { winText = `❌ ${got}. Потеряно: ${casinoFormat(bet)}`; result.style.color = '#ff5555'; }
+            } 
+            else if (_casinoGame === 'dice') {
                 let playerWins = Math.random() < casinoGetWinChance();
-                let roll;
-                if (playerWins) {
-                    roll = parseInt(_casinoChoice);
-                } else {
-                    do {
-                        roll = Math.floor(Math.random() * 6) + 1;
-                    } while (roll === parseInt(_casinoChoice));
+                let roll = playerWins ? parseInt(_casinoChoice) : Math.floor(Math.random() * 6) + 1;
+                if (!playerWins && roll === parseInt(_casinoChoice)) roll = (roll % 6) + 1;
+                let dice = document.getElementById('diceVisual');
+                dice.style.animation = 'none';
+                dice.style.transition = 'transform 0.5s';
+                dice.style.transform = 'rotate(0deg)';
+                renderDiceVisual(dice, roll);
+                if (playerWins) { win = bet * 5; winText = `✅ Выпало ${roll}! Выигрыш: +${casinoFormat(win)}`; result.style.color = '#55ff55'; }
+                else { winText = `❌ Выпало ${roll}. Потеряно: ${casinoFormat(bet)}`; result.style.color = '#ff5555'; }
+            } 
+            else if (_casinoGame === 'roulette') {
+                // СЧИТЫВАЕМ УГОЛ ПОД СТРЕЛКОЙ (стрелка сверху, 0 градусов)
+                let normalized = _rouletteCurrentRotation % 360;
+                if (normalized < 0) normalized += 360;
+                
+                let angleUnderArrow = (360 - normalized) % 360;
+
+                // Определяем цвет по новым секторам
+                let outcome = 'red';
+                if (angleUnderArrow >= 0 && angleUnderArrow < 120) outcome = 'red';
+                else if (angleUnderArrow >= 120 && angleUnderArrow < 180) outcome = 'grey';
+                else if (angleUnderArrow >= 180 && angleUnderArrow < 300) outcome = 'black';
+                else outcome = 'green';
+
+                let got = outcome === 'red' ? 'КРАСНОЕ' : outcome === 'black' ? 'ЧЁРНОЕ' : outcome === 'green' ? 'ЗЕРО' : 'СЕРОЕ (ПУСТО)';
+                let playerWins = (outcome === _casinoChoice);
+
+                if (playerWins) { 
+                    win = outcome === 'green' ? bet * 14 : bet * 2; 
+                    winText = `✅ ${got}! Выигрыш: +${casinoFormat(win)}`; 
+                    result.style.color = '#55ff55'; 
                 }
-                emoji = ['⚀','⚁','⚂','⚃','⚄','⚅'][roll - 1];
-                if (playerWins) {
-                    win = bet * 5;
-                    winText = `✅ Выпало ${roll}! Выигрыш: +${casinoFormat(win)}`;
-                    result.style.color = '#55ff55';
-                } else {
-                    winText = `❌ Выпало ${roll}. Потеряно: ${casinoFormat(bet)}`;
-                    result.style.color = '#ff5555';
+                else { 
+                    winText = `❌ ${got}. Потеряно: ${casinoFormat(bet)}`; 
+                    result.style.color = '#ff5555'; 
                 }
-            } else if (_casinoGame === 'roulette') {
-                // Том 17: динамический шанс
-                let playerWins = Math.random() < casinoGetWinChance();
-                let outcome;
-                if (playerWins) {
-                    outcome = _casinoChoice;
-                } else {
-                    do {
-                        let r = Math.random();
-                        if (r < 0.35) outcome = 'red';
-                        else if (r < 0.70) outcome = 'black';
-                        else outcome = 'green';
-                    } while (outcome === _casinoChoice);
-                }
-                // Подбираем число под исход
-                let n;
-                if (outcome === 'green') n = 0;
-                else if (outcome === 'red') {
-                    do { n = Math.floor(Math.random() * 36) + 1; } while (n % 2 !== 0);
-                } else {
-                    do { n = Math.floor(Math.random() * 36) + 1; } while (n % 2 === 0);
-                }
-                emoji = outcome === 'red' ? '🔴' : outcome === 'black' ? '⚫' : '🟢';
-                let got = outcome === 'red' ? 'КРАСНОЕ' : outcome === 'black' ? 'ЧЁРНОЕ' : 'ЗЕРО';
-                if (playerWins) {
-                    win = outcome === 'green' ? bet * 14 : bet * 2;
-                    winText = `✅ ${got} (${n})! Выигрыш: +${casinoFormat(win)}`;
-                    result.style.color = '#55ff55';
-                } else {
-                    winText = `❌ ${got} (${n}). Потеряно: ${casinoFormat(bet)}`;
-                    result.style.color = '#ff5555';
-                }
-            } else if (_casinoGame === 'slots') {
-                // Том 17: динамический шанс
-                let symbols = ['🍒','🍋','🍇','⭐','💎','7️⃣'];
-                let playerWins = Math.random() < casinoGetWinChance();
+            } 
+            else if (_casinoGame === 'slots') {
+                // ТУТ НИЧЕГО НЕ МЕНЯЕМ, СЛОТЫ ТЕБЯ УСТРАИВАЮТ
                 let r = [];
-                if (playerWins) {
-                    // Выигрышная комбинация: 2 или 3 совпадения
-                    let winRoll = Math.random();
-                    if (winRoll < 0.02) {
-                        // Три семёрки (очень редко)
-                        r = ['7️⃣', '7️⃣', '7️⃣'];
-                    } else if (winRoll < 0.10) {
-                        // Три в ряд (не 7)
-                        let s = symbols[Math.floor(Math.random() * 5)];
-                        r = [s, s, s];
-                    } else {
-                        // Два совпадения
-                        let s = symbols[Math.floor(Math.random() * symbols.length)];
-                        let other = symbols[Math.floor(Math.random() * symbols.length)];
-                        if (other === s) other = symbols[(symbols.indexOf(s) + 1) % symbols.length];
-                        let pos = Math.floor(Math.random() * 3);
-                        r = [s, s, s];
-                        r[pos] = other;
-                    }
-                } else {
-                    // Проигрышная комбинация: все разные
-                    do {
-                        r = [];
-                        for (let i = 0; i < 3; i++) r.push(symbols[Math.floor(Math.random() * symbols.length)]);
-                    } while (r[0] === r[1] || r[1] === r[2] || r[0] === r[2]);
+                for (let i = 1; i <= 3; i++) {
+                    let el = document.getElementById('reel' + i);
+                    let symbol = el.children[10] ? el.children[10].textContent : '🍒';
+                    r.push(symbol);
                 }
-                emoji = r.join(' ');
+
                 if (r[0] === r[1] && r[1] === r[2]) {
-                    if (r[0] === '7️⃣') {
-                        win = bet * 100;
-                        winText = `🎉 ТРИ СЕМЁРКИ! Выигрыш: +${casinoFormat(win)}`;
-                    } else {
-                        win = bet * 10;
-                        winText = `🎉 ТРИ В РЯД! Выигрыш: +${casinoFormat(win)}`;
-                    }
-                    result.style.color = '#55ff55';
+                    win = r[0] === '7️⃣' ? bet * 100 : bet * 10;
+                    winText = `🎉 ТРИ В РЯД! Выигрыш: +${casinoFormat(win)}`; result.style.color = '#55ff55';
                 } else if (r[0] === r[1] || r[1] === r[2] || r[0] === r[2]) {
                     win = bet * 3;
-                    winText = `✨ Два совпали! Выигрыш: +${casinoFormat(win)}`;
-                    result.style.color = '#55ff55';
+                    winText = `✨ Два совпали! Выигрыш: +${casinoFormat(win)}`; result.style.color = '#55ff55';
                 } else {
-                    winText = `❌ Не повезло. Потеряно: ${casinoFormat(bet)}`;
-                    result.style.color = '#ff5555';
+                    winText = `❌ Не повезло. Потеряно: ${casinoFormat(bet)}`; result.style.color = '#ff5555';
                 }
             }
 
-            display.textContent = emoji;
-            if (win > 0) {
-                casinoEarn(win);
-                _casinoWins++;
-                _casinoLossStreak = 0; // Том 17: сброс серии проигрышей
-                playSound('buy');
-            } else {
-                _casinoLosses++;
-                _casinoLossStreak++;   // Том 17: увеличиваем серию
-                playSound('error');
-            }
+            if (win > 0) { casinoEarn(win); _casinoWins++; _casinoLossStreak = 0; playSound('buy'); } 
+            else { _casinoLosses++; _casinoLossStreak++; playSound('error'); }
+
             result.textContent = winText;
             casinoUpdateBalance();
             updateUI();
             saveGame();
-
-            // Том 16: разблокировать UI
             casinoSetLocked(false);
         }
 
@@ -6404,10 +7835,49 @@
             if (_ac > 0 || isDeveloper) { let currentAuto = getAutoPower(); _s += currentAuto; updateUI(); }
         }, 900);
 
-        // --- Том 11+12: автосохранение каждые 5 секунд ---
+        // --- Умное автосохранение ---
+        // Каждые 5 секунд — если есть изменения и вкладка активна
         setInterval(() => {
-            if (window.fbGetUser && window.fbGetUser()) saveGame();
+            if (!window.fbGetUser || !window.fbGetUser()) return;
+            // Не сохраняем, если вкладка в фоне (сэкономим запросы)
+            if (document.hidden) return;
+            saveGame();
         }, 5000);
+
+        // Сохранение при уходе со вкладки (сворачивание, переключение)
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && window.fbGetUser && window.fbGetUser()) {
+                saveGameNow();
+            }
+        });
+
+        // Сохранение при закрытии (страховка для ПК)
+        window.addEventListener('beforeunload', () => {
+            if (window.fbGetUser && window.fbGetUser()) {
+                saveGameNow();
+            }
+        });
+
+        // При восстановлении сети — сразу отправляем отложенное
+        window.addEventListener('online', () => {
+            if (_saveQueue && !_saveInFlight) {
+                saveGameNow();
+            }
+        });
+
+        // --- Том 2 perf: тяжёлые проверки в отдельных таймерах ---
+        // Ачивки — раз в 2 сек (не требуют мгновенной реакции)
+        setInterval(() => {
+            if (window.fbGetUser && window.fbGetUser()) checkAchievements();
+        }, 2000);
+        // Квесты — раз в 2 сек (150 итераций на вызов)
+        setInterval(() => {
+            if (window.fbGetUser && window.fbGetUser()) checkQuestsCompletion();
+        }, 2000);
+        // Дерево навыков — только если модалка реально открыта
+        setInterval(() => {
+            if (document.getElementById('skillTreeModal').classList.contains('active')) renderSkillTree();
+        }, 1000);
 
         // --- Том 11 fix: мгновенный подхват через Firebase onValue ---
         // Никаких setInterval — подписка на изменения в базе.
@@ -6422,40 +7892,112 @@
             }
             if (_saveWatchStarted) return;
             _saveWatchStarted = true;
-            // ДИАГНОСТИКА: показываем в заголовке вкладки, что подписка стартовала
-			window.fbWatchSave(activeMode, (d) => {
-				if (!d) return;
-				// Защита: 2 секунды после подхвата НЕ сохраняем своё
-				_isApplyingRemote = true;
-				clearTimeout(window._remoteLockTimer);
-				window._remoteLockTimer = setTimeout(() => { _isApplyingRemote = false; }, 2000);
-                let changed = false;
-                if (typeof d._s === 'number' && d._s !== _s) { _s = d._s; changed = true; }
-                if (typeof d._ms === 'number' && d._ms !== _ms) { _ms = d._ms; changed = true; }
-                if (typeof d._pp === 'number' && d._pp !== _pp) { _pp = d._pp; changed = true; }
-                if (typeof d._p === 'number' && d._p !== _p) { _p = d._p; changed = true; }
-                if (typeof d._l === 'number' && d._l !== _l) {
-                    _l = d._l;
-                    _nx = Math.floor(10000 * Math.pow(1.15, _l - 1));
-                    changed = true;
+            window.fbWatchSave(activeMode, (d) => {
+                if (!d) return;
+                
+                let serverScore = d._s || 0;
+                let serverMs = d._ms || 0;
+                let serverDia = d._dia || 0;
+                
+                let serverValue = serverScore + (serverMs * 10000) + (serverDia * 1000000);
+                let localValue = _s + (_ms * 10000) + (_dia * 1000000);
+                
+                // Если серверные данные ОТЛИЧАЮТСЯ от локальных (и это не наше сохранение) — подтягиваем
+                let isCurrencyDifferent = (serverScore !== Math.floor(_s)) || (serverMs !== Math.floor(_ms)) || (serverDia !== Math.floor(_dia));
+                
+                if (isCurrencyDifferent || serverValue > localValue) {
+                    _isApplyingRemote = true;
+                    clearTimeout(window._remoteLockTimer);
+                    window._remoteLockTimer = setTimeout(() => { _isApplyingRemote = false; }, 2000);
+                    
+                    let changed = false;
+                    if (typeof d._s === 'number' && Math.floor(d._s) !== Math.floor(_s)) { _s = d._s; changed = true; }
+                    if (typeof d._ms === 'number' && Math.floor(d._ms) !== Math.floor(_ms)) { _ms = d._ms; changed = true; }
+                    if (typeof d._dia === 'number' && Math.floor(d._dia) !== Math.floor(_dia)) { _dia = d._dia; changed = true; }
+                    if (typeof d._p === 'number' && d._p !== _p) { _p = d._p; changed = true; }
+                    if (typeof d._l === 'number' && d._l !== _l) {
+                        _l = d._l;
+                        _nx = Math.floor(10000 * Math.pow(1.15, _l - 1));
+                        changed = true;
+                    }
+                    if (typeof d._xp === 'number' && d._xp !== _xp) { _xp = d._xp; changed = true; }
+                    if (typeof d._tc === 'number' && d._tc !== _tc) { _tc = d._tc; changed = true; }
+                    if (typeof d._cp === 'number' && d._cp !== _cp) { _cp = d._cp; changed = true; }
+                    if (typeof d._ac === 'number' && d._ac !== _ac) { _ac = d._ac; changed = true; }
+                    if (typeof d._ucc === 'number' && d._ucc !== _ucc) { _ucc = d._ucc; changed = true; }
+                    if (typeof d._uac === 'number' && d._uac !== _uac) { _uac = d._uac; changed = true; }
+                    if (typeof d._pp === 'number' && d._pp !== _pp) { _pp = d._pp; changed = true; }
+                    if (typeof d._acm === 'number' && d._acm !== _acm) { _acm = d._acm; changed = true; }
+                    if (typeof d._aam === 'number' && d._aam !== _aam) { _aam = d._aam; changed = true; }
+                    if (typeof d._evo === 'number' && d._evo !== _evo) { _evo = d._evo; changed = true; }
+                    
+                    // Синхронизация скиллов
+                    if (d.skills) {
+                        for (let k in skills) {
+                            if (d.skills[k] && typeof d.skills[k].level === 'number' && d.skills[k].level !== skills[k].level) {
+                                skills[k].level = d.skills[k].level;
+                                changed = true;
+                            }
+                        }
+                    }
+                    // Синхронизация апгрейдов
+                    if (d.upgrades) {
+                        for (let k in upgrades) {
+                            if (d.upgrades[k] && typeof d.upgrades[k].level === 'number' && d.upgrades[k].level !== upgrades[k].level) {
+                                upgrades[k].level = d.upgrades[k].level;
+                                changed = true;
+                            }
+                        }
+                    }
+                    // Синхронизация буста
+                    if (typeof d._ba === 'boolean' && d._ba !== _ba) {
+                        _ba = d._ba;
+                        _btl = d._btl || 0;
+                        if (boostBox) boostBox.style.display = _ba ? 'block' : 'none';
+                        if (boostTimer) boostTimer.textContent = _btl;
+                        changed = true;
+                    } else if (_ba && typeof d._btl === 'number' && d._btl !== _btl) {
+                        _btl = d._btl;
+                        if (boostTimer) boostTimer.textContent = _btl;
+                        changed = true;
+                    }
+                    // Синхронизация авто-буста
+                    if (typeof d.autoBuyBoost === 'boolean' && d.autoBuyBoost !== settings.autoBuyBoost) { 
+                        settings.autoBuyBoost = d.autoBuyBoost; 
+                        updateAutoBuyBoostUI(); 
+                        saveSettings(); 
+                        changed = true; 
+                    }
+                    
+                    if (changed) {
+                        updateUI();
+                        console.log('🔄 Подтянуты данные с другого устройства!');
+                        _setSyncDotState('sync'); // Зажигаем НОВЫЙ индикатор
+                        
+                        // Том 4: Проверяем ачивки после синхронизации
+                        // Задержка 500 мс, чтобы уведомление пришло после обновления UI
+                        setTimeout(() => {
+                            checkAchievements();
+                        }, 500);
+                    }
                 }
-                if (typeof d._xp === 'number' && d._xp !== _xp) { _xp = d._xp; changed = true; }
-                if (typeof d._tc === 'number' && d._tc !== _tc) { _tc = d._tc; changed = true; }
-                if (typeof d._acm === 'number' && d._acm !== _acm) { _acm = d._acm; changed = true; }
-                if (typeof d._aam === 'number' && d._aam !== _aam) { _aam = d._aam; changed = true; }
-				if (changed) updateUI();
             });
         }
 
         setInterval(() => {
-            // Тик буста
+            // Тик буста (локально)
             if (_ba) {
                 _btl--;
-                if (buyBoostBtn.querySelector('.card-price')) {
+                // Обновляем плашку на главном экране
+                if (boostTimer) boostTimer.textContent = _btl;
+                if (boostBox) boostBox.style.display = 'block';
+                // Обновляем кнопку в магазине
+                if (buyBoostBtn && buyBoostBtn.querySelector('.card-price')) {
                     buyBoostBtn.querySelector('.card-price').textContent = `${_btl}с`;
                 }
                 if (_btl <= 0) {
                     _ba = false;
+                    if (boostBox) boostBox.style.display = 'none';
                     playSound('error');
                     updateUI();
                 }
@@ -6484,32 +8026,42 @@
             const textElement = document.createElement('div');
             textElement.classList.add('floating-text');
             textElement.textContent = value; textElement.style.color = color;
-            const rect = gameContainer.getBoundingClientRect();
-            textElement.style.left = `${event.clientX - rect.left}px`;
-            textElement.style.top = `${event.clientY - rect.top}px`;
-            gameContainer.appendChild(textElement);
+            // Том 2 fix: координаты строго от курсора (position:fixed = экранные координаты)
+            textElement.style.position = 'fixed';
+            textElement.style.left = `${event.clientX}px`;
+            textElement.style.top  = `${event.clientY}px`;
+            textElement.style.zIndex = '100';
+            document.body.appendChild(textElement);
             setTimeout(() => textElement.remove(), 500);
         }
 
+        // Том 1: ограничение партиклов
+        let _lastParticleTime = 0;
         function spawnParticles(event) {
             if (!settings.particles) return;
-            for (let i = 0; i < 12; i++) {
+            // Не спавним чаще, чем раз в 80 мс (защита от лагов при быстрых кликах)
+            let now = Date.now();
+            if (now - _lastParticleTime < 80) return;
+            _lastParticleTime = now;
+
+            // Уменьшили количество с 12 до 5
+            for (let i = 0; i < 5; i++) {
                 const p = document.createElement('div');
                 p.classList.add('mc-particle');
                 p.style.left = `${event.clientX}px`; p.style.top = `${event.clientY}px`;
                 document.body.appendChild(p);
                 const angle = Math.random() * Math.PI * 2;
-                const speed = Math.random() * 5 + 2;
-                let vx = Math.cos(angle) * speed, vy = Math.sin(angle) * speed - 3;
+                const speed = Math.random() * 4 + 1.5;
+                let vx = Math.cos(angle) * speed, vy = Math.sin(angle) * speed - 2;
                 let px = event.clientX, py = event.clientY;
                 const interval = setInterval(() => {
-                    vy += 0.4; px += vx; py += vy;
+                    vy += 0.35; px += vx; py += vy;
                     p.style.left = `${px}px`; p.style.top = `${py}px`;
-                    const s = parseFloat(p.style.width) || 10;
-                    if (s > 2) { p.style.width = `${s - 0.5}px`; p.style.height = `${s - 0.5}px`; }
+                    const s = parseFloat(p.style.width) || 8;
+                    if (s > 1.5) { p.style.width = `${s - 0.4}px`; p.style.height = `${s - 0.4}px`; }
                     else { clearInterval(interval); p.remove(); }
                 }, 30);
-                setTimeout(() => { clearInterval(interval); p.remove(); }, 700);
+                setTimeout(() => { clearInterval(interval); p.remove(); }, 500);
             }
         }
 
@@ -6758,7 +8310,7 @@
         });
 		
 		// ============================================
-        // АККАУНТЫ + FIREBASE + YOUTUBE (v26.10.8)
+        // АККАУНТЫ + FIREBASE + YOUTUBE (v26.10.10)
         // ============================================
 
         // --- Список треков по умолчанию (увеличен) ---
@@ -9368,9 +10920,9 @@ let unread = (c.lastMessageTs > c.lastRead && c.lastMessageFrom !== (me ? me.uid
                             <div class="friend-meta">ID: ${(f && f.gameId) || '—'} • Ур. ${(f && f.level) || 1} • ${formatLastOnline(displayLastOnline)}</div>
                         </div>
                         <div class="friend-actions">
-                            <button class="friend-btn-sm blue" data-action="view" data-uid="${f.uid}">👁</button>
-                            <button class="friend-btn-sm green" data-action="gift" data-uid="${f.uid}">🎁</button>
-                            <button class="friend-btn-sm red" data-action="remove" data-uid="${f.uid}">✕</button>
+                            <button class="friend-btn-sm blue" data-action="view" data-uid="${f.uid}">👁 Профиль</button>
+                            <button class="friend-btn-sm green" data-action="gift" data-uid="${f.uid}">🎁 Подарок</button>
+                            <button class="friend-btn-sm red" data-action="remove" data-uid="${f.uid}">✕ Удалить</button>
                         </div>
                     `;
                     list.appendChild(card);
@@ -9476,10 +11028,10 @@ let unread = (c.lastMessageTs > c.lastRead && c.lastMessageFrom !== (me ? me.uid
                 card.innerHTML = `
                     <div class="friend-info">
                         <div class="friend-name">🎁 От ${g.fromNickname || '—'}</div>
-                        <div class="friend-meta">${g.type === 'cha' ? '💰' : '🍄'} ${g.amount.toLocaleString()}</div>
+                        <div class="friend-meta">${g.type === 'cha' ? '💰 Чача' : '🍄 Грибочки'} ${g.amount.toLocaleString()}</div>
                     </div>
                     <div class="friend-actions">
-                        <button class="friend-btn-sm green" data-gift="${g.id}" data-type="${g.type}" data-amount="${g.amount}">ЗАБРАТЬ</button>
+                        <button class="friend-btn-sm green" data-gift="${g.id}" data-type="${g.type}" data-amount="${g.amount}">✔ Забрать</button>
                     </div>
                 `;
                 list.appendChild(card);
@@ -9647,19 +11199,7 @@ let unread = (c.lastMessageTs > c.lastRead && c.lastMessageFrom !== (me ? me.uid
             if (window.fbGetUser && window.fbGetUser()) checkFriendsNotifs();
         }, 8000);
 
-        // --- Обновляем публичный профиль при сохранении ---
-        const _origSaveGame = saveGame;
-        saveGame = async function() {
-            await _origSaveGame();
-            if (window.fbGetUser && window.fbGetUser() && window.fbUpdatePublicProfile) {
-                await window.fbUpdatePublicProfile({
-                    level: _l,
-                    prestige: _p,
-                    evolution: _evo,
-                    avatar: userAvatar || ''
-                });
-            }
-        };
+        // Обновление публичного профиля встроено в saveGame (см. функцию saveGame выше)
 
 		// --- ТОМ 3.5: Проверка ссылки-приглашения при запуске ---
         (function checkInviteLink() {
@@ -9734,39 +11274,63 @@ let unread = (c.lastMessageTs > c.lastRead && c.lastMessageFrom !== (me ? me.uid
                     }
                     // Загружаем сохранение выбранного режима
                     let saveRes = await window.fbLoad(activeMode);
-                    let offlineEarned = 0;
-                    let offlineSeconds = 0;
+                    
                     if (saveRes.success && saveRes.data) {
-                        // Том 20: считаем оффлайн-доход ДО применения сохранения
-                        if (saveRes.data.settings && saveRes.data.settings.lastOnline) {
-                            let lastOnline = saveRes.data.settings.lastOnline;
-                            let now = Date.now();
-                            let diffSec = Math.floor((now - lastOnline) / 1000);
-                            if (diffSec > 0) {
-                                let maxSec = 7 * 24 * 60 * 60;
-                                if (diffSec > maxSec) diffSec = maxSec;
-                                if (activeMode === 'normal') {
-                                    // Считаем авто-доход из сохранения
-                                    let tempAuto = (saveRes.data._ac || 0) * (saveRes.data._aam || 1);
-                                    offlineEarned = tempAuto * diffSec;
-                                    offlineSeconds = diffSec;
+                        let serverData = saveRes.data;
+                        let serverScore = serverData._s || 0;
+                        let serverMs = serverData._ms || 0;
+                        let serverDia = serverData._dia || 0;
+                        
+                        let serverValue = serverScore + (serverMs * 10000) + (serverDia * 1000000);
+                        let localValue = _s + (_ms * 10000) + (_dia * 1000000);
+                        
+                        console.log('Сервер:', serverScore, 'чачи. Локально:', _s, 'чачи.');
+                        
+                        // ГЛАВНОЕ ПРАВИЛО: Если на сервере больше — загружаем сервер. 
+                        // Если локально больше — сохраняем локальное на сервер.
+                        if (serverValue > localValue) {
+                            console.log('✅ Сервер ценнее — загружаем его данные');
+                            applySave(serverData);
+                            
+                            // Оффлайн-доход
+                            if (serverData.settings && serverData.settings.lastOnline) {
+                                let lastOnline = serverData.settings.lastOnline;
+                                let now = Date.now();
+                                let diffSec = Math.floor((now - lastOnline) / 1000);
+                                if (diffSec > 0) {
+                                    let maxSec = 7 * 24 * 60 * 60;
+                                    if (diffSec > maxSec) diffSec = maxSec;
+                                    if (activeMode === 'normal') {
+                                        let tempAuto = (serverData._ac || 0) * (serverData._aam || 1);
+                                        let up1 = 1 + ((serverData.upgrades?.autoBoost?.level || 0) * 0.05);
+                                        let up2 = 1 + ((serverData.upgrades?.autoBoost2?.level || 0) * 0.10);
+                                        let up3 = 1 + ((serverData.upgrades?.autoBoost3?.level || 0) * 0.15);
+                                        let global = 1 + ((serverData.upgrades?.globalBoost?.level || 0) * 0.25);
+                                        let prestigeBonus = 1 + ((serverData._p || 0) * 0.05);
+                                        let offlineEarned = tempAuto * up1 * up2 * up3 * global * prestigeBonus * diffSec;
+                                        if (offlineEarned > 0) {
+                                            _s += offlineEarned;
+                                            let offlineXp = diffSec * 0.5 * _cp;
+                                            if (offlineXp > 0) addXp(offlineXp);
+                                            setTimeout(() => showOfflineModal(offlineEarned, diffSec), 500);
+                                        }
+                                    }
                                 }
                             }
+                        } else if (localValue > serverValue) {
+                            console.log('⚠️ Локально ценнее — отправляем на сервер');
+                            saveGameNow(); // Отправляем локальные данные, чтобы сервер обновился
+                        } else {
+                            console.log('= Ценность равна — загружаем сервер');
+                            applySave(serverData);
                         }
-                        applySave(saveRes.data);
-                        // Том 11 fix: теперь можно проверять ачивки
+                        
                         _achievementsLoaded = true;
-                        // Том 20: добавляем оффлайн-доход
-                        if (offlineEarned > 0) {
-                            _s += offlineEarned;
-                            // Том 6: оффлайн даёт 0.5 XP × сила кирки в секунду
-                            let offlineXp = offlineSeconds * 0.5 * _cp;
-                            if (offlineXp > 0) addXp(offlineXp);
-                            setTimeout(() => showOfflineModal(offlineEarned, offlineSeconds), 500);
-                        }
+                        _isLoadedFromServer = true; // Данные загружены, можно сохранять
                     }
-                    // Том 11 fix: если данных нет — тоже разрешаем проверку ачивок
+                    
                     if (!_achievementsLoaded) _achievementsLoaded = true;
+                    _isLoadedFromServer = true;
 
                     isDeveloper = (activeMode === 'developer');
                     document.getElementById('devBadge').classList.toggle('active', isDeveloper);
