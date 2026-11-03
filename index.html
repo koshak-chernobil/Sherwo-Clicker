@@ -11409,7 +11409,6 @@ let unread = (c.lastMessageTs > c.lastRead && c.lastMessageFrom !== (me ? me.uid
         });
 
     </script>
-    <script type="module" src="firebase.js"></script>
 
     <!-- Том 3.6 / PWA: Регистрация Service Worker -->
     <script>
@@ -11441,79 +11440,8 @@ let unread = (c.lastMessageTs > c.lastRead && c.lastMessageFrom !== (me ? me.uid
             }
         }, true); // Перехват на фазе захвата — раньше карточки чата
     </script>
-	
-    <!-- Discord RPC (WebSocket) -->
-    <script>
-        (function() {
-            const CLIENT_ID = '1567140647348076564';
-            let ws = null;
-            let isConnected = false;
-            let statusInterval = null;
-            let reconnectTimer = null;
 
-            // Функция отправки статуса
-            function updateStatus() {
-                if (!ws || ws.readyState !== WebSocket.OPEN) return;
-
-                const payload = {
-                    cmd: "SET_ACTIVITY",
-                    args: {
-                        pid: 9999, // Условный ID, Discord в браузере его игнорирует
-                        activity: {
-                            details: "Уровень: " + (typeof _l !== 'undefined' ? _l : 1),
-                            state: "Чача: " + (typeof _s !== 'undefined' ? Math.floor(_s).toLocaleString() : 0) + " 💰",
-                            assets: {
-                                large_image: "mushroom",
-                                large_text: "Шерво Кликер"
-                            },
-                            buttons: [{ label: "Играть", url: "https://sherwoclicker.srula.online/" }],
-                            instance: false
-                        }
-                    },
-                    nonce: Date.now().toString()
-                };
-
-                ws.send(JSON.stringify(payload));
-            }
-
-            function connect(port) {
-                if (port > 6472) return; // Пробуем только порты Discord
-
-                try {
-                    // ВАЖНО: discord требует v=1 и encoding=json в URL
-                    ws = new WebSocket(`ws://127.0.0.1:${port}/?v=1&client_id=${CLIENT_ID}&encoding=json`);
-
-                    ws.onopen = () => {
-                        console.log(`✅ Discord RPC подключен (порт ${port})`);
-                        isConnected = true;
-                        updateStatus();
-                        if (statusInterval) clearInterval(statusInterval);
-                        statusInterval = setInterval(updateStatus, 15000);
-                    };
-
-                    ws.onerror = () => {
-                        // Тихо закрываем и пробуем следующий порт
-                        ws.close();
-                        if (!isConnected) connect(port + 1);
-                    };
-
-                    ws.onclose = () => {
-                        isConnected = false;
-                        if (statusInterval) clearInterval(statusInterval);
-                        
-                        // Если связь потеряна, пробуем переподключиться через 10 секунд
-                        if (reconnectTimer) clearTimeout(reconnectTimer);
-                        reconnectTimer = setTimeout(() => connect(6463), 10000);
-                    };
-
-                } catch (e) {
-                    if (!isConnected) connect(port + 1);
-                }
-            }
-
-            // Запускаем поиск Discord через 3 секунды после загрузки
-            setTimeout(() => connect(6463), 3000);
-        })();
-    </script>
+    <script src="discord-rpc.js"></script>
+	<script type="module" src="firebase.js"></script>
 </body>
 </html>
