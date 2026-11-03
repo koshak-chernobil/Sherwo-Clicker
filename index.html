@@ -11444,37 +11444,52 @@ let unread = (c.lastMessageTs > c.lastRead && c.lastMessageFrom !== (me ? me.uid
 	
       <!-- Discord RPC через модуль -->
     <script type="module">
-        // Тот же импорт, но без указания transport
         import { Client } from "https://esm.sh/@xhayper/discord-rpc@1.5.1";
 
         const DISCORD_CLIENT_ID = '1567140647348076564';
 
-        // Инициализируем клиент правильно для браузера
-        const client = new Client({ clientId: DISCORD_CLIENT_ID });
+        // Явно указываем WebSocket, так как браузер не умеет в IPC
+        const client = new Client({ 
+            clientId: DISCORD_CLIENT_ID,
+            transport: { type: 'websocket' } 
+        });
 
         client.on("ready", () => {
             console.log('✅ Discord RPC подключен!');
             
             const updateStatus = () => {
                 if (!client.user) return;
-                client.user.setActivity({
-                    details: "Уровень: " + (typeof _l !== 'undefined' ? _l : 1),
-                    state: "Чача: " + (typeof _s !== 'undefined' ? Math.floor(_s).toLocaleString() : 0) + " 💰",
-                    assets: {
-                        large_image: "mushroom",
-                        large_text: "Шерво Кликер"
-                    },
-                    buttons: [{ label: "Играть", url: "https://sherwoclicker.srula.online/" }]
-                });
+                try {
+                    client.user.setActivity({
+                        details: "Уровень: " + (typeof _l !== 'undefined' ? _l : 1),
+                        state: "Чача: " + (typeof _s !== 'undefined' ? Math.floor(_s).toLocaleString() : 0) + " 💰",
+                        assets: {
+                            large_image: "mushroom",
+                            large_text: "Шерво Кликер"
+                        },
+                        buttons: [{ label: "Играть", url: "https://sherwoclicker.srula.online/" }]
+                    });
+                } catch(e) {
+                    console.warn('Ошибка установки статуса:', e);
+                }
             };
 
             updateStatus();
             setInterval(updateStatus, 15000);
         });
 
+        // Добавляем обработку ошибки
+        client.on("error", (err) => {
+            console.warn('⚠️ Ошибка Discord RPC:', err.message);
+        });
+
         setTimeout(() => {
             client.login().catch(err => {
                 console.warn('⚠️ Discord RPC не подключился. Причина:', err.message);
+                // Подсказка, если это точно проблема с портом
+                if (err.message.includes('COULD_NOT_CONNECT')) {
+                    console.warn('💡 Убедитесь, что Discord запущен, и в настройках (Activity Privacy) включено "Share your detected activities with others".');
+                }
             });
         }, 3000);
     </script>
