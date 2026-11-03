@@ -11442,52 +11442,78 @@ let unread = (c.lastMessageTs > c.lastRead && c.lastMessageFrom !== (me ? me.uid
         }, true); // Перехват на фазе захвата — раньше карточки чата
     </script>
 	
-    <!-- Discord RPC через модуль (с отладкой) -->
-    <script type="module">
-        import { Client } from "https://esm.sh/@xhayper/discord-rpc@1.5.1";
+    <!-- Discord RPC (WebSocket) -->
+    <script>
+        (function() {
+            const CLIENT_ID = '1567140647348076564';
+            let ws = null;
+            let isConnected = false;
+            let statusInterval = null;
+            let reconnectTimer = null;
 
-        const DISCORD_CLIENT_ID = '1567140647348076564';
-        const client = new Client({ clientId: DISCORD_CLIENT_ID });
+            // Функция отправки статуса
+            function updateStatus() {
+                if (!ws || ws.readyState !== WebSocket.OPEN) return;
 
-        // Включаем подробный лог
-        client.on('debug', (msg) => console.log('[RPC Debug]', msg));
-
-        client.on("ready", () => {
-            console.log('✅ Discord RPC: Клиент готов!');
-            
-            const updateStatus = () => {
-                if (!client.user) return;
-                console.log('📤 Отправка статуса...');
-                client.user.setActivity({
-                    details: "Уровень: " + (typeof _l !== 'undefined' ? _l : 1),
-                    state: "Чача: " + (typeof _s !== 'undefined' ? Math.floor(_s).toLocaleString() : 0) + " 💰",
-                    assets: {
-                        large_image: "mushroom",
-                        large_text: "Шерво Кликер"
+                const payload = {
+                    cmd: "SET_ACTIVITY",
+                    args: {
+                        pid: 9999, // Условный ID, Discord в браузере его игнорирует
+                        activity: {
+                            details: "Уровень: " + (typeof _l !== 'undefined' ? _l : 1),
+                            state: "Чача: " + (typeof _s !== 'undefined' ? Math.floor(_s).toLocaleString() : 0) + " 💰",
+                            assets: {
+                                large_image: "mushroom",
+                                large_text: "Шерво Кликер"
+                            },
+                            buttons: [{ label: "Играть", url: "https://sherwoclicker.srula.online/" }],
+                            instance: false
+                        }
                     },
-                    buttons: [{ label: "Играть", url: "https://sherwoclicker.srula.online/" }]
-                }).then(() => {
-                    console.log('✅ Статус успешно отправлен в Discord!');
-                }).catch(err => {
-                    console.error('❌ Ошибка при отправке статуса:', err);
-                });
-            };
+                    nonce: Date.now().toString()
+                };
 
-            updateStatus();
-            setInterval(updateStatus, 15000);
-        });
+                ws.send(JSON.stringify(payload));
+            }
 
-        client.on("error", (err) => console.error('❌ Ошибка RPC:', err));
+            function connect(port) {
+                if (port > 6472) return; // Пробуем только порты Discord
 
-        setTimeout(() => {
-            console.log('⏳ Попытка подключения к Discord...');
-            client.login().catch(err => {
-                console.error('❌ Не удалось подключиться:', err.message);
-                if (err.message.includes('COULD_NOT_CONNECT')) {
-                    console.error('💡 Discord не отвечает. Проверь, что он запущен и порты 6463-6472 не заблокированы.');
+                try {
+                    // ВАЖНО: discord требует v=1 и encoding=json в URL
+                    ws = new WebSocket(`ws://127.0.0.1:${port}/?v=1&client_id=${CLIENT_ID}&encoding=json`);
+
+                    ws.onopen = () => {
+                        console.log(`✅ Discord RPC подключен (порт ${port})`);
+                        isConnected = true;
+                        updateStatus();
+                        if (statusInterval) clearInterval(statusInterval);
+                        statusInterval = setInterval(updateStatus, 15000);
+                    };
+
+                    ws.onerror = () => {
+                        // Тихо закрываем и пробуем следующий порт
+                        ws.close();
+                        if (!isConnected) connect(port + 1);
+                    };
+
+                    ws.onclose = () => {
+                        isConnected = false;
+                        if (statusInterval) clearInterval(statusInterval);
+                        
+                        // Если связь потеряна, пробуем переподключиться через 10 секунд
+                        if (reconnectTimer) clearTimeout(reconnectTimer);
+                        reconnectTimer = setTimeout(() => connect(6463), 10000);
+                    };
+
+                } catch (e) {
+                    if (!isConnected) connect(port + 1);
                 }
-            });
-        }, 3000);
+            }
+
+            // Запускаем поиск Discord через 3 секунды после загрузки
+            setTimeout(() => connect(6463), 3000);
+        })();
     </script>
 </body>
 </html>
