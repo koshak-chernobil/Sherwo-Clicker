@@ -11437,5 +11437,76 @@ let unread = (c.lastMessageTs > c.lastRead && c.lastMessageFrom !== (me ? me.uid
             }
         }, true); // Перехват на фазе захвата — раньше карточки чата
     </script>
+	
+    <script>
+        // ============================================
+        // DISCORD RICH PRESENCE (26.11.1) - НАТИВНЫЙ
+        // ============================================
+        
+        // Твой ID приложения из Discord Developer Portal
+        const DISCORD_CLIENT_ID = '1567140647348076564'; // <-- ЗАМЕНИ НА СВОЙ ID
+
+        // Получаем CSRF-токен из куки Discord (нужно для авторизации на порту)
+        function getCookie(name) {
+            let value = "; " + document.cookie;
+            let parts = value.split("; " + name + "=");
+            if (parts.length === 2) return parts.pop().split(";").shift();
+        }
+
+        async function setDiscordActivity() {
+            try {
+                // 1. Пытаемся авторизоваться в локальном Discord
+                let res = await fetch('http://127.0.0.1:6463/rpc?v=1', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        cmd: 'SET_ACTIVITY',
+                        args: {
+                            pid: Math.floor(Math.random() * 9999), // ID процесса
+                            activity: {
+                                details: "Уровень: " + (typeof _l !== 'undefined' ? _l : 1),
+                                state: "Чача: " + (typeof _s !== 'undefined' ? Math.floor(_s).toLocaleString() : 0) + " 💰",
+                                assets: {
+                                    large_image: "mushroom", // Имя картинки в твоем Discord портале
+                                    large_text: "Шерво Кликер"
+                                },
+                                timestamps: {
+                                    start: Date.now() // Покажет "играет 0:00"
+                                },
+                                buttons: [
+                                    { label: "Играть", url: "https://sherwoclicker.srula.online/" }
+                                ],
+                                instance: false
+                            }
+                        },
+                        nonce: crypto.randomUUID() // Уникальный ID запроса
+                    })
+                });
+
+                if (res.ok) {
+                    console.log('✅ Discord Rich Presence обновлен!');
+                } else {
+                    console.warn('⚠️ Discord вернул ошибку (возможно, не запущен).');
+                }
+            } catch (e) {
+                console.warn('⚠️ Discord не запущен или порт заблокирован.');
+            }
+        }
+
+        // Запускаем при загрузке и обновляем каждые 15 секунд
+        window.addEventListener('load', () => {
+            setTimeout(setDiscordActivity, 2000);
+            setInterval(setDiscordActivity, 15000);
+        });
+
+        // Перехватываем updateUI для обновления при перерождениях/покупках
+        const originalUpdateUI = window.updateUI;
+        window.updateUI = function() {
+            if (typeof originalUpdateUI === 'function') originalUpdateUI();
+            // Не спамим, обновляем раз в 15 секунд (защита от бана)
+            clearTimeout(window._discordUpdateTimer);
+            window._discordUpdateTimer = setTimeout(setDiscordActivity, 15000);
+        };
+    </script>
 </body>
 </html>
