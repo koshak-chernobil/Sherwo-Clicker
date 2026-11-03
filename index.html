@@ -4087,8 +4087,12 @@
         }
 
         // === ЗВУКИ ===
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let audioCtx = null;
         function playSound(type) {
+            // Ленивая инициализация при первом звуке (после клика пользователя)
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
             if (audioCtx.state === 'suspended') audioCtx.resume();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
