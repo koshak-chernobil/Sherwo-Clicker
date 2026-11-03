@@ -11440,16 +11440,17 @@ let unread = (c.lastMessageTs > c.lastRead && c.lastMessageFrom !== (me ? me.uid
 	
       <!-- Discord RPC через модуль -->
     <script type="module">
-	import { Client } from "https://esm.sh/@xhayper/discord-rpc@1.5.1";
+        // Тот же импорт, но без указания transport
+        import { Client } from "https://esm.sh/@xhayper/discord-rpc@1.5.1";
 
-        const DISCORD_CLIENT_ID = '1567140647348076564'; // Твой ID
+        const DISCORD_CLIENT_ID = '1567140647348076564';
 
+        // Инициализируем клиент правильно для браузера
         const client = new Client({ clientId: DISCORD_CLIENT_ID });
 
         client.on("ready", () => {
-            console.log('✅ Discord RPC (WebSocket) подключен!');
+            console.log('✅ Discord RPC подключен!');
             
-            // Функция обновления статуса
             const updateStatus = () => {
                 if (!client.user) return;
                 client.user.setActivity({
@@ -11464,13 +11465,12 @@ let unread = (c.lastMessageTs > c.lastRead && c.lastMessageFrom !== (me ? me.uid
             };
 
             updateStatus();
-            setInterval(updateStatus, 15000); // Обновляем каждые 15 секунд
+            setInterval(updateStatus, 15000);
         });
 
-        // Пытаемся подключиться (с задержкой, чтобы игра загрузилась)
         setTimeout(() => {
             client.login().catch(err => {
-                console.warn('⚠️ Discord RPC не подключился (WebSocket). Причина:', err.message);
+                console.warn('⚠️ Discord RPC не подключился. Причина:', err.message);
             });
         }, 3000);
     </script>
