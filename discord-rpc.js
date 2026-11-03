@@ -1,6 +1,13 @@
 // discord-rpc.js
 (function() {
     const CLIENT_ID = '1567140647348076564';
+    
+    // Сначала стандартные порты Discord, потом твои дополнительные
+    const PORTS = [
+        6463, 6464, 6465, 6466, // Стандартные Discord RPC
+        1024, 1934, 1936, 65535 // Твои дополнительные порты
+    ];
+    
     let ws = null;
     let isConnected = false;
     let statusInterval = null;
@@ -11,7 +18,6 @@
     function updateStatus() {
         if (!ws || ws.readyState !== WebSocket.OPEN) return;
 
-        // Берем уровень из глобальной переменной игры (если есть)
         const lvl = (typeof _l !== 'undefined') ? _l : 1;
 
         const payload = {
@@ -36,56 +42,77 @@
         log('Статус отправлен (Уровень: ' + lvl + ')');
     }
 
-    function connect(port) {
-        if (port > 6472) {
-            log('Discord не найден на портах 6463-6472');
+    function tryPort(portIndex) {
+        // Если все порты перебрали — ждем минуту и начинаем заново
+        if (portIndex >= PORTS.length) {
+            log('⏳ Discord не найден. Повторная попытка через 60 сек...');
+            if (reconnectTimer) clearTimeout(reconnectTimer);
+            reconnectTimer = setTimeout(() => tryPort(0), 60000);
             return;
         }
 
+        let port = PORTS[portIndex];
         log(`Пробую порт ${port}...`);
-        try {
-            // Используем 127.0.0.1 для надежности
-            ws = new WebSocket(`ws://127.0.0.1:${port}/?v=1&client_id=${CLIENT_ID}&encoding=json`);
 
-            ws.onopen = () => {
+        try {
+            let testWs = new WebSocket(`ws://127.0.0.1:${port}/?v=1&client_id=${CLIENT_ID}&encoding=json`);
+
+            // Таймаут на подключение (500 мс)
+            let timeout = setTimeout(() => {
+                if (testWs.readyState === WebSocket.CONNECTING) {
+                    testWs.close();
+                }
+            }, 500);
+
+            testWs.onopen = () => {
+                clearTimeout(timeout);
                 log(`✅ Подключено к порту ${port}`);
+                ws = testWs;
                 isConnected = true;
+                
+                // Отправляем статус сразу и потом каждые 15 секунд
                 updateStatus();
                 if (statusInterval) clearInterval(statusInterval);
                 statusInterval = setInterval(updateStatus, 15000);
             };
 
-            ws.onerror = (e) => {
-                // Ошибка соединения (например, порт закрыт)
-                ws.close();
-                if (!isConnected) connect(port + 1);
+            testWs.onerror = () => {
+                clearTimeout(timeout);
+                if (!isConnected) {
+                    // Пробуем следующий порт
+                    setTimeout(() => tryPort(portIndex + 1), 100);
+                }
             };
 
-            ws.onclose = () => {
-                if (isConnected) {
-                    log('⚠️ Соединение потеряно. Переподключение через 10 сек...');
+            testWs.onclose = () => {
+                clearTimeout(timeout);
+                if (!isConnected) {
+                    // Если не подключились — пробуем следующий порт
+                    setTimeout(() => tryPort(portIndex + 1), 100);
+                } else {
+                    // Если потеряли связь — переподключаемся
+                    log('⚠️ Соединение потеряно. Переподключение...');
                     isConnected = false;
                     if (statusInterval) clearInterval(statusInterval);
                     if (reconnectTimer) clearTimeout(reconnectTimer);
-                    reconnectTimer = setTimeout(() => connect(6463), 10000);
+                    reconnectTimer = setTimeout(() => tryPort(0), 10000);
                 }
             };
 
         } catch (e) {
-            log(`Ошибка на порту ${port}: ${e.message}`);
-            if (!isConnected) connect(port + 1);
+            setTimeout(() => tryPort(portIndex + 1), 100);
         }
     }
 
-    // --- ЗАЩИТА ОТ ТИШИНЫ ---
-    log('Скрипт Discord RPC загружен и ожидает запуска...');
-    
-    // Запускаем поиск строго через 3 секунды после полной загрузки страницы
+    // Запуск
+    log('Скрипт Discord RPC загружен. Ожидание...');
     if (document.readyState === 'complete') {
-        setTimeout(() => connect(6463), 3000);
+        setTimeout(() => tryPort(0), 3000);
     } else {
         window.addEventListener('load', () => {
-            setTimeout(() => connect(6463), 3000);
+            setTimeout(() => tryPort(0), 3000);
         });
     }
 })();
+
+console.log('🚀 discord-rpc.js загружен!');
