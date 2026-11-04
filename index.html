@@ -11441,7 +11441,27 @@ let unread = (c.lastMessageTs > c.lastRead && c.lastMessageFrom !== (me ? me.uid
         }, true); // Перехват на фазе захвата — раньше карточки чата
     </script>
 
-    <script src="discord-rpc.js"></script>
+    <!-- Discord RPC (через локальный мост) -->
+    <script>
+        (function() {
+            setTimeout(() => {
+                setInterval(() => {
+                    if (typeof _l !== 'undefined') {
+                        fetch('http://127.0.0.1:8080/update', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                details: "Играет в Шерво Кликер",
+                                state: "Уровень: " + _l
+                            })
+                        }).catch(() => {
+                            // Если мост не запущен — просто игнорируем
+                        });
+                    }
+                }, 15000);
+            }, 3000);
+        })();
+    </script>
 	<script type="module" src="firebase.js"></script>
 </body>
 </html>

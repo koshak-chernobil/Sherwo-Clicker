@@ -1,19 +1,15 @@
 // discord-rpc.js
 (function() {
     const CLIENT_ID = '1567140647348076564';
-    
-    // Сначала стандартные порты Discord, потом твои дополнительные
-    const PORTS = [
-        6463, 6464, 6465, 6466, // Стандартные Discord RPC
-        1024, 1934, 1936, 65535 // Твои дополнительные порты
-    ];
+    // Оставляем только стандартные порты Discord
+    const PORTS = [6463, 6464, 6465, 6466];
     
     let ws = null;
     let isConnected = false;
     let statusInterval = null;
     let reconnectTimer = null;
 
-    function log(msg) { console.log(`[RPC] ${msg}`); }
+    function log(msg) { console.warn(`[RPC] ${msg}`); }
 
     function updateStatus() {
         if (!ws || ws.readyState !== WebSocket.OPEN) return;
@@ -43,7 +39,6 @@
     }
 
     function tryPort(portIndex) {
-        // Если все порты перебрали — ждем минуту и начинаем заново
         if (portIndex >= PORTS.length) {
             log('⏳ Discord не найден. Повторная попытка через 60 сек...');
             if (reconnectTimer) clearTimeout(reconnectTimer);
@@ -55,42 +50,30 @@
         log(`Пробую порт ${port}...`);
 
         try {
+            // Убрали кастомный таймаут. Браузер сам закроет, если не выйдет.
+            // Добавили параметры, которые любит Discord
             let testWs = new WebSocket(`ws://127.0.0.1:${port}/?v=1&client_id=${CLIENT_ID}&encoding=json`);
 
-            // Таймаут на подключение (500 мс)
-            let timeout = setTimeout(() => {
-                if (testWs.readyState === WebSocket.CONNECTING) {
-                    testWs.close();
-                }
-            }, 500);
-
             testWs.onopen = () => {
-                clearTimeout(timeout);
                 log(`✅ Подключено к порту ${port}`);
                 ws = testWs;
                 isConnected = true;
                 
-                // Отправляем статус сразу и потом каждые 15 секунд
                 updateStatus();
                 if (statusInterval) clearInterval(statusInterval);
                 statusInterval = setInterval(updateStatus, 15000);
             };
 
             testWs.onerror = () => {
-                clearTimeout(timeout);
-                if (!isConnected) {
-                    // Пробуем следующий порт
-                    setTimeout(() => tryPort(portIndex + 1), 100);
-                }
+                // Просто молча пробуем следующий
             };
 
             testWs.onclose = () => {
-                clearTimeout(timeout);
                 if (!isConnected) {
                     // Если не подключились — пробуем следующий порт
-                    setTimeout(() => tryPort(portIndex + 1), 100);
+                    setTimeout(() => tryPort(portIndex + 1), 500);
                 } else {
-                    // Если потеряли связь — переподключаемся
+                    // Если потеряли связь
                     log('⚠️ Соединение потеряно. Переподключение...');
                     isConnected = false;
                     if (statusInterval) clearInterval(statusInterval);
@@ -100,7 +83,7 @@
             };
 
         } catch (e) {
-            setTimeout(() => tryPort(portIndex + 1), 100);
+            setTimeout(() => tryPort(portIndex + 1), 500);
         }
     }
 
@@ -114,5 +97,3 @@
         });
     }
 })();
-
-console.log('🚀 discord-rpc.js загружен!');

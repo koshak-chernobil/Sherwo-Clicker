@@ -41,17 +41,18 @@ self.addEventListener('activate', event => {
 
 // Перехват запросов (Network First, Fallback to Cache)
 self.addEventListener('fetch', event => {
-    // Пропускаем запросы к Firebase (чтобы не кэшировать базу)
+    // Пропускаем запросы к Firebase, Google и ЛОКАЛЬНОМУ СЕРВЕРУ (мосту)
     if (event.request.url.includes('firebase') || 
         event.request.url.includes('googleapis') || 
         event.request.url.includes('gstatic') ||
-        event.request.url.includes('imgbb')) {
+        event.request.url.includes('imgbb') ||
+        event.request.url.includes('127.0.0.1') || // <--- ДОБАВЛЕНА ЭТА СТРОКА
+        event.request.url.includes('localhost')) { // <--- И ЭТА НА ВСЯКИЙ СЛУЧАЙ
         return;
     }
     event.respondWith(
         fetch(event.request)
             .then(response => {
-                // Кэшируем успешный ответ
                 if (response && response.status === 200) {
                     let responseClone = response.clone();
                     caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseClone));
