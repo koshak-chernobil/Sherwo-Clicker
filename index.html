@@ -18,8 +18,14 @@
             background-repeat: no-repeat;
             background-attachment: fixed;
             display: flex; align-items: center; justify-content: center;
-            min-height: 100vh; user-select: none; overflow: hidden;
+            min-height: 100vh; overflow: hidden;
+            -webkit-user-select: text;
+            user-select: text;
         }
+		#clickButton, .autoclick-toggle-box, .mobile-nav, .game-box, .clicker-area, .notif-toast {
+		    -webkit-user-select: none;
+		    user-select: none;
+		}
         .stats-top { position: fixed; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 5; width: 260px; }
         .stat-badge {
             background: rgba(43, 45, 49, 0.45);
@@ -171,6 +177,15 @@
             border-radius: 50% !important;
         }
         .profile-btn.has-avatar .profile-btn-avatar { display: block; }
+        /* ПУНКТ 8: Баджи */
+        .user-badge-icon {
+            width: 20px; height: 20px;
+            object-fit: contain;
+            image-rendering: pixelated;
+            vertical-align: middle;
+            margin-right: 5px;
+            display: inline-block;
+        }
         .profile-btn.has-avatar .profile-btn-icon { display: none; }
         .profile-btn-icon { font-size: 1rem; }
         /* Том 2 fix: профиль — скролл как в магазине */
@@ -402,7 +417,8 @@
         .tree-inner {
             position: absolute; top: 0; left: 0;
             width: 3000px; height: 3000px;
-            transform-origin: 0 0;
+            /* Точка отсчета — центр сетки */
+            transform-origin: 1500px 1500px; 
             background-image: 
                 linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
@@ -822,8 +838,15 @@
 
         .dev-badge {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: #4a1d1d; border: 3px solid #ff5555; outline: 3px solid #000;
+            background: rgba(74, 29, 29, 0.45);
+            -webkit-backdrop-filter: blur(14px) saturate(150%);
+            backdrop-filter: blur(14px) saturate(150%);
+            border: 1px solid rgba(255, 85, 85, 0.3);
+            outline: 3px solid rgba(0, 0, 0, 0.6);
+            border-radius: 14px;
             padding: 8px 20px; color: #ff5555; font-size: 0.75rem;
+            text-shadow: 1px 1px 0px #000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
             z-index: 300; display: none;
         }
         .dev-badge.active { display: block; }
@@ -1650,9 +1673,10 @@
 
             /* Центральный блок */
             .game-box {
-                padding: 20px 15px;
-                width: 95%;
-                max-width: 95%;
+                padding: 15px 10px; /* Уменьшили внутренние отступы */
+                width: 88%;         /* Сузили до 88% (было 95%) */
+                max-width: 88%;
+                border-radius: 18px; /* Сделали углы чуть аккуратнее */
                 /* margin-top убран отсюда — он задаётся в отдельном блоке ниже */
             }
             .score-box { font-size: 1.2rem; }
@@ -1740,13 +1764,32 @@
                 flex-shrink: 0;
             }
 
-            /* Модалки */
+            /* Модалки на телефоне */
             .window-box {
-                width: 95% !important;
-                max-width: 95% !important;
-                padding: 20px 15px !important;
-                max-height: 85vh !important;
+                width: 85% !important;       /* Значительно уже */
+                max-width: 85% !important;
+                padding: 10px 10px !important; /* Очень маленькие отступы */
+                max-height: 90vh !important;   /* Побольше высоты */
                 margin: 0 auto;
+                border-radius: 16px !important; /* Меньше скругление */
+                outline: 2px solid rgba(0, 0, 0, 0.6) !important; /* Тоньше рамка */
+            }
+            
+            /* Делаем кнопки в мобильных хабах (Магазин, Мини-игры и т.д.) компактнее */
+            .mobile-hub-btn {
+                padding: 10px 12px !important; 
+                font-size: 0.85rem !important;
+            }
+
+            .mobile-hub-btn .hub-icon {
+                font-size: 1.2rem !important; /* Иконки чуть меньше */
+                margin-right: 5px;
+            }
+
+            /* Уменьшаем заголовки внутри модалок */
+            .shop-title {
+                font-size: 1rem !important;
+                margin-bottom: 10px !important;
             }
 
             .shop-title { font-size: 1rem; }
@@ -2793,6 +2836,47 @@
             animation: casinoFlash 0.8s ease-out;
         }
 
+        /* ПУНКТ 4: БАТЛ ПАСС */
+        .bp-line { 
+            cursor: grab; 
+            user-select: none;
+        }
+        .bp-line:active { 
+            cursor: grabbing; 
+        }
+        .bp-line::-webkit-scrollbar { height: 8px; background: #1e1f22; }
+        .bp-line::-webkit-scrollbar-thumb { background: #4e5058; }
+        
+        .bp-level-box {
+            min-width: 65px; width: 65px; height: 85px;
+            background: #2c2e33; border: 2px solid #000; border-radius: 8px;
+            padding: 5px; text-align: center;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+            flex-shrink: 0;
+            position: relative; /* Важно для галочки */
+        }
+        .bp-claimed-badge {
+            position: absolute;
+            top: -5px; right: -5px;
+            background: #55ff55;
+            color: #000;
+            border: 2px solid #000;
+            border-radius: 50%;
+            width: 20px; height: 20px;
+            font-size: 14px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 5px #55ff55;
+            z-index: 2;
+        }
+        .bp-level-box.unlocked { background: #1b521c; border-color: #55ff55; }
+        .bp-level-box.pro-unlocked { background: #4a3f1d; border-color: #ffaa00; }
+        /* Стили для новых состояний */
+        .bp-level-box.claimed { background: #2c2e33 !important; border-color: #111 !important; opacity: 0.5; filter: grayscale(1); }
+        .bp-level-box.locked { background: #222426; border-color: #000; opacity: 0.7; filter: grayscale(0.5); }
+        .bp-level-num { color: #fff; font-size: 0.7rem; font-weight: bold; }
+        .bp-level-icon { font-size: 1.3rem; }
+        .bp-level-reward { color: #aaa; font-size: 0.55rem; text-align: center; line-height: 1.2; }
+
         /* 5. Осколки Бездны: взрыв при ловле бриллианта */
         @keyframes abyssBoom {
             0% { transform: scale(1) rotate(0deg); opacity: 1; }
@@ -2805,6 +2889,86 @@
             font-size: 2rem;
             animation: abyssBoom 0.4s ease-out forwards;
             z-index: 100;
+        }
+		
+		.bp-line::-webkit-scrollbar { height: 8px; background: #1e1f22; }
+        .bp-line::-webkit-scrollbar-thumb { background: #4e5058; }
+        
+        .bp-level-box {
+            min-width: 65px; width: 65px; height: 85px;
+            background: #2c2e33; border: 2px solid #000; border-radius: 8px;
+            padding: 5px; text-align: center;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+            flex-shrink: 0;
+        }
+        .bp-level-box.unlocked { background: #1b521c; border-color: #55ff55; }
+        .bp-level-box.pro-unlocked { background: #4a3f1d; border-color: #ffaa00; }
+        .bp-level-num { color: #fff; font-size: 0.7rem; font-weight: bold; }
+        .bp-level-icon { font-size: 1.3rem; }
+        .bp-level-reward { color: #aaa; font-size: 0.55rem; text-align: center; line-height: 1.2; }
+		
+		        /* ПУНКТ 4: Адаптация Батл Пасса под телефоны */
+        @media (max-width: 955px) {
+            #battlePassModal .window-box {
+                width: 98% !important;
+                padding: 10px !important;
+            }
+            #battlePassModal .shop-title {
+                font-size: 1.1rem;
+                margin-bottom: 10px;
+            }
+            /* Шапка с уровнем */
+            #battlePassModal div[style*="justify-content:space-between; align-items:center"] {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 10px;
+            }
+            #battlePassModal div[style*="display:flex; gap:10px;"] {
+                width: 100%;
+                justify-content: space-between;
+            }
+            #battlePassModal #bpXpBar {
+                width: 100% !important; /* Полоска опыта на всю ширину */
+            }
+            /* Кнопки вкладок */
+            #battlePassModal .custom-modal-btn {
+                flex: 1;
+                padding: 8px 5px !important;
+                font-size: 0.65rem !important;
+            }
+            #buyBattlePassBtn {
+                width: 100%;
+                margin-top: 5px;
+            }
+            /* Сами линии */
+            .bp-line {
+                gap: 8px !important; /* Чуть больше отступ между уровнями */
+            }
+            .bp-level-box {
+                min-width: 55px !important;
+                width: 55px !important;
+                height: 75px !important;
+                padding: 3px !important;
+            }
+            .bp-level-icon {
+                font-size: 1.1rem !important;
+            }
+            .bp-level-reward {
+                font-size: 0.5rem !important;
+            }
+            .bp-level-num {
+                font-size: 0.65rem !important;
+            }
+            /* Задания */
+            #bpQuestsView .quest-item {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 5px;
+            }
+            #bpQuestsView .q-btn {
+                margin-top: 5px;
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -2881,6 +3045,9 @@
 	
 	<!-- Том 2 fix: три кнопки в одном контейнере -->
     <div class="top-right-buttons">
+        <!-- ПУНКТ 4: Кнопка Батл Пасса -->
+        <button class="menu-btn" id="openBattlePassBtn" style="background:#1d2d4a; border-color:#55ffff; color:#55ffff;">🏆 БАТЛ ПАСС</button>
+
         <!-- ТОМ 2: кнопка SHERWO -->
         <button class="menu-btn sherwo-btn" id="openSherwoBtn">
             <span>💬 SHERWO</span>
@@ -2897,7 +3064,7 @@
         <button class="menu-btn profile-btn" id="openProfileBtn">
             <img class="profile-btn-avatar" id="profileBtnAvatar" src="" alt="">
             <span class="profile-btn-icon" id="profileBtnIcon">👤</span>
-            <span>ПРОФИЛЬ</span>
+            <span id="profileBtnNickname" style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">ПРОФИЛЬ</span>
         </button>
     </div>
 
@@ -2959,7 +3126,7 @@
             <span id="prestigeNotifyBadge" style="display:none; position:absolute; top:-6px; right:-6px; background:#ff5555; color:#fff; font-size:0.6rem; padding:2px 6px; border-radius:10px; border:2px solid #000;">!</span>
         </button>
         <button class="menu-btn locked" id="openMineBtn" style="background:#4a4d1d; border-color:#ffaa00; color:#ffaa00;">ШАХТА 🔒</button>
-        <button class="menu-btn locked" id="openUpgradeTreeBtn" style="background:#1d4a4a; border-color:#55ffff; color:#55ffff;">УЛУЧШЕНИЯ ДЕРЕВА 🔒</button>
+        <button class="menu-btn locked" id="openUpgradeTreeBtn" style="background:#1d4a4a; border-color:#55ffff; color:#55ffff;">ГРИБНИЦА 🔒</button>
         <button class="menu-btn locked" id="openCatchBtn" style="background:#1d4a1d; border-color:#55ff55; color:#55ff55;">ЛОВЛЯ ГРИБОВ 🔒</button>
         <button class="menu-btn locked" id="openFocusBtn" style="background:#4a1d4a; border-color:#ff55ff; color:#ff55ff;">ФОКУСЫ ТИПИЧНОГО 🔒</button>
         <button class="menu-btn" id="openSettingsBtn" style="background:#4a4d54; border-color:#aaa; color:#aaa;">НАСТРОЙКИ</button>
@@ -3273,6 +3440,11 @@
                 <button class="settings-btn" id="profileAvatarRemoveBtn" style="flex:1;">УДАЛИТЬ АВАТАР</button>
             </div>
 
+            <!-- Кнопка выбора баджа (ПК) -->
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <button class="settings-btn blue" onclick="openBadgeModal()" style="flex:1;">🏅 ВЫБРАТЬ БАДЖ</button>
+            </div>
+
             <!-- Статистика -->
             <div class="shop-title" style="font-size:0.9rem; color:#ffff55; margin-top:25px;">📊 СТАТИСТИКА</div>
             <div style="background:#1a1c1e; border:2px solid #4e5058; padding:15px; margin-top:10px;">
@@ -3289,13 +3461,30 @@
         </div>
     </div>
 
+    <!-- Модалка выбора баджа -->
+    <div class="modal-overlay" id="badgeModal" style="z-index: 310;">
+        <div class="window-box" style="width: 500px; text-align: center;">
+            <button class="close-btn" id="closeBadgeBtn">X</button>
+            <div class="shop-title" style="color:#ffff55;">🏅 ВЫБОР БАДЖА</div>
+            <div id="badgeGrid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 15px;"></div>
+        </div>
+    </div>
+
     <!-- Магазин -->
     <div class="modal-overlay" id="shopModal">
         <div class="window-box">
             <button class="close-btn" id="closeShopBtn">X</button>
             <div class="shop-title">МАГАЗИН</div>
-            <div class="cards-list" id="shopCardsList">
-				<div class="card">
+            
+            <div class="tabs-header" style="justify-content:center; margin-bottom:10px;">
+                <button class="tab-btn active" id="shopTabKirki" onclick="switchShopTab('kirki')">КИРКИ</button>
+                <button class="tab-btn" id="shopTabZavody" onclick="switchShopTab('zavody')">ЗАВОДЫ</button>
+                <button class="tab-btn" id="shopTabArtifacts" onclick="switchShopTab('artifacts')">АРТЕФАКТЫ</button>
+                <button class="tab-btn" id="shopTabSpecial" onclick="switchShopTab('special')">ОСОБЫЕ</button>
+            </div>
+
+            <div class="cards-list active-shop-tab" id="shopCardsKirki">
+                <div class="card">
                     <div class="card-top"><span class="card-title">АЛМАЗНАЯ КИРКА</span></div>
                     <div class="card-body">
                         <img class="card-icon" src="pixdiam.png" alt="Кирка">
@@ -3303,23 +3492,6 @@
                     </div>
                     <div class="card-bottom disabled" id="buyClickBtn"><span class="card-price" id="clickCostText">Цена: 5</span></div>
                     <div class="card-max-bottom disabled" id="buyClickMaxBtn"><span class="card-max-text" id="clickMaxText">МАКС (x0)</span></div>
-                </div>
-				<div class="card">
-                    <div class="card-top"><span class="card-title">ЗАВОД ЧАЧИ</span></div>
-                    <div class="card-body">
-                        <img class="card-icon" src="honeybottl.png" alt="Завод">
-                        <span class="card-count" id="autoPowerDisplay">(в сек: +0)</span>
-                    </div>
-                    <div class="card-bottom disabled" id="buyAutoBtn"><span class="card-price" id="autoCostText">Цена: 20</span></div>
-                    <div class="card-max-bottom disabled" id="buyAutoMaxBtn"><span class="card-max-text" id="autoMaxText">МАКС (x0)</span></div>
-                </div>
-                <div class="card">
-                    <div class="card-top" style="background:#ff55ff;"><span class="card-title">ЗЕЛЬЕ СИЛЫ (2 МИН)</span></div>
-                    <div class="card-body">
-                        <div style="font-size:2rem; padding: 5px 0;">🧪</div>
-                        <span class="card-count" id="boostDisplay">(буст: x1)</span>
-                    </div>
-                    <div class="card-bottom disabled" id="buyBoostBtn"><span class="card-price">Цена: 1000</span></div>
                 </div>
                 <div class="card">
                     <div class="card-top" style="background:#ffaa00;"><span class="card-title">ЗОЛОТАЯ КИРКА</span></div>
@@ -3330,20 +3502,32 @@
                     <div class="card-bottom disabled" id="buyArtifactClickBtn"><span class="card-price" id="artifactClickCostText">Цена: 5000</span></div>
                 </div>
                 <div class="card">
-                    <div class="card-top" style="background:#55ffff;"><span class="card-title">ЧАЧА-ФЕРМА</span></div>
-                    <div class="card-body">
-                        <div style="font-size:2rem; padding: 5px 0;">🏭</div>
-                        <span class="card-count" id="artifactAutoDisplay">(x1.5 к авто)</span>
-                    </div>
-                    <div class="card-bottom disabled" id="buyArtifactAutoBtn"><span class="card-price" id="artifactAutoCostText">Цена: 10000</span></div>
-                </div>
-                <div class="card">
                     <div class="card-top" style="background:#cd7f32;"><span class="card-title">МЕДНАЯ КИРКА</span></div>
                     <div class="card-body">
                         <div style="font-size:2rem; padding: 5px 0;">🪓</div>
                         <span class="card-count" id="artifactClick2Display">(x2 к клику)</span>
                     </div>
                     <div class="card-bottom disabled" id="buyArtifactClick2Btn"><span class="card-price" id="artifactClick2CostText">Цена: 50000</span></div>
+                </div>
+            </div>
+
+            <div class="cards-list" id="shopCardsZavody" style="display:none;">
+                <div class="card">
+                    <div class="card-top"><span class="card-title">ЗАВОД ЧАЧИ</span></div>
+                    <div class="card-body">
+                        <img class="card-icon" src="honeybottl.png" alt="Завод">
+                        <span class="card-count" id="autoPowerDisplay">(в сек: +0)</span>
+                    </div>
+                    <div class="card-bottom disabled" id="buyAutoBtn"><span class="card-price" id="autoCostText">Цена: 20</span></div>
+                    <div class="card-max-bottom disabled" id="buyAutoMaxBtn"><span class="card-max-text" id="autoMaxText">МАКС (x0)</span></div>
+                </div>
+                <div class="card">
+                    <div class="card-top" style="background:#55ffff;"><span class="card-title">ЧАЧА-ФЕРМА</span></div>
+                    <div class="card-body">
+                        <div style="font-size:2rem; padding: 5px 0;">🏭</div>
+                        <span class="card-count" id="artifactAutoDisplay">(x1.5 к авто)</span>
+                    </div>
+                    <div class="card-bottom disabled" id="buyArtifactAutoBtn"><span class="card-price" id="artifactAutoCostText">Цена: 10000</span></div>
                 </div>
                 <div class="card">
                     <div class="card-top" style="background:#c0c0c0;"><span class="card-title">СЕРЕБРЯНАЯ ФЕРМА</span></div>
@@ -3360,6 +3544,36 @@
                         <span class="card-count" id="artifactAuto3Display">(x3 к авто)</span>
                     </div>
                     <div class="card-bottom disabled" id="buyArtifactAuto3Btn"><span class="card-price" id="artifactAuto3CostText">Цена: 500000</span></div>
+                </div>
+            </div>
+
+            <div class="cards-list" id="shopCardsArtifacts" style="display:none;">
+                <div class="card">
+                    <div class="card-top" style="background:#ff55ff;"><span class="card-title">ЗЕЛЬЕ СИЛЫ (2 МИН)</span></div>
+                    <div class="card-body">
+                        <div style="font-size:2rem; padding: 5px 0;">🧪</div>
+                        <span class="card-count" id="boostDisplay">(буст: x1)</span>
+                    </div>
+                    <div class="card-bottom disabled" id="buyBoostBtn"><span class="card-price">Цена: 1000</span></div>
+                </div>
+            </div>
+
+            <div class="cards-list" id="shopCardsSpecial" style="display:none;">
+                <div class="card">
+                    <div class="card-top" style="background:#ff5555;"><span class="card-title">БУСТЕР ЧАЧИ</span></div>
+                    <div class="card-body">
+                        <div style="font-size:2rem; padding: 5px 0;">⚡</div>
+                        <span class="card-count">Увеличивает весь доход на 10% на 1 час</span>
+                    </div>
+                    <div class="card-bottom disabled" id="buySpecialBoostBtn"><span class="card-price" id="specialBoostCostText">Цена: 1 000 000</span></div>
+                </div>
+                <div class="card">
+                    <div class="card-top" style="background:#ffaa00;"><span class="card-title">МАГНИТ ГРИБОВ</span></div>
+                    <div class="card-body">
+                        <div style="font-size:2rem; padding: 5px 0;">🧲</div>
+                        <span class="card-count">+10% к шансу золотого гриба на 1 час</span>
+                    </div>
+                    <div class="card-bottom disabled" id="buySpecialMagnetBtn"><span class="card-price" id="specialMagnetCostText">Цена: 5 000 000</span></div>
                 </div>
             </div>
         </div>
@@ -3379,7 +3593,7 @@
     <div class="modal-overlay" id="upgradeTreeModal">
         <div class="window-box">
             <button class="close-btn" id="closeUpgradeTreeBtn">X</button>
-            <div class="shop-title" style="color:#55ffff;">ДЕРЕВО УЛУЧШЕНИЙ</div>
+            <div class="shop-title" style="color:#55ffff;">ГРИБНИЦА</div>
             <p style="color:#fff; font-size:0.7rem; text-align:center;">Грибочки: <span id="mushroomPointsDisplay" style="color:#ffaa00;">0</span> 🍄</p>
             <div class="tree-container" id="treeContainer">
                 <div class="tree-inner" id="treeInner"></div>
@@ -3539,6 +3753,10 @@
                     <span>💻 Помощник разработчика</span>
                     <span style="color:#55ff55;">glebus22855666</span>
                 </div>
+                <div class="settings-row">
+                    <span>💻 Помощник разработчика</span>
+                    <span style="color:#55ff55;">tipichney_</span>
+                </div>
             </div>
 
             <div style="background:#1a1c1e; border:2px solid #4e5058; padding:15px; margin-top:15px;">
@@ -3564,10 +3782,6 @@
             <!-- Том 11: Мастеры Предложки -->
             <div style="background:#1a1c1e; border:2px solid #4e5058; padding:15px; margin-top:15px;">
                 <div class="shop-title" style="font-size:0.9rem; color:#ff55ff; margin-bottom:10px;">💡 МАСТЕРЫ ПРЕДЛОЖКИ</div>
-                <div class="settings-row">
-                    <span>💡 Мастер Предложки</span>
-                    <span style="color:#ff55ff;">tipichney_</span>
-                </div>
                 <div class="settings-row">
                     <span>💡 Мастер Предложки</span>
                     <span style="color:#ff55ff;">djinnyshka</span>
@@ -3833,42 +4047,6 @@
                 <span>Показывать частицы</span>
                 <input type="checkbox" id="particlesToggle" checked>
             </div>
-			<div class="settings-row">
-                <span>Автоклик (5+ перерождений)</span>
-                <input type="checkbox" id="autoClickToggle" disabled>
-            </div>
-
-            <!-- МУЗЫКА -->
-            <div class="settings-row">
-                <span>Фоновая музыка</span>
-                <button class="settings-btn green" id="musicToggleBtn">ВКЛЮЧИТЬ</button>
-            </div>
-            <div id="musicContainer" style="margin-top:15px; display:none;">
-                <iframe id="musicIframe" width="100%" height="80" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-                <div class="music-track-name" id="trackName">Своя ссылка</div>
-            </div>
-            <div class="settings-row" style="margin-top:10px;">
-                <span>Своя ссылка на YouTube</span>
-                <input type="text" id="customYoutubeUrl" placeholder="https://youtube.com/watch?v=..." style="padding:6px; font-family:'Segoe UI', Arial, sans-serif'',sans-serif; font-size:0.7rem; background:#222; border:2px solid #4e5058; color:#fff; width:280px;">
-            </div>
-            <div style="display:flex; gap:10px; margin-top:8px;">
-                <button class="settings-btn green" id="applyYoutubeBtn" style="flex:1;">ПРИМЕНИТЬ ССЫЛКУ</button>
-            </div>
-
-            <!-- СОХРАНЕНИЕ -->
-            <div class="settings-row" style="margin-top:20px;">
-                <span>Скачать сохранение (JSON)</span>
-                <button class="settings-btn blue" id="exportSaveBtn">СКАЧАТЬ</button>
-            </div>
-            <div class="settings-row">
-                <span>Загрузить сохранение (JSON)</span>
-                <input type="file" id="importSaveInput" accept=".json" style="display:none;">
-                <button class="settings-btn blue" id="importSaveBtn">ЗАГРУЗИТЬ</button>
-            </div>
-            <div class="settings-row">
-                <span>Сбросить сохранение</span>
-                <button class="settings-btn" id="resetSaveBtn">СБРОСИТЬ</button>
-            </div>
 
             <!-- ФОНЫ -->
             <div style="margin-top:25px;">
@@ -3881,6 +4059,66 @@
                 </div>
             </div>
 			<div class="version-text" id="versionText">Шерво Кликер v26.10.10</div>
+        </div>
+    </div>
+
+    <!-- ПУНКТ 4: Модалка Батл Пасса -->
+    <div class="modal-overlay" id="battlePassModal">
+        <div class="window-box" style="width: 900px; max-width: 95%;">
+            <button class="close-btn" id="closeBattlePassBtn">X</button>
+            <div class="shop-title" style="color:#55ffff;">🏆 БАТЛ ПАСС</div>
+            
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; background:#1a1c1e; padding:10px; border:2px solid #4e5058;">
+                <div>
+                    <span style="color:#fff; font-size:1.1rem;">Уровень: <span id="bpLevelDisplay" style="color:#ffff55;">1</span></span>
+                    <div style="width:250px; height:10px; background:#333; border:1px solid #000; border-radius:5px; margin-top:5px; overflow:hidden;">
+                        <div id="bpXpBar" style="height:100%; width:0%; background:linear-gradient(90deg,#55ffff,#55ff55); transition:width 0.3s;"></div>
+                    </div>
+                    <span style="color:#aaa; font-size:0.75rem;">XP: <span id="bpXpDisplay">0</span> / <span id="bpXpNextDisplay">1000</span></span>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="custom-modal-btn" id="bpTabRewards" style="background:#4a4d54; border-color:#55ffff; color:#55ffff; font-size:0.7rem;">НАГРАДЫ</button>
+                    <button class="custom-modal-btn" id="bpTabQuests" style="background:#2c2e33; border-color:#707480; color:#aaa; font-size:0.7rem;">ЗАДАНИЯ</button>
+                    <button class="custom-modal-btn gold" id="buyBattlePassBtn" style="background:#4a3f1d; border-color:#ffaa00; color:#ffaa00;">КУПИТЬ ПРО</button>
+                </div>
+            </div>
+
+            <!-- Контейнер для наград (виден по умолчанию) -->
+            <div id="bpRewardsView" style="display:block;">
+                <div style="display:flex; flex-direction:column; gap:10px; max-height: 450px; overflow-y:auto; padding-right:5px;">
+                    <!-- Линия ПРО наград (СВЕРХУ) -->
+                    <div style="color:#ffaa00; font-size:0.8rem; font-weight:bold; padding-left:5px; position:sticky; left:0; background:#2c2e33;">ПРО ЛИНИЯ</div>
+                    <div class="bp-line" id="bpGridPro" style="display:flex; gap:5px; padding-bottom:10px; overflow-x:auto;"></div>
+                    
+                    <!-- Линия бесплатных наград (СНИЗУ) -->
+                    <div style="color:#55ff55; font-size:0.8rem; font-weight:bold; padding-left:5px; position:sticky; left:0; background:#2c2e33;">БЕСПЛАТНАЯ ЛИНИЯ</div>
+                    <div class="bp-line" id="bpGridFree" style="display:flex; gap:5px; padding-bottom:10px; overflow-x:auto;"></div>
+                </div>
+            </div>
+
+            <!-- Контейнер для заданий (скрыт по умолчанию) -->
+            <div id="bpQuestsView" style="display:none; max-height: 450px; overflow-y:auto; padding-right:5px;">
+                <!-- Сюда будут вставляться задания -->
+                <div id="bpQuestsContainer" style="display:flex; flex-direction:column; gap:10px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПУНКТ 4: Модалка инструкции покупки -->
+    <div class="modal-overlay" id="buyBpInstructionModal">
+        <div class="window-box" style="width: 500px; text-align:center;">
+            <button class="close-btn" id="closeBuyBpInstructionBtn">X</button>
+            <div class="shop-title" style="color:#ffaa00;">💳 ПОКУПКА ПРО</div>
+            <div id="bpInstructionContent" style="background:#1a1c1e; border:2px solid #4e5058; padding:20px; margin-top:15px; font-size:0.9rem; color:#fff; line-height:1.6;">
+                <p style="margin:0 0 10px 0;">Написать в дс <b style="color:#55ffff;">@koshak.chernobil</b></p>
+                <p style="margin:0 0 10px 0; font-size:0.8rem; color:#aaa;">(обязательно напиши ник с шерво кликера)</p>
+                <hr style="border-color:#4e5058; margin:15px 0;">
+                <p style="margin:0;">Тебе напишут задание, после его выполнения получишь батл пасс.</p>
+            </div>
+            <div id="bpActiveContent" style="display:none; background:#1b521c; border:2px solid #55ff55; padding:20px; margin-top:15px; font-size:0.9rem; color:#fff; line-height:1.6;">
+                <p style="margin:0; font-size:1.2rem; color:#55ff55; font-weight:bold;">ПРО БП АКТИВЕН!</p>
+                <p style="margin:10px 0 0 0; color:#aaa;">Все награды Про-линии теперь доступны.</p>
+            </div>
         </div>
     </div>
 
@@ -3946,10 +4184,11 @@
             <div class="shop-title" style="color:#55ff55;">🛒 МАГАЗИН</div>
             <div class="mobile-hub">
                 <button class="mobile-hub-btn" id="hubShopBtn"><span class="hub-icon">🛍️</span> МАГАЗИН</button>
-                <button class="mobile-hub-btn" id="hubUpgradeTreeBtn"><span class="hub-icon">🌳</span> УЛУЧШЕНИЯ ДЕРЕВА</button>
+                <button class="mobile-hub-btn" id="hubUpgradeTreeBtn"><span class="hub-icon">🌳</span> ГРИБНИЦА</button>
                 <button class="mobile-hub-btn" id="hubSkillTreeBtn"><span class="hub-icon">⭐</span> НАВЫКИ ПЕРЕРОЖДЕНИЯ</button>
                 <button class="mobile-hub-btn" id="hubPrestigeBtn"><span class="hub-icon">🔄</span> ПЕРЕРОЖДЕНИЕ</button>
                 <button class="mobile-hub-btn" id="hubQuestsBtn"><span class="hub-icon">📋</span> ЗАДАНИЯ</button>
+                <button class="mobile-hub-btn" id="hubBattlePassBtn" style="border-color:#55ffff; color:#55ffff;"><span class="hub-icon">🏆</span> БАТЛ ПАСС</button>
             </div>
         </div>
     </div>
@@ -3995,6 +4234,7 @@
         (function() { console.log = function() {}; window._x = null; })();
 
         // === НАСТРОЙКИ ===
+        let autoClickUnlocked = false; // ПУНКТ 14
         let settings = {
             volumeSfx: 0.5,
             volumeMusic: 0.5,
@@ -4021,6 +4261,7 @@
 		// Том 8: аватар игрока (base64)
         let userAvatar = '';
         let userCreatedAt = 0;
+        let userSelectedBadge = 0; // ПУНКТ 8: Выбранный бадж
 
 		// === МОДИФИКАТОРЫ РЕЖИМА ===
 		function isHardcore() { return activeMode === 'hardcore'; }
@@ -4036,7 +4277,7 @@
             document.getElementById('volumeSfx').value = settings.volumeSfx * 100;
             document.getElementById('volumeMusic').value = settings.volumeMusic * 100;
             document.getElementById('particlesToggle').checked = settings.particles;
-            document.getElementById('autoClickToggle').checked = settings.autoClick;
+            // ПУНКТ 9: Чекбокс удален, проверка не нужна
             applyBackground();
             // Том 20: обновляем тумблер автопокупки буста
             setTimeout(updateAutoBuyBoostUI, 100);
@@ -4177,10 +4418,21 @@
         let _mineSpawnTimeout = null;
         let _catchInterval = null;
         let _catchSpawnTimeout = null;
-		// Том 21: переменные Фокусов Типичного
-        let _focusScore = 0;      // очки за текущую игру
-        let _focusBest = 0;       // лучший результат
-        let _focusTotal = 0;      // всего очков (накоплено)
+        // Том 21: переменные Фокусов Типичного
+        let _focusScore = 0;
+        let _focusBest = 0;
+        let _focusTotal = 0;
+        
+        // ПУНКТ 4: БАТЛ ПАСС
+        let _bpXp = 0;
+        let _bpLevel = 1;
+        let _bpStatus = 0;
+        let _bpXpNext = 1000;
+        let _claimedBpRewards = []; // Массив для хранения ID забранных наград
+        
+        // Таймеры для особых товаров (в миллисекундах)
+        let _specialBoostTimer = 0;
+        let _specialMagnetTimer = 0;
         let _focusActive = false; // идёт ли игра
         let _focusTimer = 0;      // оставшееся время
         let _focusPlayerX = 50;   // позиция игрока в % (0–100)
@@ -4479,6 +4731,7 @@
         // === ПРОВЕРКА ВЫПОЛНЕНИЯ ===
         let notifiedQuestUids = new Set();
         function checkQuestsCompletion() {
+		if (isDeveloper) return; // В дев-режиме не проверяем квесты
             let allQuests = [
                 ...normalQuests.map(q => ({...q, type: 'Обычное'})),
                 ...dailyQuests.map(q => ({...q, type: 'Ежедневное'})),
@@ -4670,17 +4923,17 @@
             // Том 6: бонус questMaster — +5% за уровень
             let questBonus = 1 + skills.questMaster.level * 0.05;
             let scoreGain = Math.floor(q.rewardScore * questBonus);
-            _s += scoreGain;
+            _s += scoreGain; // Прибавка
             addXp(q.rewardXp);
+            addBpXp(50); 
             playSound('buy');
             q.claimed = true;
             notifiedQuestUids.delete(q.uid);
             quests.splice(idx, 1);
             quests.push(generateQuestFromPool(activeTab));
-            // Убираем из избранного
             let fIdx = favoriteQuests.indexOf(uid);
             if (fIdx !== -1) favoriteQuests.splice(fIdx, 1);
-            saveGame();
+            saveGameNow(); // Мгновенно сохраняем новое значение
             renderQuests();
             updateUI();
             
@@ -4760,14 +5013,22 @@
                 _acm, _aam, _hac, _haa, _hac2, _haa2, _haa3,
                 _ms, minePlays, boostUses, catchPlays, xpTotal, skills, upgrades,
                 _focusBest, _focusTotal,
+				autoClickUnlocked,
                 favoriteQuests,
                 achievements: achievements.map(a => a.unlocked),
                 dailyResetTime, weeklyResetTime,
                 dailyQuests, weeklyQuests, normalQuests,
                 autoBuyBoost: settings.autoBuyBoost,
-                _ba: _ba,   // <-- ДОБАВЛЕНО: флаг буста
-                _btl: _btl, // <-- ДОБАВЛЕНО: время буста
-                settings
+                _ba: _ba,
+                _btl: _btl,
+                _specialBoostTimer: _specialBoostTimer,
+                _specialMagnetTimer: _specialMagnetTimer,
+                // Пункт 4: Батл Пасс
+                bpXp: _bpXp,
+                bpLevel: _bpLevel,
+                bpStatus: _bpStatus,
+                _isPro: _bpStatus === 1, 
+                claimedBpRewards: _claimedBpRewards
             };
         }
 
@@ -4807,6 +5068,7 @@
             _dim2Up3 = data._dim2Up3 || 0;
             favoriteQuests = data.favoriteQuests || [];
             if (data.skills) for (let k in skills) if (data.skills[k]) skills[k].level = data.skills[k].level;
+			if (data.autoClickUnlocked) autoClickUnlocked = true;
             if (data.upgrades) for (let k in upgrades) if (data.upgrades[k]) upgrades[k].level = data.upgrades[k].level;
             // Том 11 fix: надёжная загрузка ачивок — работаем и с массивом, и с объектом
             if (data.achievements) {
@@ -4833,7 +5095,12 @@
             while (normalQuests.length < 50) normalQuests.push(generateQuestFromPool('normal'));
             while (dailyQuests.length < 50) dailyQuests.push(generateQuestFromPool('daily'));
             while (weeklyQuests.length < 50) weeklyQuests.push(generateQuestFromPool('weekly'));
-            if (data.settings) settings = { ...settings, ...data.settings };
+            // Восстанавливаем флаг только если это не дев-режим и перерождений >= 7 (или если явно сохранено)
+            if (data.autoClickUnlocked && _p >= 7) {
+                autoClickUnlocked = true;
+            } else {
+                autoClickUnlocked = false;
+            }
             if (data.autoBuyBoost !== undefined) settings.autoBuyBoost = data.autoBuyBoost;
             
             // Подхватываем буст
@@ -4843,6 +5110,16 @@
                 if (boostBox) boostBox.style.display = _ba ? 'block' : 'none';
                 if (boostTimer) boostTimer.textContent = _btl;
             }
+            // Загрузка таймеров особых товаров
+            _specialBoostTimer = data._specialBoostTimer || 0;
+            _specialMagnetTimer = data._specialMagnetTimer || 0;
+            // Пункт 4: Загрузка Батл Пасса
+            _bpXp = data.bpXp || 0;
+            _bpLevel = data.bpLevel || 1;
+            // Загружаем статус. Если 1 — значит 1.
+            _bpStatus = (data.bpStatus === 1) ? 1 : 0;
+            _bpXpNext = Math.floor(1000 * Math.pow(1.5, _bpLevel - 1));
+            _claimedBpRewards = data.claimedBpRewards || []; // Загружаем список
 			// Том 6: новая формула порога XP
 			_nx = Math.floor(10000 * Math.pow(1.15, _l - 1));
             applyBackground();
@@ -4858,14 +5135,19 @@
             let now = Date.now();
             let diffSec = Math.floor((now - lastOnline) / 1000);
             if (diffSec <= 0) return 0;
-            // Максимум 7 дней
+            
+            // Ограничиваем оффлайн до 7 дней (чтобы не сломать баланс)
             let maxSec = 7 * 24 * 60 * 60;
             if (diffSec > maxSec) diffSec = maxSec;
-            // Только обычный режим
+
+            // Оффлайн работает только в обычном режиме
             if (activeMode !== 'normal') return 0;
-            // Авто-доход
+            
+            // Считаем силу авто-клика (с учетом всех бафов и апгрейдов)
             let autoPower = getAutoPower();
             if (autoPower <= 0) return 0;
+            
+            // Возвращаем накопленное
             return autoPower * diffSec;
         }
 
@@ -5284,7 +5566,12 @@
             let god = 1 + (upgrades.godMode.level * 0.50);
             let prestigeBonus = 1 + (_p * 0.05 * (1 + upgrades.prestigeBoost.level * 0.05));
             let evoBonus = 1 + getEvoBonus();
-                        return Math.max(1, Math.floor(base * skillBonus * up1 * up2 * up3 * global * god * prestigeBonus * evoBonus * (_ba ? 2 : 1) * getIncomeMultiplier()));
+            // Добавляем бонус от особого товара, если таймер активен
+            let specialBoost = _specialBoostTimer > 0 ? 1.10 : 1;
+            
+            // Если заводов нет (base === 0), возвращаем 0, иначе считаем
+            if (base === 0) return 0;
+            return Math.floor(base * skillBonus * up1 * up2 * up3 * global * god * prestigeBonus * evoBonus * (_ba ? 2 : 1) * getIncomeMultiplier() * specialBoost);
         }
         function getAutoPower() {
             let base = _ac * _aam;
@@ -5296,7 +5583,10 @@
             let god = 1 + (upgrades.godMode.level * 0.50);
             let prestigeBonus = 1 + (_p * 0.05 * (1 + upgrades.prestigeBoost.level * 0.05));
             let evoBonus = 1 + getEvoBonus();
-            return Math.max(1, Math.floor(base * skillBonus * up1 * up2 * up3 * global * god * prestigeBonus * evoBonus * (_ba ? 2 : 1) * getIncomeMultiplier()));
+            // Добавляем бонус от особого товара, если таймер активен
+            let specialBoost = _specialBoostTimer > 0 ? 1.10 : 1;
+
+            return Math.floor(base * skillBonus * up1 * up2 * up3 * global * god * prestigeBonus * evoBonus * (_ba ? 2 : 1) * getIncomeMultiplier() * specialBoost);
         }
         function getDiscount() {
             let skillDiscount = skills.discount.level * 0.05;
@@ -5317,135 +5607,166 @@
         function getMineReward() { return 1 + upgrades.mineReward.level; }
         function getCatchDuration() { return 20 + (upgrades.catchSpeed.level * 2) + (skills.catchMaster.level * 1); }
         function getCatchReward() { return 1 + upgrades.catchReward.level; }
-        function getGoldChance() { return 0.2 + (upgrades.goldChance.level * 0.02) + (skills.goldMaster.level * 0.01); }
+        function getGoldChance() {
+            let chance = 0.2 + (upgrades.goldChance.level * 0.02) + (skills.goldMaster.level * 0.01);
+            // Добавляем бонус от магнита, если таймер активен
+            if (_specialMagnetTimer > 0) chance += 0.10;
+            return chance;
+        }
 
-        function updateUI() {
-            let activePower = getClickPower();
-            let activeCps = getAutoPower();
-
-            scoreElement.textContent = Math.floor(_s);
-            mushroomScoreElement.textContent = _ms;
-            cpsElement.textContent = `в сек: ${activeCps}`;
-            cpcElement.textContent = `за клик: ${activePower}`;
-            lvlDisplay.textContent = _l;
-            xpDisplay.textContent = _xp;
-            nextXpDisplay.textContent = _nx;
-            // Том 2: полоска прогресса уровня
-            let xpBar = document.getElementById('xpProgressBar');
-            if (xpBar) {
-                let percent = Math.min(100, (_xp / _nx) * 100);
-                xpBar.style.width = percent + '%';
-            }
-            prestigeDisplay.textContent = getPrestigeText(_p);
-            prestigePointsDisplay.textContent = _pp;
-            // Том 2: полоска прогресса перерождения
-            let prestigeBar = document.getElementById('prestigeProgressBar');
-            let prestigeText = document.getElementById('prestigeProgressText');
-            if (prestigeBar && prestigeText) {
-                let pCost = getPrestigeCost();
-                let pPercent = Math.min(100, (_s / pCost) * 100);
-                prestigeBar.style.width = pPercent + '%';
-                let shortCost = pCost >= 1000000 ? (pCost/1000000).toFixed(1)+'M' : pCost >= 1000 ? (pCost/1000).toFixed(0)+'K' : pCost;
-                let shortCur = _s >= 1000000 ? (_s/1000000).toFixed(1)+'M' : _s >= 1000 ? (_s/1000).toFixed(0)+'K' : Math.floor(_s);
-                prestigeText.textContent = `${shortCur} / ${shortCost}`;
-            }
-            let diaEl = document.getElementById('diamondDisplay');
-            if (diaEl) diaEl.textContent = _dia.toLocaleString();
-            mushroomPointsDisplay.textContent = _ms;
-
+		function updateUI() {
+			// Принудительно управляем плашкой разработчика (показываем/скрываем)
+			let devBadge = document.getElementById('devBadge');
+			if (devBadge) {
+				if (activeMode === 'developer') {
+					devBadge.classList.add('active');
+				} else {
+					devBadge.classList.remove('active');
+				}
+			}
+		
+			let activePower = getClickPower();
+			let activeCps = getAutoPower();
+		
+			scoreElement.textContent = Math.floor(_s);
+			mushroomScoreElement.textContent = _ms;
+			cpsElement.textContent = `в сек: ${activeCps}`;
+			cpcElement.textContent = `за клик: ${activePower}`;
+			lvlDisplay.textContent = _l;
+			xpDisplay.textContent = _xp;
+			nextXpDisplay.textContent = _nx;
+			// Том 2: полоска прогресса уровня
+			let xpBar = document.getElementById('xpProgressBar');
+			if (xpBar) {
+				let percent = Math.min(100, (_xp / _nx) * 100);
+				xpBar.style.width = percent + '%';
+			}
+			prestigeDisplay.textContent = getPrestigeText(_p);
+			prestigePointsDisplay.textContent = _pp;
+			// Том 2: полоска прогресса перерождения
+			let prestigeBar = document.getElementById('prestigeProgressBar');
+			let prestigeText = document.getElementById('prestigeProgressText');
+			if (prestigeBar && prestigeText) {
+				let pCost = getPrestigeCost();
+				let pPercent = Math.min(100, (_s / pCost) * 100);
+				prestigeBar.style.width = pPercent + '%';
+				let shortCost = pCost >= 1000000 ? (pCost/1000000).toFixed(1)+'M' : pCost >= 1000 ? (pCost/1000).toFixed(0)+'K' : pCost;
+				let shortCur = _s >= 1000000 ? (_s/1000000).toFixed(1)+'M' : _s >= 1000 ? (_s/1000).toFixed(0)+'K' : Math.floor(_s);
+				prestigeText.textContent = `${shortCur} / ${shortCost}`;
+			}
+			let diaEl = document.getElementById('diamondDisplay');
+			if (diaEl) diaEl.textContent = _dia.toLocaleString();
+			mushroomPointsDisplay.textContent = _ms;
+		
 			clickPowerDisplay.textContent = `(клик: +${_cp})`;
-            let realUcc = Math.round(_ucc * getDiscount() * getPriceMultiplier());
-            clickCostText.textContent = `Цена: ${realUcc}`;
-            buyClickBtn.className = `card-bottom ${_s >= realUcc ? 'affordable' : 'disabled'}`;
-            // Том 7: кнопка МАКС для кирки
-            let maxClickCount = getMaxBuyCount(_ucc, 1.3);
-            clickMaxText.textContent = `МАКС (x${maxClickCount})`;
-            buyClickMaxBtn.className = `card-max-bottom ${maxClickCount > 0 ? 'affordable' : 'disabled'}`;
-
-            autoPowerDisplay.textContent = `(в сек: +${_ac})`;
-            let realUac = Math.round(_uac * getDiscount() * getPriceMultiplier());
-            autoCostText.textContent = `Цена: ${realUac}`;
-            buyAutoBtn.className = `card-bottom ${_s >= realUac ? 'affordable' : 'disabled'}`;
-            // Том 7: кнопка МАКС для завода
-            let maxAutoCount = getMaxBuyCount(_uac, 1.4);
-            autoMaxText.textContent = `МАКС (x${maxAutoCount})`;
-            buyAutoMaxBtn.className = `card-max-bottom ${maxAutoCount > 0 ? 'affordable' : 'disabled'}`;
-
-            boostDisplay.textContent = _ba ? `(активен)` : `(буст: x1)`;
-            let realBoost = Math.round(1000 * getPriceMultiplier());
-            if (_ba) {
-                // Том 2: буст активен — оранжевая плашка с таймером
-                buyBoostBtn.querySelector('.card-price').textContent = `${_btl}с`;
-                buyBoostBtn.className = 'card-bottom boost-active';
-                // обновляем плашку на главном экране
-                if (boostTimer) boostTimer.textContent = _btl;
-                if (boostBox) boostBox.style.display = 'block';
-            } else {
-                if (boostBox) boostBox.style.display = 'none';
-                buyBoostBtn.querySelector('.card-price').textContent = `Цена: ${realBoost}`;
-                buyBoostBtn.className = `card-bottom ${_s >= realBoost ? 'affordable' : 'disabled'}`;
-            }
-            
+			let realUcc = Math.round(_ucc * getDiscount() * getPriceMultiplier());
+			clickCostText.textContent = `Цена: ${realUcc}`;
+			buyClickBtn.className = `card-bottom ${_s >= realUcc ? 'affordable' : 'disabled'}`;
+			// Том 7: кнопка МАКС для кирки
+			let maxClickCount = getMaxBuyCount(_ucc, 1.3);
+			clickMaxText.textContent = `МАКС (x${maxClickCount})`;
+			buyClickMaxBtn.className = `card-max-bottom ${maxClickCount > 0 ? 'affordable' : 'disabled'}`;
+		
+			autoPowerDisplay.textContent = `(в сек: +${_ac})`;
+			let realUac = Math.round(_uac * getDiscount() * getPriceMultiplier());
+			autoCostText.textContent = `Цена: ${realUac}`;
+			buyAutoBtn.className = `card-bottom ${_s >= realUac ? 'affordable' : 'disabled'}`;
+			// Том 7: кнопка МАКС для завода
+			let maxAutoCount = getMaxBuyCount(_uac, 1.4);
+			autoMaxText.textContent = `МАКС (x${maxAutoCount})`;
+			buyAutoMaxBtn.className = `card-max-bottom ${maxAutoCount > 0 ? 'affordable' : 'disabled'}`;
+		
+			boostDisplay.textContent = _ba ? `(активен)` : `(буст: x1)`;
+			let realBoost = Math.round(1000 * getPriceMultiplier());
+			if (_ba) {
+				// Том 2: буст активен — оранжевая плашка с таймером
+				buyBoostBtn.querySelector('.card-price').textContent = `${_btl}с`;
+				buyBoostBtn.className = 'card-bottom boost-active';
+				// обновляем плашку на главном экране
+				if (boostTimer) boostTimer.textContent = _btl;
+				if (boostBox) boostBox.style.display = 'block';
+			} else {
+				if (boostBox) boostBox.style.display = 'none';
+				buyBoostBtn.querySelector('.card-price').textContent = `Цена: ${realBoost}`;
+				buyBoostBtn.className = `card-bottom ${_s >= realBoost ? 'affordable' : 'disabled'}`;
+			}
+			
 			let realAcc = Math.round(_acc * getDiscount() * getPriceMultiplier());
-            artifactClickDisplay.textContent = `(x${_acm.toFixed(1)} к клику)`;
-            buyArtifactClickBtn.className = `card-bottom ${_s >= realAcc && !_hac ? 'affordable' : (_hac ? 'maxed' : 'disabled')}`;
-            buyArtifactClickBtn.querySelector('.card-price').textContent = _hac ? 'МАКСИМУМ' : `Цена: ${realAcc}`;
-
-            let realAac = Math.round(_aac * getDiscount() * getPriceMultiplier());
-            artifactAutoDisplay.textContent = `(x${_aam.toFixed(1)} к авто)`;
-            buyArtifactAutoBtn.className = `card-bottom ${_s >= realAac && !_haa ? 'affordable' : (_haa ? 'maxed' : 'disabled')}`;
-            buyArtifactAutoBtn.querySelector('.card-price').textContent = _haa ? 'МАКСИМУМ' : `Цена: ${realAac}`;
-
-            let realAcc2 = Math.round(_acc2 * getDiscount() * getPriceMultiplier());
-            artifactClick2Display.textContent = `(x${_hac2 ? '2' : '0'} к клику)`;
-            buyArtifactClick2Btn.className = `card-bottom ${_s >= realAcc2 && !_hac2 ? 'affordable' : (_hac2 ? 'maxed' : 'disabled')}`;
-            buyArtifactClick2Btn.querySelector('.card-price').textContent = _hac2 ? 'МАКСИМУМ' : `Цена: ${realAcc2}`;
-
-            let realAac2 = Math.round(_aac2 * getDiscount() * getPriceMultiplier());
-            artifactAuto2Display.textContent = `(x${_haa2 ? '2' : '0'} к авто)`;
-            buyArtifactAuto2Btn.className = `card-bottom ${_s >= realAac2 && !_haa2 ? 'affordable' : (_haa2 ? 'maxed' : 'disabled')}`;
-            buyArtifactAuto2Btn.querySelector('.card-price').textContent = _haa2 ? 'МАКСИМУМ' : `Цена: ${realAac2}`;
-
-            let realAac3 = Math.round(_aac3 * getDiscount() * getPriceMultiplier());
-            artifactAuto3Display.textContent = `(x${_haa3 ? '3' : '0'} к авто)`;
-            buyArtifactAuto3Btn.className = `card-bottom ${_s >= realAac3 && !_haa3 ? 'affordable' : (_haa3 ? 'maxed' : 'disabled')}`;
-            buyArtifactAuto3Btn.querySelector('.card-price').textContent = _haa3 ? 'МАКСИМУМ' : `Цена: ${realAac3}`;
-
-            let cost = getPrestigeCost();
-            prestigeBtn.style.color = _s >= cost ? '#55ff55' : '#ff55ff';
-            if (_l >= (_clr + 1) * 5) levelRewardBtn.style.display = 'block';
-            else levelRewardBtn.style.display = 'none';
-
-            // Том 1: уведомление о возможности перерождения / эволюции
-            let canPrestige = _s >= cost;
-            let canEvolveNow = false;
-            if (_evo < EVOLUTIONS.length) {
-                let nextEvo = EVOLUTIONS[_evo];
-                canEvolveNow = canEvolve(nextEvo);
-            }
-            let prestigeBadge = document.getElementById('prestigeNotifyBadge');
-            if (prestigeBadge) prestigeBadge.style.display = canPrestige ? 'inline-block' : 'none';
-            let evoBadge = document.getElementById('evoNotifyBadge');
-            if (evoBadge) evoBadge.style.display = canEvolveNow ? 'inline-block' : 'none';
-            
-            if (prestigeCurrentScore) prestigeCurrentScore.textContent = Math.floor(_s);
-            if (prestigeCostDisplay) prestigeCostDisplay.textContent = cost.toLocaleString();
+			artifactClickDisplay.textContent = `(x${_acm.toFixed(1)} к клику)`;
+			buyArtifactClickBtn.className = `card-bottom ${_s >= realAcc && !_hac ? 'affordable' : (_hac ? 'maxed' : 'disabled')}`;
+			buyArtifactClickBtn.querySelector('.card-price').textContent = _hac ? 'МАКСИМУМ' : `Цена: ${realAcc}`;
+		
+			let realAac = Math.round(_aac * getDiscount() * getPriceMultiplier());
+			artifactAutoDisplay.textContent = `(x${_aam.toFixed(1)} к авто)`;
+			buyArtifactAutoBtn.className = `card-bottom ${_s >= realAac && !_haa ? 'affordable' : (_haa ? 'maxed' : 'disabled')}`;
+			buyArtifactAutoBtn.querySelector('.card-price').textContent = _haa ? 'МАКСИМУМ' : `Цена: ${realAac}`;
+		
+			let realAcc2 = Math.round(_acc2 * getDiscount() * getPriceMultiplier());
+			artifactClick2Display.textContent = `(x${_hac2 ? '2' : '0'} к клику)`;
+			buyArtifactClick2Btn.className = `card-bottom ${_s >= realAcc2 && !_hac2 ? 'affordable' : (_hac2 ? 'maxed' : 'disabled')}`;
+			buyArtifactClick2Btn.querySelector('.card-price').textContent = _hac2 ? 'МАКСИМУМ' : `Цена: ${realAcc2}`;
+		
+			let realAac2 = Math.round(_aac2 * getDiscount() * getPriceMultiplier());
+			artifactAuto2Display.textContent = `(x${_haa2 ? '2' : '0'} к авто)`;
+			buyArtifactAuto2Btn.className = `card-bottom ${_s >= realAac2 && !_haa2 ? 'affordable' : (_haa2 ? 'maxed' : 'disabled')}`;
+			buyArtifactAuto2Btn.querySelector('.card-price').textContent = _haa2 ? 'МАКСИМУМ' : `Цена: ${realAac2}`;
+		
+			let realAac3 = Math.round(_aac3 * getDiscount() * getPriceMultiplier());
+			artifactAuto3Display.textContent = `(x${_haa3 ? '3' : '0'} к авто)`;
+			buyArtifactAuto3Btn.className = `card-bottom ${_s >= realAac3 && !_haa3 ? 'affordable' : (_haa3 ? 'maxed' : 'disabled')}`;
+			buyArtifactAuto3Btn.querySelector('.card-price').textContent = _haa3 ? 'МАКСИМУМ' : `Цена: ${realAac3}`;
+		
+			// --- Новые особые товары ---
+			let specBoostCost = 1000000;
+			let specBoostAfford = _s >= specBoostCost;
+			if (document.getElementById('specialBoostCostText')) {
+				document.getElementById('specialBoostCostText').textContent = `Цена: ${specBoostCost.toLocaleString()}`;
+				document.getElementById('buySpecialBoostBtn').className = `card-bottom ${specBoostAfford ? 'affordable' : 'disabled'}`;
+			}
+			
+			let specMagnetCost = 5000000;
+			let specMagnetAfford = _s >= specMagnetCost;
+			if (document.getElementById('specialMagnetCostText')) {
+				document.getElementById('specialMagnetCostText').textContent = `Цена: ${specMagnetCost.toLocaleString()}`;
+				document.getElementById('buySpecialMagnetBtn').className = `card-bottom ${specMagnetAfford ? 'affordable' : 'disabled'}`;
+			}
+		
+			let cost = getPrestigeCost();
+			prestigeBtn.style.color = _s >= cost ? '#55ff55' : '#ff55ff';
+			if (_l >= (_clr + 1) * 5) levelRewardBtn.style.display = 'block';
+			else levelRewardBtn.style.display = 'none';
+		
+			// Том 1: уведомление о возможности перерождения / эволюции
+			let canPrestige = _s >= cost;
+			let canEvolveNow = false;
+			if (_evo < EVOLUTIONS.length) {
+				let nextEvo = EVOLUTIONS[_evo];
+				canEvolveNow = canEvolve(nextEvo);
+			}
+			let prestigeBadge = document.getElementById('prestigeNotifyBadge');
+			if (prestigeBadge) prestigeBadge.style.display = canPrestige ? 'inline-block' : 'none';
+			let evoBadge = document.getElementById('evoNotifyBadge');
+			if (evoBadge) evoBadge.style.display = canEvolveNow ? 'inline-block' : 'none';
+			
+			if (prestigeCurrentScore) prestigeCurrentScore.textContent = Math.floor(_s);
+			if (prestigeCostDisplay) prestigeCostDisplay.textContent = cost.toLocaleString();
 			if (prestigeNextDisplay) {
 				let nextCost = PRESTIGE_BASE * PRESTIGE_MULT + (_p + 1) * PRESTIGE_BASE;
 				prestigeNextDisplay.textContent = Math.floor(nextCost).toLocaleString();
 			}
-            if (doPrestigeBtn) doPrestigeBtn.className = _s >= cost ? 'prestige-btn-big' : 'prestige-btn-big disabled';
-            
+			if (doPrestigeBtn) doPrestigeBtn.className = _s >= cost ? 'prestige-btn-big' : 'prestige-btn-big disabled';
+			
+			// ПУНКТ 13: Новая разблокировка
 			document.getElementById('openMineBtn').classList.toggle('locked', _p < 1 && !isDeveloper);
 			document.getElementById('openUpgradeTreeBtn').classList.toggle('locked', _p < 1 && !isDeveloper);
-			document.getElementById('openCatchBtn').classList.toggle('locked', _p < 1 && !isDeveloper);
-			document.getElementById('openFocusBtn').classList.toggle('locked', _p < 1 && !isDeveloper);
+			document.getElementById('openCatchBtn').classList.toggle('locked', _p < 3 && !isDeveloper);
+			document.getElementById('openFocusBtn').classList.toggle('locked', _p < 5 && !isDeveloper);
 			
 			// Том 5: обновление текста кнопок мини-игр + отображение КД
 			let mineBtn = document.getElementById('openMineBtn');
 			let upgradeBtn = document.getElementById('openUpgradeTreeBtn');
 			let catchBtn = document.getElementById('openCatchBtn');
-
+		
 			if (mineBtn) {
 				if (_p < 1 && !isDeveloper) {
 					mineBtn.textContent = 'ШАХТА 🔒';
@@ -5458,13 +5779,13 @@
 			}
 			if (upgradeBtn) {
 				if (_p < 1 && !isDeveloper) {
-					upgradeBtn.textContent = 'УЛУЧШЕНИЯ ДЕРЕВА 🔒';
+					upgradeBtn.textContent = 'ГРИБНИЦА 🔒';
 				} else {
-					upgradeBtn.textContent = 'УЛУЧШЕНИЯ ДЕРЕВА';
+					upgradeBtn.textContent = 'ГРИБНИЦА';
 				}
 			}
 			if (catchBtn) {
-				if (_p < 1 && !isDeveloper) {
+				if (_p < 3 && !isDeveloper) {
 					catchBtn.textContent = 'ЛОВЛЯ ГРИБОВ 🔒';
 				} else if (_catchCooldown > Date.now()) {
 					let left = Math.ceil((_catchCooldown - Date.now()) / 1000);
@@ -5483,35 +5804,37 @@
 				}
 			}
 			
-			document.getElementById('autoClickToggle').disabled = _p < 3 && !isDeveloper;
 			// Том 6: обновляем тумблер автокликера
-            updateAutoclickUI();
-            
+			updateAutoclickUI();
+			
             if (isDeveloper) {
                 document.getElementById('openMineBtn').classList.remove('locked');
                 document.getElementById('openUpgradeTreeBtn').classList.remove('locked');
                 document.getElementById('openCatchBtn').classList.remove('locked');
-                document.getElementById('autoClickToggle').disabled = false;
             }
-            
-            // Том 2 perf: тяжёлые проверки вынесены в отдельные таймеры (см. ниже)
-            // renderSkillTree(); checkAchievements(); checkQuestsCompletion();
-            // Том 11: обновляем баланс казино, если открыто
-            if (document.getElementById('casinoModal').classList.contains('active')) {
-                casinoUpdateBalance();
+            // Флаг автоклика обновляем строго по количеству перерождений
+            if (_p >= 7) {
+                autoClickUnlocked = true;
             }
-            // Том 2: мобильная кнопка эволюции
-            updateMobileEvoBtn();
-            // Том 3: кнопки 2-го измерения
-            updateDim2Btns();
-            
-            // Том 3: Осколки Бездны
-            updateAbyssBtn();
-            // Том 3: обновляем экран 2-го измерения, если открыт
-            if (document.getElementById('dim2Modal') && document.getElementById('dim2Modal').classList.contains('active')) {
-                renderDim2();
-            }
-        }
+			
+			// Том 2 perf: тяжёлые проверки вынесены в отдельные таймеры (см. ниже)
+			// renderSkillTree(); checkAchievements(); checkQuestsCompletion();
+			// Том 11: обновляем баланс казино, если открыто
+			if (document.getElementById('casinoModal').classList.contains('active')) {
+				casinoUpdateBalance();
+			}
+			// Том 2: мобильная кнопка эволюции
+			updateMobileEvoBtn();
+			// Том 3: кнопки 2-го измерения
+			updateDim2Btns();
+			
+			// Том 3: Осколки Бездны
+			updateAbyssBtn();
+			// Том 3: обновляем экран 2-го измерения, если открыт
+			if (document.getElementById('dim2Modal') && document.getElementById('dim2Modal').classList.contains('active')) {
+				renderDim2();
+			}
+		}
 
 		function addXp(amount) {
             _xp += amount;
@@ -5591,10 +5914,11 @@
 		levelRewardBtn.addEventListener('click', () => {
             _clr++;
             let reward = _clr * 5 * 100 * 100;
-            _s += reward;
+            _s += reward; // Прибавляем к текущему значению
             playSound('buy');
             showAlert('🎁 НАГРАДА ЗА УРОВЕНЬ', `Получено: +${reward.toLocaleString()} Чачи`);
-            updateUI(); saveGame();
+            updateUI(); 
+            saveGameNow(); // Мгновенное сохранение, чтобы не потерять данные
         });
 
         document.getElementById('openShopBtn').addEventListener('click', () => { closeAllModals(); shopModal.classList.add('active'); });
@@ -5696,13 +6020,12 @@
                 let now = performance.now();
                 let dt = now - lastTime;
                 if (dt > 0) {
-                    // Мгновенная скорость = смещение мыши / время
                     velocity = (e.pageX - lastX) / dt;
                     lastX = e.pageX;
                     lastTime = now;
                 }
-                let walk = (e.pageX - startX) * 1.5;
-                cardsList.scrollLeft = scrollStart - walk;
+                let walk = (e.pageX - startX); // Убрали 1.5, теперь 1 к 1
+                el.scrollLeft = scrollLeft - walk;
             });
 
             // Том 3 fix: если курсор ушёл за пределы окна — отпускаем
@@ -5832,7 +6155,7 @@
         });
         document.getElementById('casinoSpinBtn').addEventListener('click', casinoSpin);
 
-		doPrestigeBtn.addEventListener('click', () => {
+        doPrestigeBtn.addEventListener('click', () => {
 		let cost = getPrestigeCost();
 		if (_s >= cost || isDeveloper) {
         _p += 1;
@@ -5847,13 +6170,12 @@
         playSound('prestige'); updateUI(); saveGameNow();
         prestigeModal.classList.remove('active');
 	   // Пересчитываем автоклик (сила изменилась из-за сброса)
-        if (settings.autoClick && _p >= 3) { stopAutoClick(); startAutoClick(); }
-        else if (settings.autoClick && _p < 3) {
-            // Том 6: если перерождение ниже 3 — выключаем автоклик
+        // ПУНКТ 13: проверяем флаг, а не количество перерождений
+        if (settings.autoClick && autoClickUnlocked) { stopAutoClick(); startAutoClick(); }
+        else if (settings.autoClick && !autoClickUnlocked) {
             settings.autoClick = false;
             saveSettings();
             stopAutoClick();
-            document.getElementById('autoClickToggle').checked = false;
         }
         updateAutoclickUI();
         showAlert('🔄 ПЕРЕРОЖДЕНИЕ!', `Вы получили ${pointsGained} очк. престижа.\nСледующий порог: ${getPrestigeCost().toLocaleString()}`);
@@ -5943,6 +6265,334 @@
 		buyArtifactAuto3Btn.addEventListener('click', () => {
             let cost = Math.round(_aac3 * getDiscount() * getPriceMultiplier());
             if ((_s >= cost || isDeveloper) && !_haa3) { _s -= cost; _aam = 3; _haa3 = true; playSound('buy'); updateUI(); saveGame(); }
+        });
+
+        // ============================================
+        // ПУНКТ 4: БАТЛ ПАСС ЛОГИКА
+        // ============================================
+        
+        function getBpReward(level, isPro) {
+            if (isPro) {
+                // Награды для Про линии (жирные)
+                if (level % 10 === 0) return { icon: '💎', text: '+10 💎' };
+                if (level % 5 === 0) return { icon: '⭐', text: 'Буст 1ч' };
+                return { icon: '💰', text: '+50k 💰' };
+            } else {
+                // Награды для Бесплатной линии (поскромнее)
+                if (level % 10 === 0) return { icon: '💎', text: '+1 💎' };
+                if (level % 5 === 0) return { icon: '🍄', text: '+100 🍄' };
+                return { icon: '💰', text: '+5k 💰' };
+            }
+        }
+		
+		
+
+        // Массив заданий Батл Пасса
+        const BP_QUESTS = [
+            { id: 'bp_q1', text: 'Сделать 1 000 кликов', reward: 250, stat: 'clicks', target: 1000, progress: 0, claimed: false },
+            { id: 'bp_q2', text: 'Купить 5 заводов', reward: 250, stat: 'factories', target: 5, progress: 0, claimed: false },
+            { id: 'bp_q3', text: 'Сыграть 1 раз в Казино', reward: 500, stat: 'casino', target: 1, progress: 0, claimed: false },
+            { id: 'bp_q4', text: 'Накопить 50 грибочков', reward: 500, stat: 'mushrooms', target: 50, progress: 0, claimed: false },
+            { id: 'bp_q5', text: 'Достигнуть 5 уровня', reward: 750, stat: 'level', target: 5, progress: 0, claimed: false },
+            { id: 'bp_q6', text: 'Прокачать кирку до 20', reward: 1000, stat: 'clickPower', target: 20, progress: 0, claimed: false },
+            { id: 'bp_q7', text: 'Сделать 3 перерождения', reward: 1500, stat: 'prestige', target: 3, progress: 0, claimed: false, isSuper: true } 
+        ];
+
+        // Функция отрисовки заданий
+        function renderBpQuests() {
+            let container = document.getElementById('bpQuestsContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            BP_QUESTS.forEach(q => {
+                let item = document.createElement('div');
+                item.className = 'quest-item'; // Используем класс из обычных квестов
+                
+                // Обновляем прогресс в реальном времени
+                let currentProgress = getQuestProgressStat(q.stat);
+                if (currentProgress > q.progress) q.progress = currentProgress;
+                
+                let isDone = q.progress >= q.target;
+                let isClaimed = q.claimed;
+
+                item.innerHTML = `
+                    <div class="quest-info">
+                        <span class="q-name" style="${q.isSuper ? 'color:#ffaa00; font-weight:bold;' : ''}">${q.isSuper ? '🔥 СУПЕР: ' : ''}${q.text} ${isClaimed ? '[✔ ПОЛУЧЕНО]' : (isDone ? '[ГОТОВО]' : '')}</span>
+                        <span class="q-progress">${Math.min(q.progress, q.target)} / ${q.target}</span>
+                        <span class="q-reward" style="color:#55ffff;">Награда: +${q.reward} XP (БП)</span>
+                    </div>
+                    <div style="display:flex; align-items:center;">
+                        <button class="q-btn ${isDone && !isClaimed ? '' : 'disabled'}" data-id="${q.id}">Взять</button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+
+            // Навешиваем обработчики
+            container.querySelectorAll('.q-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    let q = BP_QUESTS.find(x => x.id === btn.dataset.id);
+                    if (q && !q.claimed && q.progress >= q.target) {
+                        q.claimed = true;
+                        addBpXp(q.reward);
+                        playSound('buy');
+                        saveGame();
+                        renderBpQuests(); // Перерисовываем
+                        showNotif({ type: 'quest', icon: '✅', title: 'Задание БП выполнено!', text: `Получено +${q.reward} XP` });
+                    }
+                });
+            });
+        }
+
+        // Вспомогательная функция для получения прогресса (синхронизирует с игрой)
+        function getQuestProgressStat(stat) {
+            if (stat === 'clicks') return _tc;
+            if (stat === 'factories') return _ac;
+            if (stat === 'casino') return _casinoSpins;
+            if (stat === 'mushrooms') return _ms;
+            if (stat === 'level') return _l;
+            if (stat === 'clickPower') return _cp;
+            if (stat === 'prestige') return _p;
+            return 0;
+        }
+
+        // Переключение вкладок
+        document.getElementById('bpTabRewards')?.addEventListener('click', () => {
+            document.getElementById('bpRewardsView').style.display = 'block';
+            document.getElementById('bpQuestsView').style.display = 'none';
+            document.getElementById('bpTabRewards').style.background = '#4a4d54';
+            document.getElementById('bpTabRewards').style.color = '#55ffff';
+            document.getElementById('bpTabQuests').style.background = '#2c2e33';
+            document.getElementById('bpTabQuests').style.color = '#aaa';
+        });
+
+        document.getElementById('bpTabQuests')?.addEventListener('click', () => {
+            document.getElementById('bpRewardsView').style.display = 'none';
+            document.getElementById('bpQuestsView').style.display = 'block';
+            document.getElementById('bpTabQuests').style.background = '#4a4d54';
+            document.getElementById('bpTabQuests').style.color = '#55ffff';
+            document.getElementById('bpTabRewards').style.background = '#2c2e33';
+            document.getElementById('bpTabRewards').style.color = '#aaa';
+            renderBpQuests(); // Рисуем задания при открытии
+        });
+
+        function claimBpReward(level, isPro) {
+            let key = `${isPro ? 'pro' : 'free'}_${level}`;
+            
+            // Проверка: уже забрано?
+            if (_claimedBpRewards.includes(key)) {
+                showAlert('✅ УЖЕ ПОЛУЧЕНО', 'Вы уже забрали эту награду!');
+                return;
+            }
+
+            // Добавляем в список и сохраняем
+            _claimedBpRewards.push(key);
+
+            // Выдача награды
+            let reward = getBpReward(level, isPro);
+            if (reward.icon === '💎') {
+                let amount = isPro ? 10 : 1;
+                _dia += amount;
+            } else if (reward.icon === '🍄') {
+                _ms += 100;
+            } else if (reward.icon === '⭐') {
+                _specialBoostTimer += 3600000; // 1 час буста
+            } else {
+                _s += isPro ? 50000 : 5000;
+            }
+            
+            playSound('buy');
+            updateUI();
+            saveGameNow(); // Мгновенное сохранение в БД
+            showAlert('🎁 НАГРАДА ПОЛУЧЕНА', `Вы получили: ${reward.text}!`);
+            
+            renderBattlePass();
+        }
+
+        function renderBattlePass() {
+            let gridFree = document.getElementById('bpGridFree');
+            let gridPro = document.getElementById('bpGridPro');
+            if (!gridFree || !gridPro) return;
+            gridFree.innerHTML = '';
+            gridPro.innerHTML = '';
+
+            document.getElementById('bpLevelDisplay').textContent = _bpLevel;
+            document.getElementById('bpXpDisplay').textContent = _bpXp;
+            document.getElementById('bpXpNextDisplay').textContent = _bpXpNext;
+            
+            let percent = Math.min(100, (_bpXp / _bpXpNext) * 100);
+            document.getElementById('bpXpBar').style.width = percent + '%';
+
+            // --- ЛОГИКА КНОПКИ ПОКУПКИ ---
+            let buyBtn = document.getElementById('buyBattlePassBtn');
+            if (buyBtn) {
+                if (_bpStatus === 1) {
+                    buyBtn.style.display = 'none'; // Скрываем кнопку, если Про куплен
+                } else {
+                    buyBtn.style.display = 'block';
+                    buyBtn.textContent = 'КУПИТЬ ПРО';
+                }
+            }
+
+            for (let i = 1; i <= 100; i++) {
+                let isUnlocked = _bpLevel >= i;
+                let isProUnlocked = _bpStatus === 1 && isUnlocked;
+                
+                // --- БЕСПЛАТНАЯ ЛИНИЯ ---
+                let boxFree = document.createElement('div');
+                let isFreeClaimed = _claimedBpRewards.includes(`free_${i}`);
+                let rewardFree = getBpReward(i, false);
+                
+                // Определяем класс
+                if (isFreeClaimed) {
+                    boxFree.className = 'bp-level-box claimed';
+                } else if (isUnlocked) {
+                    boxFree.className = 'bp-level-box unlocked'; // Зеленая
+                } else {
+                    boxFree.className = 'bp-level-box locked'; // Серая
+                }
+
+                boxFree.innerHTML = `
+                    <div class="bp-level-num">${i}</div>
+                    <div class="bp-level-icon">${rewardFree.icon}</div>
+                    <div class="bp-level-reward">${rewardFree.text}</div>
+                `;
+                
+                if (isFreeClaimed) {
+                    let badge = document.createElement('div');
+                    badge.className = 'bp-claimed-badge';
+                    badge.textContent = '✓';
+                    boxFree.appendChild(badge);
+                } else if (isUnlocked) {
+                    boxFree.style.cursor = 'pointer';
+                    boxFree.onclick = () => claimBpReward(i, false);
+                }
+                gridFree.appendChild(boxFree);
+
+                // --- ПРО ЛИНИЯ ---
+                let boxPro = document.createElement('div');
+                let isProClaimed = _claimedBpRewards.includes(`pro_${i}`);
+                let rewardPro = getBpReward(i, true);
+
+                // Определяем класс
+                if (isProClaimed) {
+                    boxPro.className = 'bp-level-box claimed';
+                } else if (isProUnlocked) {
+                    boxPro.className = 'bp-level-box pro-unlocked'; // Оранжевая/Зеленая для про
+                } else {
+                    boxPro.className = 'bp-level-box locked'; // Серая
+                }
+
+                boxPro.innerHTML = `
+                    <div class="bp-level-num" style="color:#ffaa00;">${i}</div>
+                    <div class="bp-level-icon">${rewardPro.icon}</div>
+                    <div class="bp-level-reward" style="color:#ffaa00;">${rewardPro.text}</div>
+                `;
+
+                if (isProClaimed) {
+                    let badge = document.createElement('div');
+                    badge.className = 'bp-claimed-badge';
+                    badge.textContent = '✓';
+                    boxPro.appendChild(badge);
+                } else if (isProUnlocked) {
+                    boxPro.style.cursor = 'pointer';
+                    boxPro.onclick = () => claimBpReward(i, true);
+                }
+                gridPro.appendChild(boxPro);
+            }
+        }
+
+        function addBpXp(amount) {
+            if (_bpLevel >= 100) return;
+            _bpXp += amount;
+            let leveledUp = false;
+            
+            while (_bpXp >= _bpXpNext && _bpLevel < 100) {
+                _bpXp -= _bpXpNext;
+                _bpLevel++;
+                _bpXpNext = Math.floor(_bpXpNext * 1.5);
+                leveledUp = true;
+            }
+            
+            if (leveledUp) {
+                showNotif({
+                    type: 'system',
+                    icon: '🏆',
+                    title: `Батл Пасс: Уровень ${_bpLevel}!`,
+                    text: 'Загляни в Батл Пасс, чтобы забрать награды.'
+                });
+                playSound('levelup');
+            }
+            
+            renderBattlePass();
+            if (document.getElementById('bpQuestsView').style.display === 'block') {
+                renderBpQuests(); // Обновляем прогресс заданий
+            }
+            saveGame();
+        }
+
+        // Кнопка открытия (добавим позже в HTML, пока просто привязка)
+        document.getElementById('openBattlePassBtn')?.addEventListener('click', () => {
+            closeAllModals();
+            document.getElementById('battlePassModal').classList.add('active');
+            renderBattlePass();
+        });
+
+        document.getElementById('closeBattlePassBtn')?.addEventListener('click', () => {
+            // На телефоне возвращаем в хаб магазина, на ПК просто закрываем
+            if (typeof isMobile === 'function' && isMobile()) {
+                closeModalSmart('battlePassModal', 'shopHubModal');
+            } else {
+                document.getElementById('battlePassModal').classList.remove('active');
+            }
+        });
+
+        // Открытие инструкции при нажатии "Купить"
+        document.getElementById('buyBattlePassBtn')?.addEventListener('click', () => {
+            document.getElementById('buyBpInstructionModal').classList.add('active');
+            
+            // Проверяем статус, чтобы показать правильный контент
+            if (_bpStatus === 1) {
+                document.getElementById('bpInstructionContent').style.display = 'none';
+                document.getElementById('bpActiveContent').style.display = 'block';
+            } else {
+                document.getElementById('bpInstructionContent').style.display = 'block';
+                document.getElementById('bpActiveContent').style.display = 'none';
+            }
+        });
+
+        // Закрытие инструкции
+        document.getElementById('closeBuyBpInstructionBtn')?.addEventListener('click', () => {
+            document.getElementById('buyBpInstructionModal').classList.remove('active');
+        });
+
+        // ============================================
+        // ПУНКТ 3: ПОКУПКА ОСОБЫХ ТОВАРОВ
+        // ============================================
+        document.getElementById('buySpecialBoostBtn').addEventListener('click', () => {
+            let cost = 1000000;
+            if (_s >= cost || isDeveloper) {
+                if (!isDeveloper) _s -= cost;
+                // Добавляем 1 час (3600000 мс) к таймеру
+                _specialBoostTimer += 3600000; 
+                playSound('buy');
+                updateUI();
+                saveGame();
+                showAlert('⚡ БУСТЕР КУПЛЕН', 'Доход увеличен на 10% на 1 час!');
+            }
+        });
+
+        document.getElementById('buySpecialMagnetBtn').addEventListener('click', () => {
+            let cost = 5000000;
+            if (_s >= cost || isDeveloper) {
+                if (!isDeveloper) _s -= cost;
+                // Добавляем 1 час (3600000 мс) к таймеру
+                _specialMagnetTimer += 3600000; 
+                playSound('buy');
+                updateUI();
+                saveGame();
+                showAlert('🧲 МАГНИТ КУПЛЕН', 'Шанс золотого гриба увеличен на 1 час!');
+            }
         });
 
         // Том 6: цена навыка растёт с уровнем
@@ -6097,11 +6747,28 @@
 				line.style.transform = `rotate(${angle}deg)`;
 				treeInner.appendChild(line);
 			});
-			applyTreeTransform();
+            // Если это первый запуск или мы хотим сбросить вид — центрируем
+            if (treeScale === 1) {
+                treeX = 0;
+                treeY = 0;
+            }
+            applyTreeTransform();
 		}
 
         function applyTreeTransform() {
-            treeInner.style.transform = `translate(${treeX}px, ${treeY}px) scale(${treeScale})`;
+            // Вычисляем центр контейнера (видимой области)
+            let containerCenterX = treeContainer.clientWidth / 2;
+            let containerCenterY = treeContainer.clientHeight / 2;
+            
+            // Центр нашей большой сетки (3000x3000)
+            let gridCenter = 1500;
+
+            // Чтобы центр сетки оказался в центре контейнера, нужно сдвинуть её на разницу
+            // И учесть текущее смещение (treeX, treeY), которое задает пользователь
+            let offsetX = containerCenterX - gridCenter;
+            let offsetY = containerCenterY - gridCenter;
+
+            treeInner.style.transform = `translate(${treeX + offsetX}px, ${treeY + offsetY}px) scale(${treeScale})`;
         }
 
         treeContainer.addEventListener('mousedown', (e) => {
@@ -6120,19 +6787,47 @@
         treeContainer.addEventListener('wheel', (e) => {
             e.preventDefault();
             let delta = e.deltaY > 0 ? -0.1 : 0.1;
-            treeScale = Math.min(2, Math.max(0.3, treeScale + delta));
-            applyTreeTransform();
-        });
+            let newScale = Math.min(2, Math.max(0.3, treeScale + delta));
 
-        // === Том 5: Touch-управление деревом ===
+            // Зум ПОД КУРСОРОМ (как в редакторах)
+            let rect = treeContainer.getBoundingClientRect();
+            let mouseX = e.clientX - rect.left;   // координата курсора внутри контейнера
+            let mouseY = e.clientY - rect.top;
+            let containerCenterX = rect.width / 2;
+            let containerCenterY = rect.height / 2;
+
+            // Смещение курсора относительно центра (в пикселях экрана)
+            let dx = mouseX - containerCenterX;
+            let dy = mouseY - containerCenterY;
+
+            // Пересчитываем смещение так, чтобы точка под курсором осталась на месте
+            treeX = (treeX - dx) * (newScale / treeScale) + dx;
+            treeY = (treeY - dy) * (newScale / treeScale) + dy;
+
+            treeScale = newScale;
+            applyTreeTransform();
+        }, { passive: false });
+
+        // === Том 5: Touch-управление деревом (зум в центре, оптимизировано) ===
         let touchStartX = 0, touchStartY = 0;
         let touchStartDist = 0, touchStartScale = 1;
         let touchMode = null; // 'drag' | 'pinch'
+        let _pendingTransform = false; // оптимизация: не дёргаем rAF слишком часто
 
         function getTouchDist(t1, t2) {
             let dx = t1.clientX - t2.clientX;
             let dy = t1.clientY - t2.clientY;
             return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        // Оптимизация: применяем трансформацию через requestAnimationFrame
+        function scheduleTreeTransform() {
+            if (_pendingTransform) return;
+            _pendingTransform = true;
+            requestAnimationFrame(() => {
+                _pendingTransform = false;
+                applyTreeTransform();
+            });
         }
 
         treeContainer.addEventListener('touchstart', (e) => {
@@ -6154,12 +6849,19 @@
             if (touchMode === 'drag' && e.touches.length === 1) {
                 treeX = e.touches[0].clientX - touchStartX;
                 treeY = e.touches[0].clientY - touchStartY;
-                applyTreeTransform();
+                scheduleTreeTransform(); // ← оптимизация
             } else if (touchMode === 'pinch' && e.touches.length === 2) {
                 let dist = getTouchDist(e.touches[0], e.touches[1]);
                 let ratio = dist / touchStartDist;
-                treeScale = Math.min(2, Math.max(0.3, touchStartScale * ratio));
-                applyTreeTransform();
+                let newScale = Math.min(2, Math.max(0.3, touchStartScale * ratio));
+
+                // Зум всегда относительно ЦЕНТРА видимой области модалки
+                let dx = 0, dy = 0;
+                treeX = (treeX - dx) * (newScale / treeScale) + dx;
+                treeY = (treeY - dy) * (newScale / treeScale) + dy;
+
+                treeScale = newScale;
+                scheduleTreeTransform(); // ← оптимизация
             }
         }, { passive: false });
 
@@ -6167,17 +6869,22 @@
             if (e.touches.length === 0) touchMode = null;
         });
 
-        // Том 5: кнопки зума
-        document.getElementById('treeZoomInBtn').addEventListener('click', () => {
-            treeScale = Math.min(2, treeScale + 0.1);
+        // Том 5: кнопки зума (зум в центре — это удобнее для тапа)
+        function zoomTree(delta) {
+            let newScale = Math.min(2, Math.max(0.3, treeScale + delta));
+            let dx = 0, dy = 0;
+            treeX = (treeX - dx) * (newScale / treeScale) + dx;
+            treeY = (treeY - dy) * (newScale / treeScale) + dy;
+            treeScale = newScale;
             applyTreeTransform();
-        });
-        document.getElementById('treeZoomOutBtn').addEventListener('click', () => {
-            treeScale = Math.max(0.3, treeScale - 0.1);
-            applyTreeTransform();
-        });
+        }
+
+        document.getElementById('treeZoomInBtn').addEventListener('click', () => zoomTree(0.1));
+        document.getElementById('treeZoomOutBtn').addEventListener('click', () => zoomTree(-0.1));
         document.getElementById('treeZoomResetBtn').addEventListener('click', () => {
-            treeX = 0; treeY = 0; treeScale = 1;
+            treeX = 0; 
+            treeY = 0; 
+            treeScale = 1;
             applyTreeTransform();
         });
 
@@ -7059,11 +7766,11 @@
                 ctx.stroke();
             }
 
-            // Серый (проигрыш) — от start до start+loseAngle (по часовой)
-            drawSector(startOffset, startOffset + loseAngle, '#333');
+            // Желтый (выигрыш) — начинается с 0 (3 часа) и идет по часовой
+            drawSector(startOffset, startOffset + winAngle, '#ffaa00');
 
-            // Желтый (выигрыш) — от start+loseAngle до start+2PI (по часовой)
-            drawSector(startOffset + loseAngle, startOffset + Math.PI * 2, '#ffaa00');
+            // Серый (проигрыш) — остаток
+            drawSector(startOffset + winAngle, startOffset + Math.PI * 2, '#333');
 
             // Внутренний круг
             ctx.beginPath();
@@ -7392,7 +8099,7 @@
                 setTimeout(() => casinoResolve(bet), 5000);
             } 
             else if (_casinoGame === 'slots') {
-                // Останавливаем барабаны по очереди (5, 10, 15 секунд)
+                // Останавливаем барабаны по очереди (2, 4, 6 секунд)
                 let reels = [document.getElementById('reel1'), document.getElementById('reel2'), document.getElementById('reel3')];
                 
                 reels.forEach((el, index) => {
@@ -7400,14 +8107,14 @@
                     el.style.transform = 'translateY(0)';
                     
                     setTimeout(() => {
-                        let duration = (index + 1) * 5000; // 5с, 10с, 15с
+                        let duration = (index + 1) * 2000; // 2с, 4с, 6с
                         el.style.transition = `transform ${duration}ms cubic-bezier(0.1, 0.8, 0.2, 1)`;
                         el.style.transform = `translateY(-${(index + 1) * 1000}px)`; 
                     }, 50);
                 });
 
-                // Результат показываем через 15 секунд
-                setTimeout(() => casinoResolve(bet), 15500);
+                // Результат показываем через 6.5 секунд
+                setTimeout(() => casinoResolve(bet), 6500);
             }
         }
 
@@ -7791,13 +8498,13 @@
                 let frame = 0;
                 let int = setInterval(() => {
                     frame++;
-                    vy += 0.3;
+                    vy += 0.1;
                     px += vx; py += vy;
                     p.style.left = px + 'px';
                     p.style.top = py + 'px';
                     p.style.opacity = (1 - frame / 30).toString();
                     if (frame > 30) { clearInterval(int); p.remove(); }
-                }, 30);
+                }, 70);
             }
         }
 
@@ -7972,6 +8679,22 @@
                         saveSettings(); 
                         changed = true; 
                     }
+
+                    // СИНХРОНИЗАЦИЯ ПРО-СТАТУСА БАТЛ ПАССА В РЕАЛЬНОМ ВРЕМЕНИ
+                    if (typeof d.bpStatus === 'number' && d.bpStatus !== _bpStatus) {
+                        _bpStatus = d.bpStatus;
+                        changed = true;
+                        // Если открыто окно инструкции, меняем его на "Активен"
+                        let instModal = document.getElementById('buyBpInstructionModal');
+                        if (instModal && instModal.classList.contains('active')) {
+                            instModal.classList.remove('active');
+                            showAlert('✅ ПРО АКТИВЕН', 'Ваш Про-Батл Пасс успешно активирован!');
+                        }
+                        // Перерисовываем БП, если он открыт
+                        if (document.getElementById('battlePassModal').classList.contains('active')) {
+                            renderBattlePass();
+                        }
+                    }
                     
                     if (changed) {
                         updateUI();
@@ -7989,6 +8712,41 @@
         }
 
         setInterval(() => {
+            // Тик особых товаров (каждую секунду уменьшаем на 1)
+            if (_specialBoostTimer > 0) {
+                _specialBoostTimer -= 1000;
+                if (_specialBoostTimer < 0) _specialBoostTimer = 0;
+                let el = document.getElementById('specialBoostCostText');
+                if (el) {
+                    let mins = Math.ceil(_specialBoostTimer / 60000);
+                    el.textContent = `Активен: ${mins} мин.`;
+                    el.style.color = '#55ff55';
+                }
+            } else {
+                let el = document.getElementById('specialBoostCostText');
+                if (el && el.textContent.includes('Активен')) {
+                    el.textContent = `Цена: 1 000 000`;
+                    el.style.color = '';
+                }
+            }
+
+            if (_specialMagnetTimer > 0) {
+                _specialMagnetTimer -= 1000;
+                if (_specialMagnetTimer < 0) _specialMagnetTimer = 0;
+                let el = document.getElementById('specialMagnetCostText');
+                if (el) {
+                    let mins = Math.ceil(_specialMagnetTimer / 60000);
+                    el.textContent = `Активен: ${mins} мин.`;
+                    el.style.color = '#55ff55';
+                }
+            } else {
+                let el = document.getElementById('specialMagnetCostText');
+                if (el && el.textContent.includes('Активен')) {
+                    el.textContent = `Цена: 5 000 000`;
+                    el.style.color = '';
+                }
+            }
+
             // Тик буста (локально)
             if (_ba) {
                 _btl--;
@@ -8100,33 +8858,23 @@
         function stopAutoClick() {
             if (_autoClickInterval) { clearInterval(_autoClickInterval); _autoClickInterval = null; }
         }
-		
-		document.getElementById('autoClickToggle').addEventListener('change', (e) => {
-            if (_p < 3 && !isDeveloper) return;
-            settings.autoClick = e.target.checked;
-            saveSettings();
-            if (settings.autoClick) startAutoClick();
-            else stopAutoClick();
-            // Том 6: синхронизация с тумблером на главном экране
-            updateAutoclickUI();
-        });
 
         // Том 6: клик по тумблеру на главном экране
         autoclickToggleBox.addEventListener('click', () => {
-            if (_p < 3 && !isDeveloper) return;
+            if (!autoClickUnlocked && _p < 7 && !isDeveloper) return;
             settings.autoClick = !settings.autoClick;
             saveSettings();
             if (settings.autoClick) startAutoClick();
             else stopAutoClick();
-            // Синхронизация с чекбоксом в настройках
-            document.getElementById('autoClickToggle').checked = settings.autoClick;
+            // ПУНКТ 9: Чекбокс удален, синхронизация не нужна
             updateAutoclickUI();
         });
 
         // Том 6: обновление вида тумблера
         function updateAutoclickUI() {
             if (!autoclickToggleBox) return;
-            let locked = (_p < 3 && !isDeveloper);
+            // ПУНКТ 13: автоклик открывается с 7 перерождений
+            let locked = (!autoClickUnlocked && _p < 7 && !isDeveloper);
             autoclickToggleBox.classList.toggle('locked', locked);
             autoclickToggleBox.classList.toggle('active', settings.autoClick && !locked);
         }
@@ -8143,95 +8891,6 @@
             if (!autoBuyBoostToggleBox) return;
             autoBuyBoostToggleBox.classList.toggle('active', settings.autoBuyBoost);
         }
-
-        document.getElementById('resetSaveBtn').addEventListener('click', () => {
-            showConfirm('⚠️ СБРОС СОХРАНЕНИЯ', 'Точно сбросить ВСЁ сохранение?\nЭто действие необратимо!', () => {
-                document.cookie.split(";").forEach(c => {
-                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-                });
-                localStorage.removeItem('customBg');
-                location.reload();
-            });
-        });
-
-        // === ЭКСПОРТ/ИМПОРТ ===
-        document.getElementById('exportSaveBtn').addEventListener('click', () => {
-            let save = {
-                _s, _cp, _ac, _l, _xp, _p, _pp, _tc, _clr,
-                _ucc, _uac, _acc, _aac, _acc2, _aac2, _aac3,
-                _acm, _aam, _hac, _haa, _hac2, _haa2, _haa3,
-                _ms, minePlays, boostUses, catchPlays, xpTotal, skills, upgrades,
-                _focusBest, _focusTotal,
-                _casinoSpins, _casinoWins, _casinoLosses, _casinoLossStreak,
-                _evo, _dia,
-                _dim2Count, _dim2Up1, _dim2Up2, _dim2Up3,
-                achievements: achievements.map(a => a.unlocked),
-                dailyResetTime, weeklyResetTime,
-                dailyQuests, weeklyQuests, normalQuests,
-                settings
-            };
-            let blob = new Blob([JSON.stringify(save, null, 2)], { type: 'application/json' });
-            let url = URL.createObjectURL(blob);
-            let a = document.createElement('a');
-            a.href = url;
-            a.download = `sherwo_clicker_save_${Date.now()}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-        });
-        document.getElementById('importSaveBtn').addEventListener('click', () => {
-            document.getElementById('importSaveInput').click();
-        });
-        document.getElementById('importSaveInput').addEventListener('change', (e) => {
-            let file = e.target.files[0];
-            if (!file) return;
-            let reader = new FileReader();
-            reader.onload = (ev) => {
-                try {
-                    let save = JSON.parse(ev.target.result);
-                    _s = save._s || 0; _cp = save._cp || 1; _ac = save._ac || 0;
-                    _l = save._l || 1; _xp = save._xp || 0; _p = save._p || 0;
-                    _pp = save._pp || 0; _tc = save._tc || 0; _clr = save._clr || 0;
-                    _ucc = save._ucc || 5; _uac = save._uac || 20;
-                    _acc = save._acc || 5000; _aac = save._aac || 10000;
-                    _acc2 = save._acc2 || 50000; _aac2 = save._aac2 || 100000;
-                    _aac3 = save._aac3 || 500000;
-                    _acm = save._acm || 1; _aam = save._aam || 1;
-                    _hac = save._hac || false; _haa = save._haa || false;
-                    _hac2 = save._hac2 || false; _haa2 = save._haa2 || false;
-                    _haa3 = save._haa3 || false;
-                    _ms = save._ms || 0; minePlays = save.minePlays || 0;
-                    boostUses = save.boostUses || 0;
-                    catchPlays = save.catchPlays || 0;
-                    xpTotal = save.xpTotal || 0;
-                    _focusBest = save._focusBest || 0;
-                    _focusTotal = save._focusTotal || 0;
-                    _evo = save._evo || 0;
-                    _dia = save._dia || 0;
-                    _casinoLossStreak = save._casinoLossStreak || 0;
-                    _dim2Count = save._dim2Count || 0;
-                    _dim2Up1 = save._dim2Up1 || 0;
-                    _dim2Up2 = save._dim2Up2 || 0;
-                    _dim2Up3 = save._dim2Up3 || 0;
-                    favoriteQuests = save.favoriteQuests || [];
-                    if (save.skills) for (let k in skills) if (save.skills[k]) skills[k].level = save.skills[k].level;
-                    if (save.upgrades) for (let k in upgrades) if (save.upgrades[k]) upgrades[k].level = save.upgrades[k].level;
-                    if (save.achievements) achievements.forEach((a, i) => a.unlocked = save.achievements[i] || false);
-                    dailyResetTime = save.dailyResetTime || 0;
-                    weeklyResetTime = save.weeklyResetTime || 0;
-                    if (save.dailyQuests) dailyQuests = save.dailyQuests;
-                    if (save.weeklyQuests) weeklyQuests = save.weeklyQuests;
-                    if (save.normalQuests) normalQuests = save.normalQuests;
-                    if (save.settings) { settings = { ...settings, ...save.settings }; }
-                    saveGame();
-                    updateUI();
-                    renderBgPreviews();
-                    showAlert('✅ СОХРАНЕНИЕ ЗАГРУЖЕНО', 'Прогресс успешно восстановлен!');
-                } catch(err) {
-                    showAlert('❌ ОШИБКА ЗАГРУЗКИ', 'Не удалось загрузить сохранение:\n' + err.message);
-                }
-            };
-            reader.readAsText(file);
-        });
 
         // === КАСТОМНЫЙ ФОН ===
         document.getElementById('customBgBtn').addEventListener('click', () => {
@@ -8312,100 +8971,6 @@
                 _focusTargetDir = 0;
             }
         });
-		
-		// ============================================
-        // АККАУНТЫ + FIREBASE + YOUTUBE (v26.10.10)
-        // ============================================
-
-        // --- Список треков по умолчанию (увеличен) ---
-		const DEFAULT_MUSIC_TRACKS = [];
-
-        // Клонируем, чтобы не портить оригинал
-        let MUSIC_TRACKS = [...DEFAULT_MUSIC_TRACKS];
-        let customYoutubeUrl = '';
-
-        // --- Загружаем из настроек кастомную ссылку ---
-        if (settings.youtubeUrl) {
-            customYoutubeUrl = settings.youtubeUrl;
-            let trackInfo = parseYoutubeUrl(customYoutubeUrl);
-            if (trackInfo) MUSIC_TRACKS = [trackInfo];
-        }
-
-        // --- Парсер ссылок YouTube ---
-        function parseYoutubeUrl(url) {
-            if (!url) return null;
-            url = url.trim();
-            // Плейлист
-            let listMatch = url.match(/[?&]list=([a-zA-Z0-9_-]+)/);
-            if (listMatch) {
-                return { id: 'videoseries?list=' + listMatch[1], name: 'Плейлист', isPlaylist: true };
-            }
-            // Короткая ссылка youtu.be
-            let shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
-            if (shortMatch) return { id: shortMatch[1], name: 'YouTube-видео' };
-            // Обычная ссылка
-            let vMatch = url.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
-            if (vMatch) return { id: vMatch[1], name: 'YouTube-видео' };
-            // Если просто введён ID
-            if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return { id: url, name: 'YouTube-видео' };
-            return null;
-        }
-
-        // --- Загрузка трека в iframe ---
-        function loadTrack(index) {
-            let iframe = document.getElementById('musicIframe');
-            if (!iframe) return;
-            if (index >= MUSIC_TRACKS.length) index = 0;
-            if (index < 0) index = MUSIC_TRACKS.length - 1;
-            settings.musicTrack = index;
-            saveSettings();
-            let track = MUSIC_TRACKS[index];
-            let src = track.isPlaylist
-                ? `https://www.youtube-nocookie.com/embed/${track.id}&autoplay=1`
-                : `https://www.youtube-nocookie.com/embed/${track.id}?autoplay=1`;
-            iframe.src = src;
-            document.getElementById('trackName').textContent = track.name;
-        }
-
-        // --- Кнопки музыки ---
-        document.getElementById('musicToggleBtn').addEventListener('click', () => {
-            let c = document.getElementById('musicContainer');
-            let iframe = document.getElementById('musicIframe');
-            if (c.style.display === 'none') {
-                // Если нет ссылки — предупреждаем
-                if (!settings.youtubeUrl) {
-                    showAlert('⚠️ НЕТ ССЫЛКИ', 'Сначала вставь свою YouTube-ссылку в поле ниже.');
-                    return;
-                }
-                loadTrack(settings.musicTrack || 0);
-                c.style.display = 'block';
-                document.getElementById('musicToggleBtn').textContent = 'ВЫКЛЮЧИТЬ';
-            } else {
-                iframe.src = '';
-                c.style.display = 'none';
-                document.getElementById('musicToggleBtn').textContent = 'ВКЛЮЧИТЬ';
-            }
-        });
-
-        // --- Кастомная ссылка ---
-        document.getElementById('applyYoutubeBtn').addEventListener('click', () => {
-            let url = document.getElementById('customYoutubeUrl').value.trim();
-            if (!url) { showAlert('⚠️ ПУСТАЯ ССЫЛКА', 'Вставь ссылку на YouTube-видео или плейлист.'); return; }
-            let trackInfo = parseYoutubeUrl(url);
-            if (!trackInfo) { showAlert('❌ ОШИБКА', 'Не удалось распознать ссылку.\nПроверь, что это YouTube.'); return; }
-            customYoutubeUrl = url;
-            settings.youtubeUrl = url;
-            MUSIC_TRACKS = [trackInfo];
-            settings.musicTrack = 0;
-            saveSettings();
-            // Если плеер открыт — сразу обновляем
-            if (document.getElementById('musicContainer').style.display === 'block') {
-                loadTrack(0);
-            }
-            showAlert('✅ ССЫЛКА ПРИМЕНЕНА', 'Музыка обновлена!');
-        });
-        // Подставляем сохранённую ссылку в поле
-        if (settings.youtubeUrl) document.getElementById('customYoutubeUrl').value = settings.youtubeUrl;
 
         // --- Подключаем Firebase-модуль (ждём загрузки) ---
         let fbReady = false;
@@ -8440,6 +9005,11 @@
                 }
                 document.getElementById('userNickname').textContent = nick;
                 document.getElementById('userEmail').textContent = user.email;
+                let btnNick = document.getElementById('profileBtnNickname');
+                if (btnNick) {
+                    let bHtml = userSelectedBadge > 0 ? `<img src="badge${userSelectedBadge}.png" class="user-badge-icon" onerror="this.style.display='none'">` : '';
+                    btnNick.innerHTML = bHtml + nick;
+                }
                 updateModeButtons();
             } else {
                 loggedIn.style.display = 'none';
@@ -8586,7 +9156,12 @@
             let user = window.fbGetUser ? window.fbGetUser() : null;
             if (!user) return;
 
-            document.getElementById('profileNickname').textContent = user.displayName || user.email.split('@')[0];
+            let nick = user.displayName || user.email.split('@')[0];
+            let badgeHtml = '';
+            if (typeof userSelectedBadge !== 'undefined' && userSelectedBadge > 0) {
+                badgeHtml = `<img src="badge${userSelectedBadge}.png" class="user-badge-icon" onerror="this.style.display='none'">`;
+            }
+            document.getElementById('profileNickname').innerHTML = badgeHtml + nick;
             document.getElementById('profileEmail').textContent = user.email;
             document.getElementById('profileCreatedAt').textContent = formatDate(userCreatedAt);
 
@@ -8614,6 +9189,49 @@
             document.getElementById('statAchievements').textContent = `${achCount}/${achievements.length}`;
             document.getElementById('statChaPerHour').textContent = (getAutoPower() * 3600).toLocaleString();
         }
+
+        // === ТОМ 8: БАДЖИ ===
+        const BADGE_COUNT = 20;
+        let badgesUnlocked = [];
+        
+        function renderBadgeGrid() {
+            let grid = document.getElementById('badgeGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            for (let i = 1; i <= BADGE_COUNT; i++) {
+                let div = document.createElement('div');
+                div.style.cssText = 'width: 64px; height: 64px; border: 3px solid #000; background: #1a1c1e; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative;';
+                let isUnlocked = badgesUnlocked.includes(i);
+                let isSelected = userSelectedBadge === i;
+                if (isSelected) div.style.borderColor = '#55ff55';
+                if (!isUnlocked) div.style.opacity = '0.3';
+                div.innerHTML = `<img src="badge${i}.png" style="width: 48px; height: 48px; object-fit: contain; image-rendering: pixelated;" onerror="this.style.display='none'">`;
+                if (!isUnlocked) {
+                    let lock = document.createElement('div');
+                    lock.textContent = '🔒';
+                    lock.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.5rem;';
+                    div.appendChild(lock);
+                }
+                div.onclick = () => {
+                    if (!isUnlocked) return;
+                    userSelectedBadge = i;
+                    if (window.fbSaveBadge) window.fbSaveBadge(i);
+                    renderBadgeGrid();
+                    let user = window.fbGetUser();
+                    if (user) updateAccountUI(user);
+                    renderProfile();
+                };
+                grid.appendChild(div);
+            }
+        }
+
+        window.openBadgeModal = function() {
+            document.getElementById('badgeModal').classList.add('active');
+            renderBadgeGrid();
+        };
+        document.getElementById('closeBadgeBtn').addEventListener('click', () => {
+            document.getElementById('badgeModal').classList.remove('active');
+        });
 
         // --- Открытие профиля ---
         document.getElementById('openProfileBtn').addEventListener('click', () => {
@@ -8769,18 +9387,51 @@
             await saveGame();
             activeMode = newMode;
             await window.fbSetActiveMode(newMode);
-            await loadGame();
-            updateUI();
-            updateModeButtons();
-            document.getElementById('devBadge').classList.toggle('active', newMode === 'developer');
-            isDeveloper = (newMode === 'developer');
+            
+            // ПУНКТ 5: Жесткая выдача ресурсов в дев-режиме
+            // Сбрасываем флаг автоклика при смене режима, чтобы он не переносился
+            autoClickUnlocked = false; 
+            if (settings.autoClick) {
+                settings.autoClick = false;
+                saveSettings();
+                stopAutoClick();
+            }
+
+            if (newMode === 'developer') {
+                let devSave = {
+                    _s: 999999999,
+                    _ms: 999999999,
+                    _dia: 999999,
+                    _cp: 1000,
+                    _ac: 1000,
+                    _p: 50,
+                    _pp: 9999,
+                    _evo: 6,
+                    _l: 100,
+                    _dim2Count: 6,
+                    _dim2Up1: 25,
+                    _dim2Up2: 20,
+                    _dim2Up3: 25
+                };
+                applySave(devSave); // Применяем фейковые данные
+                isDeveloper = true;
+                showAlert('🛠️ РЕЖИМ РАЗРАБОТЧИКА', 'Баланс выкручен на максимум!');
+            } else {
+                await loadGame();
+            }
+        }
+        updateUI();
+        updateModeButtons();
+        // Строка с devBadge удалена, так как элемента нет в HTML и он вызывал ошибку
+            
+            // Том 11 fix: перезапускаем подписку на новый режим
+            
             // Том 11 fix: перезапускаем подписку на новый режим
             _saveWatchStarted = false;
             if (window.fbUnwatchSave) window.fbUnwatchSave();
             startSaveWatch();
-        }
-
-                // --- ПЕРЕКЛЮЧАТЕЛЬ РЕЖИМОВ ---
+			
+        // --- ПЕРЕКЛЮЧАТЕЛЬ РЕЖИМОВ ---
         function updateModeButtons() {
             let normBtn = document.getElementById('modeNormalBtn');
             let hardBtn = document.getElementById('modeHardcoreBtn');
@@ -8948,6 +9599,11 @@
         document.getElementById('hubSkillTreeBtn').addEventListener('click', () => hubOpen('shopHubModal', 'skillTreeModal'));
         document.getElementById('hubPrestigeBtn').addEventListener('click', () => hubOpen('shopHubModal', 'prestigeModal'));
         document.getElementById('hubQuestsBtn').addEventListener('click', () => hubOpen('shopHubModal', 'questsModal'));
+        document.getElementById('hubBattlePassBtn').addEventListener('click', () => {
+            closeAllModals();
+            document.getElementById('battlePassModal').classList.add('active');
+            renderBattlePass();
+        });
 
         // Настройки-хаб
         // Настройки-хаб
@@ -11259,6 +11915,7 @@ let unread = (c.lastMessageTs > c.lastRead && c.lastMessageFrom !== (me ? me.uid
                         if (avatarRes.success) {
                             userAvatar = avatarRes.avatar || '';
                             userCreatedAt = avatarRes.createdAt || 0;
+                            userSelectedBadge = avatarRes.selectedBadge || 0;
                             // Том 8: аватар на кнопке профиля
                             if (userAvatar) {
                                 profileBtnAvatar.src = userAvatar;
@@ -11279,65 +11936,36 @@ let unread = (c.lastMessageTs > c.lastRead && c.lastMessageFrom !== (me ? me.uid
                     // Загружаем сохранение выбранного режима
                     let saveRes = await window.fbLoad(activeMode);
                     
-                    if (saveRes.success && saveRes.data) {
+                    if (saveRes.success && saveRes.data && Object.keys(saveRes.data).length > 0) {
                         let serverData = saveRes.data;
-                        let serverScore = serverData._s || 0;
-                        let serverMs = serverData._ms || 0;
-                        let serverDia = serverData._dia || 0;
                         
-                        let serverValue = serverScore + (serverMs * 10000) + (serverDia * 1000000);
-                        let localValue = _s + (_ms * 10000) + (_dia * 1000000);
+                        // ПРИНУДИТЕЛЬНО ЗАГРУЖАЕМ СЕРВЕР (без сравнений)
+                        applySave(serverData);
                         
-                        console.log('Сервер:', serverScore, 'чачи. Локально:', _s, 'чачи.');
-                        
-                        // ГЛАВНОЕ ПРАВИЛО: Если на сервере больше — загружаем сервер. 
-                        // Если локально больше — сохраняем локальное на сервер.
-                        if (serverValue > localValue) {
-                            console.log('✅ Сервер ценнее — загружаем его данные');
-                            applySave(serverData);
-                            
-                            // Оффлайн-доход
-                            if (serverData.settings && serverData.settings.lastOnline) {
-                                let lastOnline = serverData.settings.lastOnline;
-                                let now = Date.now();
-                                let diffSec = Math.floor((now - lastOnline) / 1000);
-                                if (diffSec > 0) {
-                                    let maxSec = 7 * 24 * 60 * 60;
-                                    if (diffSec > maxSec) diffSec = maxSec;
-                                    if (activeMode === 'normal') {
-                                        let tempAuto = (serverData._ac || 0) * (serverData._aam || 1);
-                                        let up1 = 1 + ((serverData.upgrades?.autoBoost?.level || 0) * 0.05);
-                                        let up2 = 1 + ((serverData.upgrades?.autoBoost2?.level || 0) * 0.10);
-                                        let up3 = 1 + ((serverData.upgrades?.autoBoost3?.level || 0) * 0.15);
-                                        let global = 1 + ((serverData.upgrades?.globalBoost?.level || 0) * 0.25);
-                                        let prestigeBonus = 1 + ((serverData._p || 0) * 0.05);
-                                        let offlineEarned = tempAuto * up1 * up2 * up3 * global * prestigeBonus * diffSec;
-                                        if (offlineEarned > 0) {
-                                            _s += offlineEarned;
-                                            let offlineXp = diffSec * 0.5 * _cp;
-                                            if (offlineXp > 0) addXp(offlineXp);
-                                            setTimeout(() => showOfflineModal(offlineEarned, diffSec), 500);
-                                        }
-                                    }
-                                }
+                        // Оффлайн-доход (упрощенный вызов)
+                        if (serverData.settings && serverData.settings.lastOnline) {
+                            let earned = calculateOfflineEarnings(serverData.settings.lastOnline);
+                            if (earned > 0) {
+                                _s += earned;
+                                let sec = Math.floor((Date.now() - serverData.settings.lastOnline) / 1000);
+                                // Ограничиваем для сообщения
+                                if (sec > 604800) sec = 604800;
+                                setTimeout(() => showOfflineModal(earned, sec), 500);
                             }
-                        } else if (localValue > serverValue) {
-                            console.log('⚠️ Локально ценнее — отправляем на сервер');
-                            saveGameNow(); // Отправляем локальные данные, чтобы сервер обновился
-                        } else {
-                            console.log('= Ценность равна — загружаем сервер');
-                            applySave(serverData);
                         }
                         
                         _achievementsLoaded = true;
                         _isLoadedFromServer = true; // Данные загружены, можно сохранять
+                    } else {
+                        // Если сервер пустой — значит новый аккаунт или сброс
+                        console.log('Сервер пуст, начинаем с нуля');
+                        _isLoadedFromServer = true; // Разрешаем сохранение
                     }
                     
                     if (!_achievementsLoaded) _achievementsLoaded = true;
                     _isLoadedFromServer = true;
 
                     isDeveloper = (activeMode === 'developer');
-                    document.getElementById('devBadge').classList.toggle('active', isDeveloper);
                     // Обновляем UI и переключатель
                     updateUI();
                     updateModeButtons();
@@ -11459,7 +12087,123 @@ let unread = (c.lastMessageTs > c.lastRead && c.lastMessageFrom !== (me ? me.uid
                 }, 3000); // <--- ТЕПЕРЬ 3 СЕКУНДЫ ВМЕСТО 15000
             }, 3000);
         })();
+        // ============================================
+        // ПУНКТ 4: СКРОЛЛ И ПЕРЕТАСКИВАНИЕ ЛИНИЙ БП
+        // ============================================
+        function makeDraggable(el) {
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+            let velocity = 0;
+            let lastX = 0;
+            let lastTime = 0;
+            let momentumId = null;
+
+            // Плавная прокрутка колёсиком (как в магазине)
+            let targetScroll = 0;
+            let isWheelAnimating = false;
+            
+            el.addEventListener('wheel', (e) => {
+                if (e.deltaY === 0) return;
+                e.preventDefault();
+                targetScroll = el.scrollLeft + e.deltaY * 1.5;
+                // Ограничиваем
+                let max = el.scrollWidth - el.clientWidth;
+                targetScroll = Math.max(0, Math.min(max, targetScroll));
+                
+                if (!isWheelAnimating) {
+                    isWheelAnimating = true;
+                    function animateWheelScroll() {
+                        let current = el.scrollLeft;
+                        let diff = targetScroll - current;
+                        if (Math.abs(diff) < 1) {
+                            el.scrollLeft = targetScroll;
+                            isWheelAnimating = false;
+                            return;
+                        }
+                        el.scrollLeft = current + diff * 0.15; // Коэффициент плавности
+                        requestAnimationFrame(animateWheelScroll);
+                    }
+                    requestAnimationFrame(animateWheelScroll);
+                }
+            }, { passive: false });
+
+            el.addEventListener('mousedown', (e) => {
+                isDown = true;
+                el.style.cursor = 'grabbing';
+                startX = e.pageX - el.offsetLeft;
+                scrollLeft = el.scrollLeft;
+                lastX = e.pageX;
+                lastTime = performance.now();
+                velocity = 0;
+                if (momentumId) cancelAnimationFrame(momentumId);
+            });
+
+            window.addEventListener('mouseup', () => {
+                if (!isDown) return;
+                isDown = false;
+                el.style.cursor = 'grab';
+                if (Math.abs(velocity) > 0.1) {
+                    momentumId = requestAnimationFrame(applyMomentum);
+                }
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                let now = performance.now();
+                let dt = now - lastTime;
+                if (dt > 0) {
+                    velocity = (e.pageX - lastX) / dt;
+                    lastX = e.pageX;
+                    lastTime = now;
+                }
+                let walk = (e.pageX - startX) * 1.5;
+                el.scrollLeft = scrollLeft - walk;
+            });
+
+            function applyMomentum() {
+                velocity *= 0.95;
+                if (Math.abs(velocity) < 0.05) {
+                    momentumId = null;
+                    return;
+                }
+                let max = el.scrollWidth - el.clientWidth;
+                let next = el.scrollLeft - velocity * 16;
+                if (next <= 0) { el.scrollLeft = 0; momentumId = null; return; }
+                if (next >= max) { el.scrollLeft = max; momentumId = null; return; }
+                el.scrollLeft = next;
+                momentumId = requestAnimationFrame(applyMomentum);
+            }
+        }
+
+        // Привязываем скролл к линиям БП после их создания
+        setTimeout(() => {
+            let lineFree = document.getElementById('bpGridFree');
+            let linePro = document.getElementById('bpGridPro');
+            if (lineFree) makeDraggable(lineFree);
+            if (linePro) makeDraggable(linePro);
+        }, 1000);
+
+        // ============================================
+        // ПУНКТ 3: ВКЛАДКИ МАГАЗИНА
+        // ============================================
+        window.switchShopTab = function(tab) {
+            document.querySelectorAll('.active-shop-tab, #shopCardsZavody, #shopCardsArtifacts, #shopCardsSpecial, #shopCardsKirki').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.tabs-header .tab-btn').forEach(btn => btn.classList.remove('active'));
+
+            let targetList = null;
+            if (tab === 'kirki') { targetList = document.getElementById('shopCardsKirki'); document.getElementById('shopTabKirki').classList.add('active'); }
+            if (tab === 'zavody') { targetList = document.getElementById('shopCardsZavody'); document.getElementById('shopTabZavody').classList.add('active'); }
+            if (tab === 'artifacts') { targetList = document.getElementById('shopCardsArtifacts'); document.getElementById('shopTabArtifacts').classList.add('active'); }
+            if (tab === 'special') { targetList = document.getElementById('shopCardsSpecial'); document.getElementById('shopTabSpecial').classList.add('active'); }
+
+            if (targetList) {
+                targetList.style.display = 'flex';
+                targetList.classList.add('active-shop-tab');
+            }
+        };
     </script>
-	<script type="module" src="firebase.js"></script>
+    <script type="module" src="firebase.js"></script>
 </body>
 </html>

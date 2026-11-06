@@ -158,7 +158,7 @@ window.fbLoadAvatar = async function() {
         const snapshot = await get(ref(db, 'users/' + user.uid));
         if (snapshot.exists()) {
             const data = snapshot.val();
-            return { success: true, avatar: data.avatar || '', createdAt: data.createdAt || 0 };
+            return { success: true, avatar: data.avatar || '', createdAt: data.createdAt || 0, selectedBadge: data.selected_badge || 0 };
         }
         return { success: true, avatar: '', createdAt: 0 };
     } catch (err) {
