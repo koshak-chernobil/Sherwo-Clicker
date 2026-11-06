@@ -1,6 +1,6 @@
 // ============================================================
 // МОДУЛЬ FIREBASE ДЛЯ «ШЕРВО КЛИКЕР»
-// Версия: 2.0 (3 профиля + active_mode)
+// Версия: 3.2 (3 профиля + active_mode + Sherwo)
 // ============================================================
 
 const firebaseConfig = {
@@ -46,7 +46,7 @@ window.fbRegister = async function(email, password, nickname) {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         if (nickname) await updateProfile(user, { displayName: nickname });
-		await set(ref(db, 'users/' + user.uid), {
+        await set(ref(db, 'users/' + user.uid), {
             nickname: nickname || email.split('@')[0],
             email: email,
             active_mode: 'normal',
@@ -56,7 +56,6 @@ window.fbRegister = async function(email, password, nickname) {
             save_hardcore: null,
             save_developer: null
         });
-		// Том 2 fix: дублируем ник в базу, чтобы точно был
         if (nickname) {
             await update(ref(db, 'users/' + user.uid), { nickname: nickname });
         }
@@ -91,9 +90,6 @@ window.fbSave = async function(mode, saveData) {
     const user = auth.currentUser;
     if (!user) return { success: false, error: 'Не авторизован' };
     try {
-        // Том 11 fix: свои сохранения не должны восприниматься как "админские".
-        // Ставим штамп 0 — игрок сам не должен триггерить подхват.
-        // Но если админ уже ставил штамп — не затираем его при сохранении.
         if (saveData && typeof saveData === 'object') {
             if (!saveData._adminEditStamp) saveData._adminEditStamp = 0;
         }
@@ -168,7 +164,6 @@ window.fbLoadAvatar = async function() {
 
 // --- ТОМ 14: АДМИН-КОНСОЛЬ ---
 
-// Загрузить список всех пользователей
 window.fbAdminListUsers = async function() {
     try {
         const snapshot = await get(ref(db, 'users'));
@@ -189,7 +184,6 @@ window.fbAdminListUsers = async function() {
     }
 };
 
-// Загрузить данные конкретного пользователя
 window.fbAdminLoadUser = async function(uid) {
     try {
         const snapshot = await get(ref(db, 'users/' + uid));
@@ -200,10 +194,8 @@ window.fbAdminLoadUser = async function(uid) {
     }
 };
 
-// Сохранить изменения в конкретного пользователя
 window.fbAdminSaveUser = async function(uid, updates) {
     try {
-        // Том 11 fix: ставим штамп админской правки, чтобы игра подхватила изменения
         if (updates && typeof updates === 'object') {
             for (let key in updates) {
                 if (key.startsWith('save_') && updates[key] && typeof updates[key] === 'object') {
@@ -221,8 +213,7 @@ window.fbAdminSaveUser = async function(uid, updates) {
         if (!stampApplied) {
             updates._adminEditStamp = Date.now();
         }
-        // Том 11 fix: заморозка автосейва игрока на 60 секунд
-		updates._freezeUntil = Date.now() + 3 * 1000;
+        updates._freezeUntil = Date.now() + 3 * 1000;
         await update(ref(db, 'users/' + uid), updates);
         return { success: true };
     } catch (err) {
@@ -230,10 +221,8 @@ window.fbAdminSaveUser = async function(uid, updates) {
     }
 };
 
-// Сбросить сохранение конкретного режима
 window.fbAdminResetSave = async function(uid, mode) {
     try {
-        // Том 11 fix: ставим штамп, чтобы игра подхватила сброс
         await update(ref(db, 'users/' + uid), {
             ['save_' + mode]: { _adminEditStamp: Date.now() }
         });
@@ -263,8 +252,6 @@ window.fbUpdateProfile = async function(nickname) {
 window.fbOnAuthChange = function(callback) { onAuthStateChanged(auth, callback); };
 
 // --- ТОМ 11 fix: мгновенная подписка на изменения сохранения ---
-// Работает через onValue (push-уведомления Firebase).
-// Любое изменение в базе прилетает на все устройства этого аккаунта за ~0.1 сек.
 let _saveUnsubscribe = null;
 
 window.fbWatchSave = function(mode, callback) {
@@ -275,15 +262,12 @@ window.fbWatchSave = function(mode, callback) {
         _saveUnsubscribe = null;
     }
     try {
-        // Слушаем весь узел пользователя, чтобы видеть и save_*, и _adminEditStamp
         const userRef = ref(db, 'users/' + user.uid);
         _saveUnsubscribe = onValue(userRef, (snapshot) => {
             const data = snapshot.val();
             if (!data) return;
-            // Достаём сохранение нужного режима
             const save = data['save_' + mode];
             if (!save) return;
-            // Если на верхнем уровне есть штамп — он главнее
             const topStamp = data._adminEditStamp || 0;
             if (topStamp > (save._adminEditStamp || 0)) {
                 save._adminEditStamp = topStamp;
@@ -303,9 +287,6 @@ window.fbUnwatchSave = function() {
     }
 };
 
-// --- Том 11 fix: проверка заморозки автосейва ---
-// Админ после сохранения ставит _freezeUntil = Date.now() + 60сек.
-// Игрок до этого времени НЕ сохраняет — чтобы не затереть админскую правку.
 window.fbIsFrozen = async function() {
     const user = auth.currentUser;
     if (!user) return false;
@@ -324,7 +305,6 @@ window.fbIsFrozen = async function() {
 // === СОЦСЕТЬ (ТОМ 1) ===
 // ============================================================
 
-// --- ГЕНЕРАЦИЯ 9-ЗНАЧНОГО ИГРОВОГО ID ---
 window.fbGenerateGameId = async function() {
     const user = auth.currentUser;
     if (!user) return { success: false, error: 'Не авторизован' };
@@ -350,7 +330,6 @@ window.fbGenerateGameId = async function() {
     }
 };
 
-// --- ОБНОВЛЕНИЕ ПУБЛИЧНОГО ПРОФИЛЯ ---
 window.fbUpdatePublicProfile = async function(data) {
     const user = auth.currentUser;
     if (!user) return { success: false, error: 'Не авторизован' };
@@ -374,7 +353,6 @@ window.fbUpdatePublicProfile = async function(data) {
     }
 };
 
-// --- ПОЛУЧИТЬ ПУБЛИЧНЫЙ ПРОФИЛЬ ---
 window.fbGetPublicProfile = async function(uid) {
     try {
         const snapshot = await get(ref(db, 'social/profiles/' + uid));
@@ -385,7 +363,6 @@ window.fbGetPublicProfile = async function(uid) {
     }
 };
 
-// --- ПОИСК ПОЛЬЗОВАТЕЛЯ ---
 window.fbFindUser = async function(queryStr) {
     try {
         queryStr = queryStr.trim();
@@ -424,18 +401,14 @@ window.fbSendFriendRequest = async function(toUid) {
     if (!user) return { success: false, error: 'Не авторизован' };
     if (toUid === user.uid) return { success: false, error: 'Нельзя добавить себя' };
     try {
-        // Проверка: уже друзья?
         const friendSnap = await get(ref(db, 'social/friends/' + user.uid + '/list/' + toUid));
         if (friendSnap.exists()) return { success: false, error: 'Уже в друзьях' };
-        // Проверка: уже отправлена заявка?
         const outSnap = await get(ref(db, 'social/friends/' + user.uid + '/requests/outgoing/' + toUid));
         if (outSnap.exists()) return { success: false, error: 'Заявка уже отправлена' };
-        // Проверка: а есть ли входящая от него? Тогда сразу принимаем
         const inSnap = await get(ref(db, 'social/friends/' + user.uid + '/requests/incoming/' + toUid));
         if (inSnap.exists()) {
             return await window.fbAcceptFriendRequest(toUid);
         }
-        // Отправляем заявку
         const now = Date.now();
         await set(ref(db, 'social/friends/' + user.uid + '/requests/outgoing/' + toUid), now);
         await set(ref(db, 'social/friends/' + toUid + '/requests/incoming/' + user.uid), now);
@@ -618,18 +591,15 @@ window.fbWatchGifts = function(callback) {
 // === SHERWO (ТОМ 2: ЛИЧНЫЕ ЧАТЫ) ===
 // ============================================================
 
-// --- Получить/создать чат между двумя игроками ---
 window.fbGetOrCreateChat = async function(otherUid) {
     const user = auth.currentUser;
     if (!user) return { success: false, error: 'Не авторизован' };
     if (otherUid === user.uid) return { success: false, error: 'Нельзя чат с собой' };
     try {
-        // chatId — отсортированные uid, соединённые "_"
         let ids = [user.uid, otherUid].sort();
         let chatId = ids[0] + '_' + ids[1];
         let chatSnap = await get(ref(db, 'social/chats/' + chatId));
         if (!chatSnap.exists()) {
-            // Создаём чат
             await set(ref(db, 'social/chats/' + chatId), {
                 type: 'private',
                 members: { [user.uid]: true, [otherUid]: true },
@@ -638,7 +608,6 @@ window.fbGetOrCreateChat = async function(otherUid) {
                 lastMessageTs: 0,
                 lastMessageFrom: ''
             });
-            // Добавляем в userChats обоим
             await set(ref(db, 'social/userChats/' + user.uid + '/' + chatId), { lastRead: 0 });
             await set(ref(db, 'social/userChats/' + otherUid + '/' + chatId), { lastRead: 0 });
         }
@@ -648,7 +617,6 @@ window.fbGetOrCreateChat = async function(otherUid) {
     }
 };
 
-// --- Отправить сообщение ---
 window.fbSendMessage = async function(chatId, text, imageUrl) {
     const user = auth.currentUser;
     if (!user) return { success: false, error: 'Не авторизован' };
@@ -657,13 +625,10 @@ window.fbSendMessage = async function(chatId, text, imageUrl) {
         const msgRef = push(ref(db, 'social/chats/' + chatId + '/messages'));
         const msgId = msgRef.key;
         const now = Date.now();
-
-        // Том 4 fix: в канале новостей автора всегда пишем "Разработчик"
         let authorName = user.displayName || user.email.split('@')[0];
         if (chatId === 'news') {
             authorName = 'Разработчик';
         }
-
         await set(msgRef, {
             from: user.uid,
             fromNickname: authorName,
@@ -673,7 +638,6 @@ window.fbSendMessage = async function(chatId, text, imageUrl) {
             edited: false,
             deleted: false
         });
-        // Обновляем lastMessage
         await update(ref(db, 'social/chats/' + chatId), {
             lastMessage: text ? (text.length > 50 ? text.slice(0, 50) + '…' : text) : '🖼 Картинка',
             lastMessageTs: now,
@@ -685,7 +649,6 @@ window.fbSendMessage = async function(chatId, text, imageUrl) {
     }
 };
 
-// --- Редактировать сообщение ---
 window.fbEditMessage = async function(chatId, msgId, newText) {
     const user = auth.currentUser;
     if (!user) return { success: false, error: 'Не авторизован' };
@@ -705,7 +668,6 @@ window.fbEditMessage = async function(chatId, msgId, newText) {
     }
 };
 
-// --- Удалить сообщение ---
 window.fbDeleteMessage = async function(chatId, msgId) {
     const user = auth.currentUser;
     if (!user) return { success: false, error: 'Не авторизован' };
@@ -714,21 +676,15 @@ window.fbDeleteMessage = async function(chatId, msgId) {
         if (!msgSnap.exists()) return { success: false, error: 'Сообщение не найдено' };
         const m = msgSnap.val();
         if (m.from !== user.uid) return { success: false, error: 'Это не твоё сообщение' };
-        
-        // Помечаем как удалённое
         await update(ref(db, 'social/chats/' + chatId + '/messages/' + msgId), {
             deleted: true,
             text: '',
             image: ''
         });
-
-        // Том 4 fix: Если это было последнее сообщение — очищаем lastMessage
         const chatSnap = await get(ref(db, 'social/chats/' + chatId));
         if (chatSnap.exists()) {
             const chat = chatSnap.val();
-            // Если удалённое сообщение было последним (по времени)
             if (chat.lastMessageTs === m.timestamp) {
-                // Ищем предыдущее сообщение
                 const allMsgsSnap = await get(ref(db, 'social/chats/' + chatId + '/messages'));
                 let prevMsg = null;
                 if (allMsgsSnap.exists()) {
@@ -741,17 +697,13 @@ window.fbDeleteMessage = async function(chatId, msgId) {
                         }
                     });
                 }
-                
                 if (prevMsg) {
-                    // Ставим предыдущее сообщение как последнее
                     await update(ref(db, 'social/chats/' + chatId), {
                         lastMessage: prevMsg.text || (prevMsg.image ? '🖼 Картинка' : ''),
                         lastMessageTs: prevMsg.timestamp,
                         lastMessageFrom: prevMsg.from
                     });
                 } else {
-                    // Больше нет сообщений — очищаем
-                    // Том 13: также сбрасываем lastRead, чтобы бейдж не висел
                     await update(ref(db, 'social/chats/' + chatId), {
                         lastMessage: '',
                         lastMessageTs: 0,
@@ -760,14 +712,12 @@ window.fbDeleteMessage = async function(chatId, msgId) {
                 }
             }
         }
-
         return { success: true };
     } catch (err) {
         return { success: false, error: err.message };
     }
 };
 
-// --- Поставить/снять реакцию ---
 window.fbToggleReaction = async function(chatId, msgId, emoji) {
     const user = auth.currentUser;
     if (!user) return { success: false, error: 'Не авторизован' };
@@ -785,24 +735,18 @@ window.fbToggleReaction = async function(chatId, msgId, emoji) {
     }
 };
 
-// --- Отметить сообщение как прочитанное (Том 3.4: с трекингом) ---
 window.fbMarkRead = async function(chatId, msgTs) {
     const user = auth.currentUser;
     if (!user) return { success: false, error: 'Не авторизован' };
-    
     try {
-        // 2. Том 3.4: Отмечаем прочитанными последние 10 сообщений
         const msgsSnap = await get(ref(db, 'social/chats/' + chatId + '/messages'));
         if (msgsSnap.exists()) {
             let allMsgs = [];
             msgsSnap.forEach(child => {
                 allMsgs.push({ id: child.key, ...child.val() });
             });
-            // Сортируем по времени (новые в конце)
             allMsgs.sort((a, b) => a.timestamp - b.timestamp);
-            // Берём последние 10
             let last10 = allMsgs.slice(-10);
-            
             let updates = {};
             last10.forEach(m => {
                 if (m.timestamp <= (msgTs || Date.now())) {
@@ -831,7 +775,32 @@ window.fbGetUserChats = async function() {
             const chatSnap = await get(ref(db, 'social/chats/' + chatId));
             if (!chatSnap.exists()) continue;
             const c = chatSnap.val();
-            // Для личных чатов — имя собеседника
+            
+            // ФИКС: если в чате нет сообщений, но есть превью — чистим его
+            let lastMsgText = c.lastMessage || '';
+            if (lastMsgText && c.lastMessageTs > 0) {
+                const msgsSnap = await get(ref(db, 'social/chats/' + chatId + '/messages'));
+                // Если сообщений вообще нет или все удалены
+                let hasValidMessages = false;
+                if (msgsSnap.exists()) {
+                    msgsSnap.forEach(child => {
+                        const m = child.val();
+                        if (!m.deleted && (m.text || m.image)) {
+                            hasValidMessages = true;
+                        }
+                    });
+                }
+                if (!hasValidMessages) {
+                    lastMsgText = '';
+                    // Обновляем базу, чтобы больше не грузить пустое превью
+                    await update(ref(db, 'social/chats/' + chatId), {
+                        lastMessage: '',
+                        lastMessageTs: 0,
+                        lastMessageFrom: ''
+                    });
+                }
+            }
+
             let displayName = c.name || '—';
             let displayAvatar = c.avatar || '';
             if (c.type === 'private' && c.members) {
@@ -849,7 +818,7 @@ window.fbGetUserChats = async function() {
                 type: c.type,
                 name: displayName,
                 avatar: displayAvatar,
-                lastMessage: c.lastMessage || '',
+                lastMessage: lastMsgText,
                 lastMessageTs: c.lastMessageTs || 0,
                 lastMessageFrom: c.lastMessageFrom || '',
                 lastRead: snap.val()[chatId].lastRead || 0
@@ -862,7 +831,6 @@ window.fbGetUserChats = async function() {
     }
 };
 
-// --- Подписка на сообщения чата ---
 window.fbWatchMessages = function(chatId, callback) {
     const user = auth.currentUser;
     if (!user) return null;
@@ -878,7 +846,6 @@ window.fbWatchMessages = function(chatId, callback) {
     });
 };
 
-// --- Подписка на список чатов игрока ---
 window.fbWatchUserChats = function(callback) {
     const user = auth.currentUser;
     if (!user) return null;
@@ -890,7 +857,6 @@ window.fbWatchUserChats = function(callback) {
     });
 };
 
-// --- Загрузка картинки на imgbb ---
 window.fbUploadImage = async function(file) {
     const IMGBB_API_KEY = '2d17465f93a17e6dec336033521e00bb';
     return new Promise((resolve, reject) => {
@@ -898,7 +864,6 @@ window.fbUploadImage = async function(file) {
         reader.onload = (ev) => {
             let img = new Image();
             img.onload = () => {
-                // Сжимаем до 800x800
                 let canvas = document.createElement('canvas');
                 let maxSize = 800;
                 let w = img.width, h = img.height;
@@ -911,7 +876,6 @@ window.fbUploadImage = async function(file) {
                 ctx.drawImage(img, 0, 0, w, h);
                 let dataUrl = canvas.toDataURL('image/jpeg', 0.8);
                 let base64 = dataUrl.split(',')[1];
-                // Отправляем на imgbb
                 let formData = new FormData();
                 formData.append('key', IMGBB_API_KEY);
                 formData.append('image', base64);
@@ -930,7 +894,6 @@ window.fbUploadImage = async function(file) {
     });
 };
 
-// --- ТОМ 3.2: ПОЛУЧЕНИЕ ДАННЫХ ЧАТА ---
 window.fbGetChat = async function(chatId) {
     try {
         const snap = await get(ref(db, 'social/chats/' + chatId));
@@ -941,7 +904,6 @@ window.fbGetChat = async function(chatId) {
     }
 };
 
-// --- ТОМ 3.2: ОБНОВЛЕНИЕ ГРУППЫ ---
 window.fbUpdateGroup = async function(chatId, updates) {
     const user = auth.currentUser;
     if (!user) return { success: false, error: 'Не авторизован' };
@@ -949,16 +911,12 @@ window.fbUpdateGroup = async function(chatId, updates) {
         const snap = await get(ref(db, 'social/chats/' + chatId));
         if (!snap.exists()) return { success: false, error: 'Группа не найдена' };
         const chat = snap.val();
-        // Проверяем, что это группа и игрок — владелец
         if (chat.type !== 'group') return { success: false, error: 'Это не группа' };
         if (chat.owner !== user.uid) return { success: false, error: 'Только владелец может менять настройки' };
-        
-        // Разрешаем менять только name, avatar, description
         let allowed = {};
         if (updates.name !== undefined) allowed.name = updates.name;
         if (updates.avatar !== undefined) allowed.avatar = updates.avatar;
         if (updates.description !== undefined) allowed.description = updates.description;
-        
         await update(ref(db, 'social/chats/' + chatId), allowed);
         return { success: true };
     } catch (err) {
@@ -967,10 +925,9 @@ window.fbUpdateGroup = async function(chatId, updates) {
 };
 
 // ============================================================
-// === ТОМ 3: ГРУППЫ (Создание, Участники, Выход, Удаление) ===
+// === ТОМ 3: ГРУППЫ ===
 // ============================================================
 
-// --- СОЗДАНИЕ ГРУППЫ ---
 window.fbCreateGroup = async function(name, avatar, memberUids, type = 'group', description = '') {
     const user = auth.currentUser;
     if (!user) return { success: false, error: 'Не авторизован' };
@@ -982,17 +939,13 @@ window.fbCreateGroup = async function(name, avatar, memberUids, type = 'group', 
         const chatRef = push(ref(db, 'social/chats'));
         const chatId = chatRef.key;
         const now = Date.now();
-
-        // Собираем участников: создатель + выбранные друзья
         let members = {};
         members[user.uid] = 'owner';
         memberUids.forEach(uid => {
             if (uid !== user.uid) members[uid] = 'member';
         });
-
-        // Создаём чат
         await set(chatRef, {
-            type: type, // 'group' или 'channel'
+            type: type,
             name: name.trim(),
             avatar: avatar || '👥',
             description: description.trim(),
@@ -1003,19 +956,15 @@ window.fbCreateGroup = async function(name, avatar, memberUids, type = 'group', 
             lastMessageTs: now,
             lastMessageFrom: 'system'
         });
-
-        // Добавляем чат в список чатов каждому участнику
         for (let uid in members) {
             await set(ref(db, 'social/userChats/' + uid + '/' + chatId), { lastRead: 0 });
         }
-
         return { success: true, chatId: chatId };
     } catch (err) {
         return { success: false, error: err.message };
     }
 };
 
-// --- ПОЛУЧЕНИЕ УЧАСТНИКОВ ГРУППЫ ---
 window.fbGetGroupMembers = async function(chatId) {
     try {
         const chatSnap = await get(ref(db, 'social/chats/' + chatId));
@@ -1023,7 +972,6 @@ window.fbGetGroupMembers = async function(chatId) {
         const chat = chatSnap.val();
         if (chat.type !== 'group') return { success: false, error: 'Это не группа' };
         if (!chat.members) return { success: false, error: 'Нет участников' };
-
         let members = [];
         for (let uid in chat.members) {
             let role = chat.members[uid];
@@ -1037,7 +985,6 @@ window.fbGetGroupMembers = async function(chatId) {
             }
             members.push({ uid, role, nickname, avatar });
         }
-        // Сортируем: сначала owner, потом все остальные
         members.sort((a, b) => {
             if (a.role === 'owner') return -1;
             if (b.role === 'owner') return 1;
@@ -1049,7 +996,6 @@ window.fbGetGroupMembers = async function(chatId) {
     }
 };
 
-// --- ВЫХОД ИЗ ГРУППЫ ---
 window.fbLeaveGroup = async function(chatId) {
     const user = auth.currentUser;
     if (!user) return { success: false, error: 'Не авторизован' };
@@ -1057,23 +1003,17 @@ window.fbLeaveGroup = async function(chatId) {
         const chatSnap = await get(ref(db, 'social/chats/' + chatId));
         if (!chatSnap.exists()) return { success: false, error: 'Группа не найдена' };
         const chat = chatSnap.val();
-        
         if (chat.owner === user.uid) {
             return { success: false, error: 'Владелец не может выйти. Удалите группу.' };
         }
-
-        // Удаляем себя из участников
         await remove(ref(db, 'social/chats/' + chatId + '/members/' + user.uid));
-        // Удаляем чат из своего списка
         await remove(ref(db, 'social/userChats/' + user.uid + '/' + chatId));
-
         return { success: true };
     } catch (err) {
         return { success: false, error: err.message };
     }
 };
 
-// --- УДАЛЕНИЕ ГРУППЫ (только владелец) ---
 window.fbDeleteGroup = async function(chatId) {
     const user = auth.currentUser;
     if (!user) return { success: false, error: 'Не авторизован' };
@@ -1081,19 +1021,13 @@ window.fbDeleteGroup = async function(chatId) {
         const chatSnap = await get(ref(db, 'social/chats/' + chatId));
         if (!chatSnap.exists()) return { success: false, error: 'Группа не найдена' };
         const chat = chatSnap.val();
-        
         if (chat.owner !== user.uid) {
             return { success: false, error: 'Только владелец может удалить группу' };
         }
-
-        // Удаляем чат у всех участников
         for (let uid in chat.members) {
             await remove(ref(db, 'social/userChats/' + uid + '/' + chatId));
         }
-
-        // Удаляем сам чат
         await remove(ref(db, 'social/chats/' + chatId));
-
         return { success: true };
     } catch (err) {
         return { success: false, error: err.message };
@@ -1104,27 +1038,29 @@ window.fbDeleteGroup = async function(chatId) {
 // === ТОМ 2.5: МУЛЬТИАККАУНТ ===
 // ============================================================
 
-// Сохранить текущую сессию в localStorage
 window.fbSaveSession = function() {
     const user = auth.currentUser;
     if (!user) return;
     try {
         let accounts = JSON.parse(localStorage.getItem('sherwo_accounts') || '[]');
-        // Убираем старую запись об этом аккаунте, если есть
-        accounts = accounts.filter(a => a.uid !== user.uid);
-        // Добавляем новую
-        accounts.push({
+        let existingIdx = accounts.findIndex(a => a.uid === user.uid || (a.email && a.email === user.email));
+        let accountData = {
             uid: user.uid,
             email: user.email,
             nickname: user.displayName || user.email.split('@')[0]
-        });
-        // Ограничиваем до 5 аккаунтов
+        };
+        if (existingIdx !== -1) {
+            accounts[existingIdx] = accountData;
+        } else {
+            accounts.push(accountData);
+        }
         if (accounts.length > 5) accounts = accounts.slice(-5);
         localStorage.setItem('sherwo_accounts', JSON.stringify(accounts));
-    } catch (e) {}
+    } catch (e) {
+        console.error('Ошибка сохранения сессии:', e);
+    }
 };
 
-// Получить список сохранённых аккаунтов
 window.fbGetSavedAccounts = function() {
     try {
         return JSON.parse(localStorage.getItem('sherwo_accounts') || '[]');
@@ -1133,7 +1069,6 @@ window.fbGetSavedAccounts = function() {
     }
 };
 
-// Удалить аккаунт из сохранённых
 window.fbRemoveSavedAccount = function(uid) {
     try {
         let accounts = JSON.parse(localStorage.getItem('sherwo_accounts') || '[]');
@@ -1142,7 +1077,6 @@ window.fbRemoveSavedAccount = function(uid) {
     } catch (e) {}
 };
 
-// Выход из текущего аккаунта (без удаления из памяти)
 window.fbLogoutCurrent = async function() {
     try {
         await signOut(auth);
@@ -1156,7 +1090,6 @@ window.fbLogoutCurrent = async function() {
 // === ТОМ 3.3: РОЛИ И КИК ===
 // ============================================================
 
-// Назначить роль участнику (только владелец)
 window.fbSetGroupRole = async function(chatId, targetUid, role) {
     const user = auth.currentUser;
     if (!user) return { success: false, error: 'Не авторизован' };
@@ -1164,22 +1097,18 @@ window.fbSetGroupRole = async function(chatId, targetUid, role) {
         const chatSnap = await get(ref(db, 'social/chats/' + chatId));
         if (!chatSnap.exists()) return { success: false, error: 'Группа не найдена' };
         const chat = chatSnap.val();
-        
         if (chat.type !== 'group') return { success: false, error: 'Это не группа' };
         if (chat.owner !== user.uid) return { success: false, error: 'Только владелец может назначать админов' };
         if (targetUid === chat.owner) return { success: false, error: 'Нельзя изменить роль владельца' };
-
         await update(ref(db, 'social/chats/' + chatId + '/members'), {
             [targetUid]: role
         });
-
         return { success: true };
     } catch (err) {
         return { success: false, error: err.message };
     }
 };
 
-// Кикнуть участника (владелец или админ)
 window.fbKickGroupMember = async function(chatId, targetUid) {
     const user = auth.currentUser;
     if (!user) return { success: false, error: 'Не авторизован' };
@@ -1187,26 +1116,20 @@ window.fbKickGroupMember = async function(chatId, targetUid) {
         const chatSnap = await get(ref(db, 'social/chats/' + chatId));
         if (!chatSnap.exists()) return { success: false, error: 'Группа не найдена' };
         const chat = chatSnap.val();
-        
         let myRole = chat.members[user.uid];
         if (chat.owner !== user.uid && myRole !== 'admin') {
             return { success: false, error: 'Только владелец или админ может кикать' };
         }
         if (targetUid === chat.owner) return { success: false, error: 'Нельзя кикнуть владельца' };
         if (targetUid === user.uid) return { success: false, error: 'Нельзя кикнуть себя' };
-
-        // Удаляем из участников
         await remove(ref(db, 'social/chats/' + chatId + '/members/' + targetUid));
-        // Удаляем чат из списка у кикнутого
         await remove(ref(db, 'social/userChats/' + targetUid + '/' + chatId));
-
         return { success: true };
     } catch (err) {
         return { success: false, error: err.message };
     }
 };
 
-// Удаление чужого сообщения (владелец или админ)
 window.fbAdminDeleteMessage = async function(chatId, msgId) {
     const user = auth.currentUser;
     if (!user) return { success: false, error: 'Не авторизован' };
@@ -1214,12 +1137,10 @@ window.fbAdminDeleteMessage = async function(chatId, msgId) {
         const chatSnap = await get(ref(db, 'social/chats/' + chatId));
         if (!chatSnap.exists()) return { success: false, error: 'Группа не найдена' };
         const chat = chatSnap.val();
-        
         let myRole = chat.members[user.uid];
         if (chat.owner !== user.uid && myRole !== 'admin') {
             return { success: false, error: 'Только владелец или админ может удалять' };
         }
-
         await update(ref(db, 'social/chats/' + chatId + '/messages/' + msgId), {
             deleted: true,
             text: 'Сообщение удалено администратором',
@@ -1235,7 +1156,6 @@ window.fbAdminDeleteMessage = async function(chatId, msgId) {
 // === ТОМ 3.5: ССЫЛКИ-ПРИГЛАШЕНИЯ ===
 // ============================================================
 
-// Создать ссылку-приглашение
 window.fbCreateInviteLink = async function(chatId) {
     const user = auth.currentUser;
     if (!user) return { success: false, error: 'Не авторизован' };
@@ -1243,27 +1163,20 @@ window.fbCreateInviteLink = async function(chatId) {
         const chatSnap = await get(ref(db, 'social/chats/' + chatId));
         if (!chatSnap.exists()) return { success: false, error: 'Группа не найдена' };
         const chat = chatSnap.val();
-        
         if (chat.type !== 'group') return { success: false, error: 'Это не группа' };
         if (chat.owner !== user.uid) return { success: false, error: 'Только владелец может создавать ссылки' };
-
-        // Генерируем случайный токен
         let token = Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 10);
-        
-        // Сохраняем в базу
         await set(ref(db, 'social/invites/' + token), {
             chatId: chatId,
             createdBy: user.uid,
             createdAt: Date.now()
         });
-
         return { success: true, token: token };
     } catch (err) {
         return { success: false, error: err.message };
     }
 };
 
-// Вступить по ссылке
 window.fbJoinByInvite = async function(token) {
     const user = auth.currentUser;
     if (!user) return { success: false, error: 'Не авторизован' };
@@ -1272,33 +1185,95 @@ window.fbJoinByInvite = async function(token) {
         if (!inviteSnap.exists()) return { success: false, error: 'Ссылка недействительна' };
         const invite = inviteSnap.val();
         const chatId = invite.chatId;
-
         const chatSnap = await get(ref(db, 'social/chats/' + chatId));
         if (!chatSnap.exists()) return { success: false, error: 'Группа не найдена' };
         const chat = chatSnap.val();
-
-        // Проверяем, не в группе ли уже
         if (chat.members && chat.members[user.uid]) {
             return { success: false, error: 'Вы уже в этой группе' };
         }
-
-        // Лимит участников
         if (Object.keys(chat.members || {}).length >= 50) {
             return { success: false, error: 'В группе уже 50 участников' };
         }
-
-        // Добавляем в участники
         await update(ref(db, 'social/chats/' + chatId + '/members'), {
             [user.uid]: 'member'
         });
-
-        // Добавляем чат в список
         await set(ref(db, 'social/userChats/' + user.uid + '/' + chatId), { lastRead: 0 });
-
         return { success: true, chatId: chatId };
     } catch (err) {
         return { success: false, error: err.message };
     }
 };
 
-console.log('🔥 Firebase-модуль v3.1 (Sherwo) загружен');
+// ============================================================
+// === ТОМ 4: КАНАЛ НОВОСТЕЙ ===
+// ============================================================
+
+window.fbGetOrCreateNewsChat = async function() {
+    const user = auth.currentUser;
+    if (!user) return { success: false, error: 'Не авторизован' };
+    try {
+        const newsRef = ref(db, 'social/chats/news');
+        const snap = await get(newsRef);
+        
+        if (!snap.exists()) {
+            await set(newsRef, {
+                type: 'channel',
+                name: '📢 Новости игры',
+                description: 'Официальные новости и обновления Шерво Кликер',
+                owner: 'system',
+                avatar: 'iconsc.png',
+                members: { 'system': 'owner' },
+                createdAt: Date.now(),
+                lastMessage: 'Добро пожаловать в канал новостей!',
+                lastMessageTs: Date.now(),
+                lastMessageFrom: 'system'
+            });
+        }
+        
+        await set(ref(db, 'social/userChats/' + user.uid + '/news'), { lastRead: 0 });
+        
+        return { success: true };
+    } catch (err) {
+        console.error('Ошибка создания канала новостей:', err);
+        return { success: false, error: err.message };
+    }
+};
+
+// ============================================================
+// === ТОМ 4: КАНАЛ НОВОСТЕЙ ===
+// ============================================================
+
+window.fbGetOrCreateNewsChat = async function() {
+    const user = auth.currentUser;
+    if (!user) return { success: false, error: 'Не авторизован' };
+    try {
+        const newsRef = ref(db, 'social/chats/news');
+        const snap = await get(newsRef);
+        
+        // Если канала нет — создаём его
+        if (!snap.exists()) {
+            await set(newsRef, {
+                type: 'channel',
+                name: '📢 Новости игры',
+                description: 'Официальные новости и обновления Шерво Кликер',
+                owner: 'system',
+                avatar: 'iconsc.png',
+                members: { 'system': 'owner' },
+                createdAt: Date.now(),
+                lastMessage: 'Добро пожаловать в канал новостей!',
+                lastMessageTs: Date.now(),
+                lastMessageFrom: 'system'
+            });
+        }
+        
+        // Добавляем канал в список чатов пользователя
+        await set(ref(db, 'social/userChats/' + user.uid + '/news'), { lastRead: 0 });
+        
+        return { success: true };
+    } catch (err) {
+        console.error('Ошибка создания канала новостей:', err);
+        return { success: false, error: err.message };
+    }
+};
+
+console.log('🔥 Firebase-модуль v3.2 (Sherwo + канал новостей) загружен');
